@@ -349,13 +349,8 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.MediaHolder>
         }
         if (checkLike)
         {
-            if(media.isDownloaded==1){
+
                 holder.imgRate.setImageResource(R.drawable.ic_like);
-            }
-            else
-            {
-                holder.imgRate.setImageResource(R.drawable.ic_like_fill_grey);
-            }
 
         }
         else

@@ -150,7 +150,7 @@
                     android:layout_marginLeft="@dimen/padding_5dp"
                     android:text="@string/newsLetters"
                     android:textColor="@color/button_orange_color"
-                    android:textSize="@dimen/title_very_small" />
+                    android:textSize="@dimen/title_ultra_small" />
 
                 <com.suke.widget.SwitchButton
                     android:id="@+id/toggleNewsLatter"

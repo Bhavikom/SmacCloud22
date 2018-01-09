@@ -38,7 +38,7 @@ import static de.smac.smaccloud.base.Helper.LOCALIZATION_TYPE_ERROR_CODE;
 
 public class LoginActivity extends Activity
 {
-    // first commit in working copy
+
     public static final int REQUEST_LOGIN = 4301;
     public static final int REQUEST_MEDIA_SIZE = 4302;
     private static final int REQUEST_FORGOT_PASSWORD = 4303;

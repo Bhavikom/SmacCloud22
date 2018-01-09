@@ -38,7 +38,11 @@ import static de.smac.smaccloud.base.Helper.LOCALIZATION_TYPE_ERROR_CODE;
 
 public class LoginActivity extends Activity
 {
+<<<<<<< HEAD
     // for conflict
+=======
+//this is check to confilg
+>>>>>>> b28460b332a53a884550437976571d329649d3be
     public static final int REQUEST_LOGIN = 4301;
     public static final int REQUEST_MEDIA_SIZE = 4302;
     private static final int REQUEST_FORGOT_PASSWORD = 4303;
@@ -56,6 +60,7 @@ public class LoginActivity extends Activity
     private Button buttonForgetPassword;
     private Button btnLogin;
     private String deviceId = "00000-00000-00000-00000-00000";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState)

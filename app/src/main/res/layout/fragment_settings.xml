@@ -2,9 +2,8 @@
               xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
-              android:background="@color/light_gray"
-              android:orientation="vertical"
-    >
+              android:orientation="vertical">
+    <!--android:background="@color/light_gray"-->
 
     <!--<include layout="@layout/partial_toolbar" />-->
     <ScrollView
@@ -27,7 +26,8 @@
                 android:paddingTop="@dimen/padding_very_small"
                 android:text="@string/label_account"
                 android:textColor="@color/Gray57"
-                android:textSize="@dimen/title_very_small"/>
+                android:textSize="@dimen/title_very_small"
+                android:textStyle="bold"/>
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -114,8 +114,8 @@
                 android:paddingTop="@dimen/padding_very_small"
                 android:text="@string/label_sharing1"
                 android:textColor="@color/Gray57"
-
-                android:textSize="@dimen/title_very_small"/>
+                android:textSize="@dimen/title_very_small"
+                android:textStyle="bold"/>
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -268,6 +268,7 @@
                 android:paddingBottom="@dimen/padding_very_small"
                 android:paddingLeft="@dimen/padding_large"
                 android:paddingTop="@dimen/padding_very_small"
+                android:textStyle="bold"
                 android:text="@string/label_synchronization"
                 android:textColor="@color/Gray57"
                 android:textSize="@dimen/title_very_small"/>
@@ -364,6 +365,7 @@
                 android:paddingLeft="@dimen/padding_large"
                 android:paddingTop="@dimen/padding_very_small"
                 android:text="@string/label_information"
+                android:textStyle="bold"
                 android:textColor="@color/Gray57"
                 android:textSize="@dimen/title_very_small"/>
 

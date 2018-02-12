@@ -101,6 +101,9 @@ public class MediaAttachAdapter extends RecyclerView.Adapter<MediaAttachAdapter.
         final Media media = mediaList.get(position);
         holder.labelName.setText(media.name);
         boolean isTabletSize = activity.getResources().getBoolean(R.bool.isTablet);
+        holder.imgViewNext.setColorFilter(Color.parseColor(PreferenceHelper.getAppColor(activity)));
+        holder.imageAdd.setColorFilter(Color.parseColor(PreferenceHelper.getAppColor(activity)));
+        Helper.setupTypeface(holder.parentLayout, Helper.robotoRegularTypeface);
         if (activity.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT)
         {
             if (isTabletSize)
@@ -469,7 +472,7 @@ public class MediaAttachAdapter extends RecyclerView.Adapter<MediaAttachAdapter.
                 return true;
             }
         });
-        holder.labelName.setTypeface(Helper.robotoMediumTypeface);
+        //  holder.labelName.setTypeface(Helper.robotoMediumTypeface);
 
     }
 

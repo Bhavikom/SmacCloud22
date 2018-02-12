@@ -1,8 +1,14 @@
 package de.smac.smaccloud.activity;
 
 import android.content.Context;
-import android.graphics.Typeface;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.design.widget.TextInputLayout;
 import android.text.InputType;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -36,8 +42,13 @@ public class ChangePasswordActivity extends Activity implements View.OnClickList
     EditText editCurrentPassword, editNewPassword, editConfirmPassword;
     TextView textViewPasswordTitle;
     ImageView imgVisible1, imgVisible2, imgVisible3;
+    LinearLayout linearLayout;
+    TextInputLayout textInputCurrentPassword, textInputNewPassword, textInputConfirmPassword;
+    String lightbgColor;
+    String value = "33";
     private LinearLayout parentLayout;
     private String deviceId = "00000-00000-00000-00000-00000";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -45,15 +56,17 @@ public class ChangePasswordActivity extends Activity implements View.OnClickList
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_changepassword);
         Helper.retainOrientation(ChangePasswordActivity.this);
-        Helper.robotoBoldTypeface = Typeface.createFromAsset(this.getAssets(), Helper.fontPathBold);
 
         parentLayout = (LinearLayout) findViewById(R.id.parentLayout);
-        Helper.setupTypeface(parentLayout, Helper.robotoRegularTypeface);
-        textViewPasswordTitle.setTypeface(Helper.robotoBoldTypeface);
 
         if (getSupportActionBar() != null)
         {
             getSupportActionBar().setTitle(getString(R.string.hint_password));
+            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(PreferenceHelper.getAppBackColor(context))));
+            final Drawable upArrow = getResources().getDrawable(R.drawable.ic_back_material_vector);
+            upArrow.setColorFilter(Color.parseColor(PreferenceHelper.getAppColor(context)), PorterDuff.Mode.SRC_ATOP);
+            getSupportActionBar().setHomeAsUpIndicator(upArrow);
+            toolbar.setTitleTextColor(Color.parseColor(PreferenceHelper.getAppColor(context)));
         }
         if (savedInstanceState != null)
         {
@@ -78,6 +91,21 @@ public class ChangePasswordActivity extends Activity implements View.OnClickList
         editConfirmPassword = (EditText) findViewById(R.id.edit_confirm_password);
         textViewPasswordTitle = (TextView) findViewById(R.id.txt_password_title);
         btnChangePassword = (Button) findViewById(R.id.btn_change_password);
+        linearLayout = (LinearLayout) findViewById(R.id.parentLayout);
+        textInputCurrentPassword = (TextInputLayout) findViewById(R.id.textInputCurrentPassword);
+        textInputNewPassword = (TextInputLayout) findViewById(R.id.textInputNewPassword);
+        textInputConfirmPassword = (TextInputLayout) findViewById(R.id.textInputConfirmPassword);
+        Helper.setupTypeface(linearLayout, Helper.robotoRegularTypeface);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+        {
+            btnChangePassword.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(PreferenceHelper.getAppColor(context))));
+        }
+        else
+        {
+            btnChangePassword.setBackgroundColor(Color.parseColor(PreferenceHelper.getAppColor(context)));
+        }
+
     }
 
     @Override
@@ -97,15 +125,16 @@ public class ChangePasswordActivity extends Activity implements View.OnClickList
                         String confirmPassword = editConfirmPassword.getText().toString();
                         if (currentPassword.isEmpty())
                         {
-                            editCurrentPassword.setError(getString(R.string.current_password_validation_message));
+                            notifySimple(getString(R.string.current_password_validation_message));
                         }
                         else if (newPassword.isEmpty())
                         {
-                            editNewPassword.setError(getString(R.string.new_password_validation_message));
+                            notifySimple(getString(R.string.new_password_validation_message));
                         }
                         else if (confirmPassword.isEmpty())
                         {
-                            editConfirmPassword.setError(getString(R.string.confirm_password_validation_message));
+                            //editConfirmPassword.setError(getString(R.string.confirm_password_validation_message));
+                            notifySimple(getString(R.string.confirm_password_validation_message));
 
                         }
                         else if (!newPassword.equals(confirmPassword))

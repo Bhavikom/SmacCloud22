@@ -1,6 +1,10 @@
 package de.smac.smaccloud.activity;
 
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.graphics.Typeface;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.LinearLayout;
@@ -10,12 +14,15 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Calendar;
+
 import de.smac.smaccloud.BuildConfig;
 import de.smac.smaccloud.R;
 import de.smac.smaccloud.base.Activity;
 import de.smac.smaccloud.base.Helper;
 import de.smac.smaccloud.data.DataHelper;
 import de.smac.smaccloud.helper.DataProvider;
+import de.smac.smaccloud.helper.PreferenceHelper;
 
 import static de.smac.smaccloud.base.Helper.LOCALIZATION_TYPE_ERROR_CODE;
 
@@ -47,17 +54,22 @@ public class AboutUsActivity extends Activity
         textViewPlanValue = (TextView) findViewById(R.id.txt_plan_value);
         textViewAppyear = (TextView) findViewById(R.id.txt_app_name_year);
         textViewCopirights = (TextView) findViewById(R.id.txt_copyRights);
-        Helper.robotoBoldTypeface = Typeface.createFromAsset(this.getAssets(), Helper.fontPathBold);
-
-        Helper.setupTypeface(parentLayout, Helper.robotoRegularTypeface);
-        textViewAppTitle.setTypeface(Helper.robotoBoldTypeface);
-        textViewAppyear.setTypeface(Helper.robotoBoldTypeface);
-        textViewCopirights.setTypeface(Helper.robotoBoldTypeface);
+        Helper.robotoBoldTypeface = Typeface.createFromAsset(this.getAssets(), Helper.fontPathRoboto);
+        textViewAppTitle.setTextColor(Color.parseColor(PreferenceHelper.getAppColor(context)));
+        textViewCopirights.setTextColor(Color.parseColor(PreferenceHelper.getAppColor(context)));
+        Calendar calendar = Calendar.getInstance();
+        int year = calendar.get(Calendar.YEAR);
+        textViewCopirights.setText(getString(R.string.copyright).concat(" ").concat("@").concat(String.valueOf(year).concat(" ").concat(getString(R.string.copyright1))));
 
 
         if (getSupportActionBar() != null)
         {
             getSupportActionBar().setTitle(getString(R.string.label_about_us));
+            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(PreferenceHelper.getAppBackColor(context))));
+            final Drawable upArrow = getResources().getDrawable(R.drawable.ic_back_material_vector);
+            upArrow.setColorFilter(Color.parseColor(PreferenceHelper.getAppColor(context)), PorterDuff.Mode.SRC_ATOP);
+            getSupportActionBar().setHomeAsUpIndicator(upArrow);
+            toolbar.setTitleTextColor(Color.parseColor(PreferenceHelper.getAppColor(context)));
         }
         if (Helper.isNetworkAvailable(context))
         {
@@ -80,6 +92,7 @@ public class AboutUsActivity extends Activity
         {
             try
             {
+                Helper.IS_DIALOG_SHOW = false;
                 postNetworkRequest(REQUEST_ABOUTUS, DataProvider.ENDPOINT_ABOUTUS, DataProvider.Actions.ABOUTUS);
 
             }
@@ -128,25 +141,14 @@ public class AboutUsActivity extends Activity
                                 {
                                     textViewAppTitle.setText(value);
                                 }
-                                /*else if(key.equals(releseNumber)){
-                                    //textViewReleaseNo.setText(key);
-                                    textViewReleaseNoValue.setText(value);
-                                }*/
                                 else if (key.equals(license))
                                 {
-                                    // textViewLicence.setText(key);
                                     textViewLicenceValue.setText(value);
                                 }
                                 else if (key.equals(plan))
                                 {
-                                    //textViewPlan.setText(key);
                                     textViewPlanValue.setText(value);
                                 }
-                                else if (key.equals(appNameAndYear))
-                                {
-                                    textViewAppyear.setText(value);
-                                }
-
 
                             }
 
@@ -167,6 +169,7 @@ public class AboutUsActivity extends Activity
 
 
         }
+        Helper.IS_DIALOG_SHOW = true;
     }
 
     @Override
@@ -181,4 +184,12 @@ public class AboutUsActivity extends Activity
                 return super.onOptionsItemSelected(item);
         }
     }
+
+    @Override
+    public void onPause()
+    {
+        super.onPause();
+        Helper.IS_DIALOG_SHOW = true;
+    }
+
 }

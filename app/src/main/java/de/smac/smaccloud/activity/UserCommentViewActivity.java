@@ -1,8 +1,17 @@
 package de.smac.smaccloud.activity;
 
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.res.Configuration;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.v4.content.res.ResourcesCompat;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -23,6 +32,7 @@ import android.widget.TextView;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -56,7 +66,7 @@ public class UserCommentViewActivity extends Activity
 {
 
     public LinearLayout linearCommentBar;
-    public RelativeLayout relativeLayout;
+    public RelativeLayout parentLayout;
     PreferenceHelper prefManager;
     ScrollView scrollComment;
     LinearLayout commentLinearLayout;
@@ -66,7 +76,7 @@ public class UserCommentViewActivity extends Activity
     private Media media;
     private Channel channel;
     private User user;
-    private ImageView btnSubmit;
+    private ImageView btnSend;
     private EditText edtMediaComment;
 
     @Override
@@ -89,11 +99,11 @@ public class UserCommentViewActivity extends Activity
             {
                 if (edtMediaComment.getText().length() > 0)
                 {
-                    btnSubmit.setImageResource(R.drawable.ic_fill_send);
+                    btnSend.setImageResource(R.drawable.ic_fill_send);
                 }
                 else
                 {
-                    btnSubmit.setImageResource(R.drawable.ic_send);
+                    btnSend.setImageResource(R.drawable.ic_send);
                 }
             }
 
@@ -111,6 +121,12 @@ public class UserCommentViewActivity extends Activity
         if (getSupportActionBar() != null)
         {
             getSupportActionBar().setTitle(media.name);
+            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(PreferenceHelper.getAppBackColor(context))));
+            final Drawable upArrow = getResources().getDrawable(R.drawable.ic_back_material_vector);
+            upArrow.setColorFilter(Color.parseColor(PreferenceHelper.getAppColor(context)), PorterDuff.Mode.SRC_ATOP);
+            getSupportActionBar().setHomeAsUpIndicator(upArrow);
+            toolbar.setTitleTextColor(Color.parseColor(PreferenceHelper.getAppColor(context)));
+
         }
 
         try
@@ -146,9 +162,10 @@ public class UserCommentViewActivity extends Activity
     {
         super.initializeComponents();
         listComments = (RecyclerView) findViewById(R.id.listComments);
-        relativeLayout = (RelativeLayout) findViewById(R.id.parentLayout);
+        parentLayout = (RelativeLayout) findViewById(R.id.parentLayout);
         edtMediaComment = (EditText) findViewById(R.id.edtMediaComment);
-        btnSubmit = (ImageView) findViewById(R.id.btnsubmit);
+        btnSend = (ImageView) findViewById(R.id.btnSend);
+        btnSend.setColorFilter(Color.parseColor(PreferenceHelper.getAppColor(context)));
         usersComments = new ArrayList<>();
         user = new User();
         user.id = PreferenceHelper.getUserContext(context);
@@ -159,23 +176,9 @@ public class UserCommentViewActivity extends Activity
 
         scrollComment = (ScrollView) findViewById(R.id.scrollComment);
         commentLinearLayout = (LinearLayout) findViewById(R.id.commentLinearLayout);
-
-     /*   //hide keyboard logic
-        listComments.setOnTouchListener(new View.OnTouchListener()
-        {
-            @Override
-            public boolean onTouch(View v, MotionEvent event)
-            {
-
-                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(relativeLayout.getWindowToken(), 0);
-
-                return false;
-            }
-        });*/
-
+        Helper.setupTypeface(parentLayout, Helper.robotoRegularTypeface);
         Helper.setupUI(this, parentLayout, parentLayout);
-        btnSubmit.setOnTouchListener(null);
+        btnSend.setOnTouchListener(null);
 
     }
 
@@ -208,14 +211,28 @@ public class UserCommentViewActivity extends Activity
     protected void bindEvents()
     {
         super.bindEvents();
-        btnSubmit.setOnClickListener(new View.OnClickListener()
+        btnSend.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View v)
             {
                 if (prefManager.isDemoLogin())
                 {
-                    Helper.demoUserDialog(context);
+                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                    builder.setTitle(getString(R.string.disable_comment_title));
+                    builder.setMessage(getString(R.string.disable_comment_message));
+                    builder.setPositiveButton(getString(R.string.ok),
+                            new DialogInterface.OnClickListener()
+                            {
+                                public void onClick(DialogInterface dialog, int which)
+                                {
+                                        dialog.dismiss();
+                                }
+                            });
+
+                    AlertDialog dialog = builder.create();
+
+                    dialog.show();
                 }
                 else
                 {
@@ -231,10 +248,12 @@ public class UserCommentViewActivity extends Activity
                         {
                             if (Helper.isNetworkAvailable(context))
                             {
+                                Helper.IS_DIALOG_SHOW = false;
                                 postNetworkRequest(REQUEST_COMMENT, DataProvider.ENDPOINT_FILE, DataProvider.Actions.MEDIA_COMMENT,
                                         RequestParameter.urlEncoded("ChannelId", String.valueOf(DataHelper.getChannelId(context, media.id))),
                                         RequestParameter.urlEncoded("UserId", String.valueOf(PreferenceHelper.getUserContext(context))),
                                         RequestParameter.urlEncoded("MediaId", String.valueOf(media.id)),
+                                        RequestParameter.urlEncoded("Org_Id", String.valueOf(PreferenceHelper.getOrganizationId(context))),
                                         RequestParameter.urlEncoded("Comment", comment));
 
                             }
@@ -368,6 +387,8 @@ public class UserCommentViewActivity extends Activity
                 notifySimple(getString(R.string.msg_cannot_complete_request));
             }
         }
+        Helper.IS_DIALOG_SHOW = true;
+
     }
 
     public void addUserCommentInLinearLayout(ArrayList<UserComment> usersCommentsList)
@@ -382,6 +403,8 @@ public class UserCommentViewActivity extends Activity
             UserComment userComment = usersCommentsList.get(i);
             commentHolder.labelUserName.setText(userComment.user.name);
             commentHolder.labelComment.setText(userComment.comment);
+            Helper.setupTypeface(commentHolder.linearParent, Helper.robotoRegularTypeface);
+            Helper.setupTypeface(layoutView, Helper.robotoRegularTypeface);
             commentHolder.linearChild.setLayoutParams(new LinearLayout.LayoutParams(Helper.getDeviceWidth(this) / 2, ViewGroup.LayoutParams.WRAP_CONTENT));
             try
             {
@@ -457,9 +480,9 @@ public class UserCommentViewActivity extends Activity
             else
                 commentHolder.divider_view.setVisibility(View.VISIBLE);
 
-            commentHolder.labelUserName.setTypeface(Helper.robotoBoldTypeface);
+        /*    commentHolder.labelUserName.setTypeface(Helper.robotoBoldTypeface);
             commentHolder.labelComment.setTypeface(Helper.robotoRegularTypeface);
-            commentHolder.labelInsertDate.setTypeface(Helper.robotoLightTypeface);
+            commentHolder.labelInsertDate.setTypeface(Helper.robotoLightTypeface);*/
 
 
             boolean isMyMessage = false; // flag to decide that its my messege or not
@@ -493,7 +516,13 @@ public class UserCommentViewActivity extends Activity
             holder.imgUserRight.setVisibility(View.VISIBLE);
             holder.imgUserLeft.setVisibility(View.GONE);
             holder.linearChild.setBackgroundResource(R.drawable.in_message_bg);
+            Helper.setupTypeface(holder.linearParent, Helper.robotoRegularTypeface);
+            Drawable drawable = ResourcesCompat.getDrawable(getResources(), R.drawable.in_message_bg, null);
+            drawable = DrawableCompat.wrap(drawable);
+            DrawableCompat.setTint(drawable, getResources().getColor(R.color.sender_bubble_Color));
 
+
+            //holder.linearChild.setBackgroundColor(Color.parseColor(PreferenceHelper.getAppBackColor(context)));
             LinearLayout.LayoutParams layoutParams =
                     (LinearLayout.LayoutParams) holder.linearChild.getLayoutParams();
             layoutParams.gravity = Gravity.RIGHT;
@@ -518,13 +547,18 @@ public class UserCommentViewActivity extends Activity
             holder.labelComment.setLayoutParams(layoutParams);
             holder.labelUserName.setLayoutParams(layoutParams);
             holder.labelInsertDate.setLayoutParams(layoutParams);
+            holder.imgUserRight.setColorFilter(Color.parseColor(PreferenceHelper.getAppColor(context)));
         }
         else
         {
             holder.imgUserRight.setVisibility(View.GONE);
+            holder.imgUserLeft.setColorFilter(Color.parseColor(PreferenceHelper.getAppColor(context)));
             holder.imgUserLeft.setVisibility(View.VISIBLE);
 
             holder.linearChild.setBackgroundResource(R.drawable.out_message_bg);
+            Drawable drawable1 = ResourcesCompat.getDrawable(getResources(), R.drawable.out_message_bg, null);
+            drawable1 = DrawableCompat.wrap(drawable1);
+            DrawableCompat.setTint(drawable1, getResources().getColor(R.color.receiver_bubble_Color));
 
             LinearLayout.LayoutParams layoutParams =
                     (LinearLayout.LayoutParams) holder.linearChild.getLayoutParams();
@@ -534,6 +568,8 @@ public class UserCommentViewActivity extends Activity
                 layoutParams.width = Helper.getDeviceWidth(this) / 3;
             }
             holder.linearChild.setLayoutParams(layoutParams);
+
+
             //  layoutParams.width=100;
 
             RelativeLayout.LayoutParams lp =
@@ -549,6 +585,13 @@ public class UserCommentViewActivity extends Activity
             holder.labelUserName.setLayoutParams(layoutParams);
             holder.labelInsertDate.setLayoutParams(layoutParams);
         }
+    }
+
+    @Override
+    public void onPause()
+    {
+        super.onPause();
+        Helper.IS_DIALOG_SHOW = true;
     }
 
     class CommentHolder
@@ -571,6 +614,7 @@ public class UserCommentViewActivity extends Activity
             labelComment = (TextView) itemView.findViewById(R.id.labelComment);
             linearParent = (LinearLayout) itemView.findViewById(R.id.parentLayout);
             linearChild = (LinearLayout) itemView.findViewById(R.id.linearContentBackground);
+
         }
     }
 }

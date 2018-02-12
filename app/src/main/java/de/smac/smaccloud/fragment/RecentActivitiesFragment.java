@@ -1,6 +1,7 @@
 package de.smac.smaccloud.fragment;
 
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -25,6 +26,7 @@ import de.smac.smaccloud.adapter.RecentItemRecyclerAdapter;
 import de.smac.smaccloud.base.Fragment;
 import de.smac.smaccloud.base.Helper;
 import de.smac.smaccloud.data.DataHelper;
+import de.smac.smaccloud.helper.PreferenceHelper;
 import de.smac.smaccloud.model.RecentItem;
 import info.hoang8f.android.segmented.SegmentedGroup;
 
@@ -55,9 +57,8 @@ public class RecentActivitiesFragment extends Fragment
     @Override
     protected void initializeComponents()
     {
-
-
         parentLayout = (LinearLayout) getActivity().findViewById(R.id.parentLayout);
+        Helper.setupTypeface(parentLayout, Helper.robotoRegularTypeface);
         segmentTab = (SegmentedGroup) getActivity().findViewById(R.id.segmentTab);
         rdoRecent = (RadioButton) getActivity().findViewById(R.id.rdoRecent);
         rdoMostVisited = (RadioButton) getActivity().findViewById(R.id.rdoMostVisited);
@@ -65,6 +66,7 @@ public class RecentActivitiesFragment extends Fragment
         recyclerRecent = (RecyclerView) getActivity().findViewById(R.id.recyclerRecent);
         recyclerRecent.setHasFixedSize(true);
         recyclerRecent.setLayoutManager(recentListManager);
+        segmentTab.setTintColor(Color.parseColor(PreferenceHelper.getAppColor(context)));
         /*recyclerRecent.addItemDecoration(new DividerItemDecoration(getActivity(), LinearLayoutManager.VERTICAL));
         recyclerRecent.setItemAnimator(new DefaultItemAnimator());*/
 
@@ -108,29 +110,6 @@ public class RecentActivitiesFragment extends Fragment
 
             }
         }
-        /*if (Helper.getScreenOrientation(activity) == 1) {
-            // Portrait Mode
-            if (Helper.isTablet(activity)) {
-                GridLayoutManager layoutManager = new GridLayoutManager(context, 2);
-                recyclerRecent.setLayoutManager(layoutManager);
-            } else {
-                GridLayoutManager layoutManager = new GridLayoutManager(context, 1);
-                recyclerRecent.setLayoutManager(layoutManager);
-            }
-
-
-        } else {
-            // Landscape Mode
-            if (Helper.isTablet(activity)) {
-                GridLayoutManager layoutManager = new GridLayoutManager(context, 3);
-                recyclerRecent.setLayoutManager(layoutManager);
-            } else {
-                GridLayoutManager layoutManager = new GridLayoutManager(context, 1);
-                recyclerRecent.setLayoutManager(layoutManager);
-            }
-
-        }*/
-
 
         recentItems = new ArrayList<>();
         mostVisitedItems = new ArrayList<>();
@@ -182,7 +161,7 @@ public class RecentActivitiesFragment extends Fragment
                             if (activity.getSupportActionBar() != null)
                             {
                                 activity.getSupportActionBar().setTitle(R.string.label_most_visited);
-                                //(activity).getSupportActionBar().setTitle(R.string.label_most_visited);
+
                             }
                             recyclerMostVisited.setVisibility(View.VISIBLE);
                             recyclerRecent.setVisibility(View.GONE);
@@ -201,8 +180,6 @@ public class RecentActivitiesFragment extends Fragment
         switch (item.getItemId())
         {
             case android.R.id.home:
-                // app icon in action bar clicked; goto parent activity.
-                //  onBackPressed();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

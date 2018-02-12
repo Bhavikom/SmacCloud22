@@ -51,7 +51,8 @@ public class OrganizationActivity extends Activity implements View.OnClickListen
         btnContinue = (Button) findViewById(R.id.btn_continue);
         editOrganization = (EditText) findViewById(R.id.edit_organization);
         //editOrganization.setText("http://138.201.245.106:3101/");
-        editOrganization.setText("http://46.4.49.27:2010/");
+        //editOrganization.setText("http://46.4.49.27:2010/");
+        editOrganization.setText("https://smaccloud.smacsoftwares.de:2020/");
         parentLayout = (LinearLayout) findViewById(R.id.parentLayout);
 
         Helper.setupTypeface(parentLayout, Helper.robotoRegularTypeface);
@@ -126,8 +127,9 @@ public class OrganizationActivity extends Activity implements View.OnClickListen
 
                     }
                     else
+                    {
                         Helper.showMessage(OrganizationActivity.this, false, getString(R.string.msg_please_check_your_connection));
-
+                    }
                 }
                 else
                 {
@@ -185,8 +187,8 @@ public class OrganizationActivity extends Activity implements View.OnClickListen
                         DataProvider.ENDPOINT_LOGOUT = DataProvider.SERVICE_PATH + "Logout";
                         DataProvider.ENDPOINT_ABOUTUS = DataProvider.SERVICE_PATH + "AboutUs";
                         DataProvider.ENDPOINT_UPDATE_TOKEN = DataProvider.SERVICE_PATH + "Update/Token";
-
                         prefManager.setFirstTimeConfigureServer(true);
+
 
                         if (bundle != null && bundle.containsKey(IS_FROM_DEMO))
                         {
@@ -211,6 +213,7 @@ public class OrganizationActivity extends Activity implements View.OnClickListen
                 notifySimple(getString(R.string.msg_cannot_complete_request));
             }
         }
+
     }
 
     @Override
@@ -241,6 +244,7 @@ public class OrganizationActivity extends Activity implements View.OnClickListen
                 return super.onOptionsItemSelected(item);
         }
     }
+
     public void launchDemoScreen()
     {
         Intent i = new Intent(OrganizationActivity.this, DemoActivity.class);

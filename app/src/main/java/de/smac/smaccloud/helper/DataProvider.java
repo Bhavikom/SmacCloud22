@@ -10,8 +10,8 @@ import de.smac.smaccloud.service.SMACCloudApplication;
 public class DataProvider
 
 {
-    public static final String SERVICE_PROTOCOL = "http://";
-    public static String SERVICE_HOST = (!PreferenceHelper.getServiceWeburl(SMACCloudApplication.getInstance()).isEmpty() ? PreferenceHelper.getServiceWeburl(SMACCloudApplication.getInstance()) : SERVICE_PROTOCOL + "46.4.49.27:2010//");
+    public static final String SERVICE_PROTOCOL = "https://";
+    public static String SERVICE_HOST = (!PreferenceHelper.getServiceWeburl(SMACCloudApplication.getInstance()).isEmpty() ? PreferenceHelper.getServiceWeburl(SMACCloudApplication.getInstance()) : SERVICE_PROTOCOL + "smaccloud.smacsoftwares.de:2020/");
     //public static final String SERVICE_HOST = SERVICE_PROTOCOL + "truckerservices.ssoft.in:8092/";
     /*public static final String SERVICE_HOST = SERVICE_PROTOCOL + "salescloud.ssoft.in:8082/";*/
     //public static final String SERVICE_HOST = SERVICE_PROTOCOL + "salescloud.dharminfotech.com:8082/";
@@ -31,6 +31,8 @@ public class DataProvider
     public static String ENDPOINT_LOGOUT = SERVICE_PATH + "Logout";
     public static String ENDPOINT_ABOUTUS = SERVICE_PATH + "AboutUs";
     public static String ENDPOINT_UPDATE_TOKEN = SERVICE_PATH + "Update/Token";
+
+
 
 
     /**
@@ -87,8 +89,8 @@ public class DataProvider
         public static final String MEDIA_COMMENT = "MEDIA_COMMENT";
         public static final String SEND_MESSAGE = "SEND_MESSAGE";
         public static final String ABOUTUS = "ABOUTUS";
-
         public static final String ACTION_LOCALIZATION = "GET_LOCALIZATIONDATA";
+        public static final String GET_SETTINGS = "GET_SETTINGS";
     }
 
     public static class Messages

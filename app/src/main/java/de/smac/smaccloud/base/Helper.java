@@ -35,6 +35,7 @@ import android.os.Environment;
 import android.os.StatFs;
 import android.preference.PreferenceManager;
 import android.support.design.widget.Snackbar;
+import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.util.Patterns;
@@ -89,6 +90,7 @@ import de.smac.smaccloud.model.MediaAllDownload;
 import de.smac.smaccloud.model.UserComment;
 import de.smac.smaccloud.model.UserLike;
 import de.smac.smaccloud.service.DownloadService;
+import de.smac.smaccloud.service.SMACCloudApplication;
 
 import static de.smac.smaccloud.fragment.MediaFragment.REQ_IS_MEDIA_DELETED;
 
@@ -114,18 +116,40 @@ public class Helper
     public static String LOCALIZATION_TYPE_ERROR_CODE = "3";
     public static String LOCALIZATION_TYPE_COMPANY_TYPE = "4";
     public static String LOCALIZATION_TYPE_COMPANY_SIZE = "5";
-    public static int SCREEN_HEIGHT;
+
     public static Typeface robotoLightTypeface;
     public static Typeface robotoBlackTypeface;
     public static Typeface robotoBoldTypeface;
     public static Typeface robotoMediumTypeface;
     public static Typeface robotoRegularTypeface;
 
-    public static String fontPath = "roboto.regular.ttf";
-    public static String fontPathBold = "roboto.bold.ttf";
-    public static String fontPathLight = "RobotoLight.ttf";
-    public static String fontPathMedium = "roboto.medium.ttf";
-    public static String fontPathBlack = "roboto.black.ttf";
+    public static int SCREEN_HEIGHT;
+    public static String fontNameTimesNewRoman = "Times New Roman";
+    public static String fontNameDhurjati = "Dhurjati";
+    public static String fontNameCrimsonText = "Crimson_Text";
+    public static String fontNameEBGaramond = "EB_Garamond";
+    public static String fontNameLato = "Lato";
+    public static String fontNameMontserrat = "Montserrat";
+    public static String fontNameOpenSans = "Open_Sans";
+    public static String fontNameRobotoCondensed = "Roboto_Condensed";
+    public static String fontNameSlabo = "Slabo_27px";
+    public static String fontNameSourceSerifPro = "Source_Serif_Pro";
+    public static String fontNameUbuntu = "Ubuntu";
+
+    public static String fontPathRoboto = "fonts/roboto.regular.ttf";
+    public static String fontPathTimesNewRoman = "fonts/Crimson-Roman.ttf";
+    public static String fontPathDhurjati = "fonts/Dhurjati-Regular.ttf";
+    public static String fontPathCrimsonText = "fonts/CrimsonText-Regular.ttf";
+    public static String fontPathEBGaramond = "fonts/EBGaramond-Regular.ttf";
+    public static String fontPathLato = "fonts/Lato-Regular.ttf";
+    public static String fontPathMontserrat = "fonts/Montserrat-Regular.ttf";
+    public static String fontPathOpenSans = "fonts/OpenSans-Regular.ttf";
+    public static String fontPathRobotoCondensed = "fonts/RobotoCondensed-Regular.ttf";
+    public static String fontPathSlabo = "fonts/Slabo27px-Regular.ttf";
+    public static String fontPathSourceSerifPro = "fonts/SourceSerifPro-Regular.ttf";
+    public static String fontPathUbuntu = "fonts/Ubuntu-Regular.ttf";
+
+
     public static int SCREEN_WIDTH;
 
     public static SimpleDateFormat dateFormatGlobal;
@@ -133,9 +157,7 @@ public class Helper
     public static SimpleDateFormat dateFormatGlobalCurrentDateTime;
     public static DisplayImageOptions options = new DisplayImageOptions.Builder().cacheInMemory(true)
             .cacheOnDisc(true).resetViewBeforeLoading(true).build();
-    //.showImageForEmptyUri(R.drawable.login_background)
-    //.showImageOnFail(R.drawable.ic_image_icon)
-    //.showImageOnLoading(R.drawable.ic_image_icon).build();
+
     public static int LAYOUT_FLAGS = View.SYSTEM_UI_FLAG_LAYOUT_STABLE
             | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
             | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION;
@@ -147,6 +169,8 @@ public class Helper
      */
     public static void setupTypeface(View view, Typeface globalFace)
     {
+        globalFace = getCurrentTypeface();
+
         try
         {
             if (view instanceof EditText)
@@ -166,8 +190,6 @@ public class Helper
             }
             else if (view instanceof TextView)
             {
-                //((TextView) view).setTypeface(globalFace);
-                //((TextView) view).setLineSpacing(getPixelsFromDp(1f), 1f);
 
                 if (((TextView) view).getTypeface().isBold())
                 {
@@ -177,6 +199,10 @@ public class Helper
                 {
                     ((TextView) view).setTypeface(globalFace);
                 }
+            }
+            else if (view instanceof TextInputLayout)
+            {
+                ((TextInputLayout) view).setTypeface(globalFace);
             }
             else if (view instanceof ViewGroup)
             {
@@ -192,6 +218,60 @@ public class Helper
         {
             e.printStackTrace();
         }
+    }
+
+    public static Typeface getCurrentTypeface()
+    {
+        Typeface globalFace;
+        if (PreferenceHelper.getAppFontName(SMACCloudApplication.getInstance()).equalsIgnoreCase(fontNameTimesNewRoman))
+        {
+            globalFace = Typeface.createFromAsset(SMACCloudApplication.getInstance().getAssets(), Helper.fontPathTimesNewRoman);
+        }
+        else if (PreferenceHelper.getAppFontName(SMACCloudApplication.getInstance()).equalsIgnoreCase(fontNameDhurjati))
+        {
+            globalFace = Typeface.createFromAsset(SMACCloudApplication.getInstance().getAssets(), Helper.fontPathDhurjati);
+        }
+        else if (PreferenceHelper.getAppFontName(SMACCloudApplication.getInstance()).equalsIgnoreCase(fontNameCrimsonText))
+        {
+            globalFace = Typeface.createFromAsset(SMACCloudApplication.getInstance().getAssets(), Helper.fontPathCrimsonText);
+        }
+        else if (PreferenceHelper.getAppFontName(SMACCloudApplication.getInstance()).equalsIgnoreCase(fontNameEBGaramond))
+        {
+            globalFace = Typeface.createFromAsset(SMACCloudApplication.getInstance().getAssets(), Helper.fontPathEBGaramond);
+        }
+        else if (PreferenceHelper.getAppFontName(SMACCloudApplication.getInstance()).equalsIgnoreCase(fontNameLato))
+        {
+            globalFace = Typeface.createFromAsset(SMACCloudApplication.getInstance().getAssets(), Helper.fontPathLato);
+        }
+        else if (PreferenceHelper.getAppFontName(SMACCloudApplication.getInstance()).equalsIgnoreCase(fontNameMontserrat))
+        {
+            globalFace = Typeface.createFromAsset(SMACCloudApplication.getInstance().getAssets(), Helper.fontPathMontserrat);
+        }
+        else if (PreferenceHelper.getAppFontName(SMACCloudApplication.getInstance()).equalsIgnoreCase(fontNameOpenSans))
+        {
+            globalFace = Typeface.createFromAsset(SMACCloudApplication.getInstance().getAssets(), Helper.fontPathOpenSans);
+        }
+        else if (PreferenceHelper.getAppFontName(SMACCloudApplication.getInstance()).equalsIgnoreCase(fontNameRobotoCondensed))
+        {
+            globalFace = Typeface.createFromAsset(SMACCloudApplication.getInstance().getAssets(), Helper.fontPathRobotoCondensed);
+        }
+        else if (PreferenceHelper.getAppFontName(SMACCloudApplication.getInstance()).equalsIgnoreCase(fontNameSlabo))
+        {
+            globalFace = Typeface.createFromAsset(SMACCloudApplication.getInstance().getAssets(), Helper.fontPathSlabo);
+        }
+        else if (PreferenceHelper.getAppFontName(SMACCloudApplication.getInstance()).equalsIgnoreCase(fontNameSourceSerifPro))
+        {
+            globalFace = Typeface.createFromAsset(SMACCloudApplication.getInstance().getAssets(), Helper.fontPathSourceSerifPro);
+        }
+        else if (PreferenceHelper.getAppFontName(SMACCloudApplication.getInstance()).equalsIgnoreCase(fontNameUbuntu))
+        {
+            globalFace = Typeface.createFromAsset(SMACCloudApplication.getInstance().getAssets(), Helper.fontPathUbuntu);
+        }
+        else
+        {
+            globalFace = Typeface.createFromAsset(SMACCloudApplication.getInstance().getAssets(), Helper.fontPathRoboto);
+        }
+        return globalFace;
     }
 
     public static File createImageFile() throws IOException
@@ -979,11 +1059,12 @@ public class Helper
         }
     }
 
-    public static Drawable buildCounterDrawable(Context context, int count, int backgroundImageId)
+    public static Drawable buildCounterDrawable(Context context, int count, Drawable backgroundImage)
     {
         LayoutInflater inflater = LayoutInflater.from(context);
         View view = inflater.inflate(R.layout.notifications_counter_menuitem_layout, null);
-        view.setBackgroundResource(backgroundImageId);
+        view.setBackground(backgroundImage);
+
 
         if (count == 0)
         {

@@ -1,8 +1,10 @@
 package de.smac.smaccloud.fragment;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
@@ -10,6 +12,7 @@ import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.content.LocalBroadcastManager;
@@ -21,7 +24,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 
@@ -36,7 +38,6 @@ import org.json.JSONObject;
 
 import java.text.ParseException;
 import java.util.ArrayList;
-
 
 import de.smac.smaccloud.R;
 import de.smac.smaccloud.activity.MediaDetailActivity;
@@ -63,8 +64,6 @@ import static android.app.Activity.RESULT_OK;
 import static de.smac.smaccloud.activity.MediaActivity.REQUEST_COMMENT;
 import static de.smac.smaccloud.activity.MediaActivity.REQUEST_LIKE;
 import static de.smac.smaccloud.base.Helper.LOCALIZATION_TYPE_ERROR_CODE;
-
-import android.os.Handler;
 
 
 /**
@@ -336,7 +335,22 @@ public class MediaFragment extends Fragment implements DownloadFileFromURL.inter
                                 // rate
                                 if (prefManager.isDemoLogin())
                                 {
-                                    Helper.demoUserDialog(context);
+                                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                                    builder.setTitle(getString(R.string.disable_like_title));
+                                    builder.setMessage(getString(R.string.disable_like_message));
+                                    builder.setPositiveButton(getString(R.string.ok),
+                                            new DialogInterface.OnClickListener()
+                                            {
+                                                public void onClick(DialogInterface dialog, int which)
+                                                {
+                                                    dialog.dismiss();
+                                                }
+                                            });
+
+                                    AlertDialog dialog = builder.create();
+
+                                    dialog.show();
+                                    // Helper.demoUserDialog(context);
                                 }
                                 else
                                 {
@@ -352,7 +366,7 @@ public class MediaFragment extends Fragment implements DownloadFileFromURL.inter
                                             postNetworkRequest(REQUEST_LIKE, DataProvider.ENDPOINT_FILE, DataProvider.Actions.MEDIA_LIKE,
                                                     RequestParameter.urlEncoded("ChannelId", String.valueOf(channel.id)),
                                                     RequestParameter.urlEncoded("UserId", String.valueOf(PreferenceHelper.getUserContext(context))),
-                                                    RequestParameter.urlEncoded("MediaId", String.valueOf(media1.id)));
+                                                    RequestParameter.urlEncoded("MediaId", String.valueOf(media1.id)), RequestParameter.urlEncoded("Org_Id", String.valueOf(PreferenceHelper.getOrganizationId(context))));
                                         }
                                         else
                                         {
@@ -507,7 +521,6 @@ public class MediaFragment extends Fragment implements DownloadFileFromURL.inter
         }
         else
         {
-            // Landscape Mode
             if (Helper.isTablet(activity))
             {
                 GridLayoutManager layoutManager = new GridLayoutManager(context, 3);
@@ -536,12 +549,16 @@ public class MediaFragment extends Fragment implements DownloadFileFromURL.inter
                 DataHelper.getMediaListFromChannelId(context, parentId, arrayListMedia);
                 Log.e("", " arrayListMedia size : " + arrayListMedia.size());
             }
-            if(((SMACCloudApplication) activity.getApplication()).arrayListMediaTemp.size() > 0){
-                for (int i=0;i<((SMACCloudApplication) activity.getApplication()).arrayListMediaTemp.size();i++){
-                    for (int j=0;j<arrayListMedia.size();j++){
-                        if(((SMACCloudApplication) activity.getApplication()).arrayListMediaTemp.get(i).isDownloading ==1 &&
-                                ((SMACCloudApplication) activity.getApplication()).arrayListMediaTemp.get(i).id == arrayListMedia.get(j).id){
-                            arrayListMedia.set(j,((SMACCloudApplication) activity.getApplication()).arrayListMediaTemp.get(i));
+            if (((SMACCloudApplication) activity.getApplication()).arrayListMediaTemp.size() > 0)
+            {
+                for (int i = 0; i < ((SMACCloudApplication) activity.getApplication()).arrayListMediaTemp.size(); i++)
+                {
+                    for (int j = 0; j < arrayListMedia.size(); j++)
+                    {
+                        if (((SMACCloudApplication) activity.getApplication()).arrayListMediaTemp.get(i).isDownloading == 1 &&
+                                ((SMACCloudApplication) activity.getApplication()).arrayListMediaTemp.get(i).id == arrayListMedia.get(j).id)
+                        {
+                            arrayListMedia.set(j, ((SMACCloudApplication) activity.getApplication()).arrayListMediaTemp.get(i));
                         }
                     }
                 }
@@ -567,12 +584,6 @@ public class MediaFragment extends Fragment implements DownloadFileFromURL.inter
                 }
                 else
                 {
-                    /*Bundle arguments = getArguments();
-                    if (arguments != null && arguments.containsKey(EXTRA_MEDIA))
-                    {
-                        Media tempMediaItem = arguments.getParcelable(EXTRA_MEDIA);
-                        activity.getSupportActionBar().setTitle(tempMediaItem.name);
-                    }*/
                     activity.getSupportActionBar().setTitle(mediaItem.name);
                 }
             }
@@ -599,7 +610,7 @@ public class MediaFragment extends Fragment implements DownloadFileFromURL.inter
                 RequestParameter.urlEncoded("ChannelId", String.valueOf(channel.id)),
                 RequestParameter.urlEncoded("UserId", String.valueOf(PreferenceHelper.getUserContext(context))),
                 RequestParameter.urlEncoded("MediaId", String.valueOf(media1.id)),
-                RequestParameter.urlEncoded("Comment", commentText));
+                RequestParameter.urlEncoded("Comment", commentText), RequestParameter.urlEncoded("Org_Id", String.valueOf(PreferenceHelper.getOrganizationId(context))));
     }
 
     @Override
@@ -694,13 +705,7 @@ public class MediaFragment extends Fragment implements DownloadFileFromURL.inter
                         }
                         else if (responseJson.has("Message") && !responseJson.isNull("Message") && !responseJson.optString("Message").equalsIgnoreCase("null"))
                         {
-                            /*if (responseJson.optString("Message").equalsIgnoreCase(DataProvider.Messages.USERLIKE_OBJECT_IS_EMPTY))
-                            {
-                                userComment.isSynced = 1;
-                                userComment.associatedId = arrayListMedia.id;
-                                userComment.userId = PreferenceHelper.getUserContext(context);
-                                DataHelper.addUserLikes(context, userLike);
-                            }*/
+
                         }
                         if (commentDialog != null && commentDialog.isShowing())
                             commentDialog.dismiss();
@@ -759,7 +764,23 @@ public class MediaFragment extends Fragment implements DownloadFileFromURL.inter
             // rate
             if (prefManager.isDemoLogin())
             {
-                Helper.demoUserDialog(context);
+                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                builder.setTitle(getString(R.string.disable_like_title));
+                builder.setMessage(getString(R.string.disable_like_message));
+                builder.setPositiveButton(getString(R.string.ok),
+                        new DialogInterface.OnClickListener()
+                        {
+                            public void onClick(DialogInterface dialog, int which)
+                            {
+                                dialog.dismiss();
+                            }
+                        });
+
+                AlertDialog dialog = builder.create();
+
+                dialog.show();
+
+                //Helper.demoUserDialog(context);
             }
             else
             {
@@ -775,7 +796,7 @@ public class MediaFragment extends Fragment implements DownloadFileFromURL.inter
                         postNetworkRequest(REQUEST_LIKE, DataProvider.ENDPOINT_FILE, DataProvider.Actions.MEDIA_LIKE,
                                 RequestParameter.urlEncoded("ChannelId", String.valueOf(channel.id)),
                                 RequestParameter.urlEncoded("UserId", String.valueOf(PreferenceHelper.getUserContext(context))),
-                                RequestParameter.urlEncoded("MediaId", String.valueOf(media1.id)));
+                                RequestParameter.urlEncoded("MediaId", String.valueOf(media1.id)), RequestParameter.urlEncoded("Org_Id", String.valueOf(PreferenceHelper.getOrganizationId(context))));
                     }
                     else
                     {

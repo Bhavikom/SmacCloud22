@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -96,7 +97,7 @@ public class TryDemoActivity extends Activity implements View.OnClickListener
         spinnerEmployeeStrength = (MaterialBetterSpinner) findViewById(R.id.spinner_employee_Strength);
 
         toggleNewsLetter = (SwitchButton) findViewById(R.id.toggleNewsLatter);
-
+        toggleNewsLetter.setChecked(true);
         textViewNewsLetter = (TextView) findViewById(R.id.textNewsLetter);
         textViewSelectCountry = (TextView) findViewById(R.id.text_select_country);
 
@@ -221,6 +222,8 @@ public class TryDemoActivity extends Activity implements View.OnClickListener
                     else
                     {
                         JSONObject userJson = responseJson.optJSONObject("Payload");
+                        String org_id = userJson.optString("Org_Id");
+                        PreferenceHelper.storeOrganizationId(context, org_id);
                         User user = new User();
                         User.parseFromJson(userJson, user);
                         UserPreference userPreference = new UserPreference();
@@ -238,27 +241,28 @@ public class TryDemoActivity extends Activity implements View.OnClickListener
                             PreferenceHelper.storeUserContext(context, userPreference);
                             user.add(context);
 
+                            // Call sync service
+                            arrayListUserLikes = new ArrayList<>();
+                            arrayListUserComments = new ArrayList<>();
+                            jsonArrayUserLikes = new JSONArray();
+                            jsonArrayUserComments = new JSONArray();
+                            userPreference.populateUsingUserId(context);
+                            String lastSyncDate = "01/01/2001";
+                            postNetworkRequest(REQUEST_SYNC, DataProvider.ENDPOINT_SYNC, DataProvider.Actions.SYNC,
+                                    RequestParameter.jsonArray("UserLikes", jsonArrayUserLikes), RequestParameter.jsonArray("UserComments", jsonArrayUserComments),
+                                    RequestParameter.urlEncoded("UserId", String.valueOf(user.id)), RequestParameter.urlEncoded("LastSyncDate", lastSyncDate), RequestParameter.urlEncoded("Org_Id", PreferenceHelper.getOrganizationId(context)));
+
                         }
                         else
                         {
                             userPreference.userId = user.id; // user.id;
                             userPreference.populateUsingUserId(context);
                             PreferenceHelper.storeUserContext(context, userPreference);
-                            //startDashboardActivity();
+
+                            PreferenceHelper.storeSyncStatus(context, true);
+                            startDashboardActivity();
                         }
-
-                        // Call sync service
-                        arrayListUserLikes = new ArrayList<>();
-                        arrayListUserComments = new ArrayList<>();
-                        jsonArrayUserLikes = new JSONArray();
-                        jsonArrayUserComments = new JSONArray();
-                        userPreference.populateUsingUserId(context);
-                        String lastSyncDate = "01/01/2001";
                         prefManager.saveDemoLogin(true);
-                        postNetworkRequest(REQUEST_SYNC, DataProvider.ENDPOINT_SYNC, DataProvider.Actions.SYNC,
-                                RequestParameter.jsonArray("UserLikes", jsonArrayUserLikes), RequestParameter.jsonArray("UserComments", jsonArrayUserComments),
-                                RequestParameter.urlEncoded("UserId", String.valueOf(user.id)), RequestParameter.urlEncoded("LastSyncDate", lastSyncDate));
-
                     }
                 }
                 catch (JSONException | ParseException e)
@@ -487,26 +491,31 @@ public class TryDemoActivity extends Activity implements View.OnClickListener
 
                 if (editName.isEmpty())
                 {
-                    this.editName.setError(getString(R.string.enter_name));
+                    //this.editName.setError(getString(R.string.enter_name));
+                    Snackbar.make(parentLayout, getString(R.string.enter_name), Snackbar.LENGTH_LONG).show();
 
                 }
                 else if (spinnerCompanyType.getText().toString().isEmpty())
                 {
-                    this.spinnerCompanyType.setError(getString(R.string.enter_company_type));
+                    //this.spinnerCompanyType.setError(getString(R.string.enter_company_type));
+                    Snackbar.make(parentLayout, getString(R.string.enter_company_type), Snackbar.LENGTH_LONG).show();
                 }
                 else if (editEmail.isEmpty())
                 {
-                    this.editEmail.setError(getString(R.string.enter_email_address));
+                    //this.editEmail.setError(getString(R.string.enter_email_address));
+                    Snackbar.make(parentLayout, getString(R.string.enter_email_address), Snackbar.LENGTH_LONG).show();
 
                 }
                 else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(editEmail).matches() && deviceId != null)
                 {
-                    this.editEmail.setError(getString(R.string.invalid_email));
+                    //this.editEmail.setError(getString(R.string.invalid_email));
+                    Snackbar.make(parentLayout, getString(R.string.invalid_email), Snackbar.LENGTH_LONG).show();
                 }
                 else if (selectCountry.equalsIgnoreCase(getString(R.string.select_country)))
                 {
+                    Snackbar.make(parentLayout, getString(R.string.select_country), Snackbar.LENGTH_LONG).show();
+                    // this.textViewSelectCountry.setError(getString(R.string.select_country));
 
-                    this.textViewSelectCountry.setError(getString(R.string.select_country));
                 }
                 else
                 {

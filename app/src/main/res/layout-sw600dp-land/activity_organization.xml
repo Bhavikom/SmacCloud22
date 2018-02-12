@@ -37,8 +37,8 @@
                     android:hint="@string/organization_name"
                     android:inputType="textWebEmailAddress"
                     android:singleLine="true"
-                    android:textColor="@color/static_text_color"
-                    android:textColorHint="@color/static_text_color"
+                    android:textColor="@color/blue"
+                    android:textColorHint="@color/blue"
                     android:textSize="@dimen/title_ultra_small"/>
                 <!--android:text="http://truckerservices.ssoft.in:8092/SmacCloudService/"-->
                 <!--android:text="http://138.201.245.106:8082/"-->

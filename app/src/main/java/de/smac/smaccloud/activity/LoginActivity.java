@@ -7,6 +7,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.TextInputLayout;
 import android.text.InputType;
+import android.text.TextUtils;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -38,17 +39,20 @@ import static de.smac.smaccloud.base.Helper.LOCALIZATION_TYPE_ERROR_CODE;
 
 public class LoginActivity extends Activity
 {
-//this is check to confilg
+    //this is check to confilg
     public static final int REQUEST_LOGIN = 4301;
+    public static final int REQUEST_GET_SETTINGS = 102;
     public static final int REQUEST_MEDIA_SIZE = 4302;
     private static final int REQUEST_FORGOT_PASSWORD = 4303;
     private static final String KEY_TEXT_VALUE = "textValue";
     public PreferenceHelper prefManager;
     public LinearLayout parentLayout;
+
     android.app.AlertDialog alertDialogForgetPassword;
     TextInputLayout textInputMail, textInputPassword;
     //CustomProgressDialog dialog;
     ProgressDialog dialog;
+    long totalSizeInByte;
     private TextView textTitle;
     private EditText editEmail;
     private EditText editPassword;
@@ -56,7 +60,6 @@ public class LoginActivity extends Activity
     private Button buttonForgetPassword;
     private Button btnLogin;
     private String deviceId = "00000-00000-00000-00000-00000";
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -120,7 +123,7 @@ public class LoginActivity extends Activity
         btnLogin = (Button) findViewById(R.id.buttonLogin);
         parentLayout = (LinearLayout) findViewById(R.id.parentLayout);
         textTitle = (TextView) findViewById(R.id.textTitle);
-        editEmail.setText("test@sambinfo.in");
+        editEmail.setText("testting@email.com");
         editPassword.setText("123456");
 
     }
@@ -153,8 +156,8 @@ public class LoginActivity extends Activity
                         break;
                     case R.id.buttonLogin:
                         Helper.preventTwoClick(btnLogin);
-                        String email = editEmail.getText().toString();
-                        String password = editPassword.getText().toString();
+                        String email = editEmail.getText().toString().trim();
+                        String password = editPassword.getText().toString().trim();
                         if (email.isEmpty())
                         {
                             editEmail.setError(getString(R.string.enter_email_address));
@@ -163,18 +166,18 @@ public class LoginActivity extends Activity
                         {
                             editPassword.setError(getString(R.string.enter_password));
                         }
+                        else if (TextUtils.isEmpty(password) || password.length() < 6)
+                        {
+                            editPassword.setError(getString(R.string.password_length_message));
+                        }
                         else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches() && deviceId != null)
                         {
                             editEmail.setError(getString(R.string.invalid_email));
                         }
+
+
                         else if (Helper.isNetworkAvailable(context))
                         {
-                            /*dialog = new CustomProgressDialog(LoginActivity.this);
-                            dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-                            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                            dialog.setCancelable(false);
-                            dialog.show();*/
-
                             dialog = new ProgressDialog(context);
                             dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
                             dialog.setIndeterminate(true);
@@ -187,8 +190,6 @@ public class LoginActivity extends Activity
                             postNetworkRequest(REQUEST_LOGIN, DataProvider.ENDPOINT_USER, DataProvider.Actions.AUTHENTICATE_USER,
                                     RequestParameter.urlEncoded("Email", email), RequestParameter.urlEncoded("Password", password),
                                     RequestParameter.urlEncoded("Platform", "Android"), RequestParameter.urlEncoded("DeviceId", PreferenceHelper.getFCMTokenId(context)));
-
-
                         }
                         else
                         {
@@ -214,7 +215,6 @@ public class LoginActivity extends Activity
         return true;
     }
 
-
     @Override
     protected void onNetworkResponse(int requestCode, boolean status, String response)
     {
@@ -236,6 +236,25 @@ public class LoginActivity extends Activity
                     else
                     {
                         JSONObject userJson = responseJson.optJSONObject("Payload");
+                        String org_id = userJson.optString("Org_Id");
+                        PreferenceHelper.storeOrganizationId(context, org_id);
+                        JSONObject userThemeData = userJson.optJSONObject("ThemeData");
+                        JSONObject userResult = userThemeData.optJSONObject("Result");
+                        if (userJson.has("ThemeData"))
+                        {
+                            if (userThemeData.has("Result"))
+                            {
+                                String appColor = userResult.optString("AppColor");
+                                String appBackColor = userResult.optString("AppBackColor");
+                                String appFontColor = userResult.optString("AppFontColor");
+                                String appFont = userResult.optString("AppFont");
+
+                                PreferenceHelper.storeAppColor(context, appColor);
+                                PreferenceHelper.storeAppBackColor(context, appBackColor);
+                                PreferenceHelper.storeAppFontColor(context, appFontColor);
+                                PreferenceHelper.storeAppFontName(context, appFont);
+                            }
+                        }
                         User user = new User();
                         User.parseFromJson(userJson, user);
                         UserPreference userPreference = new UserPreference();
@@ -310,14 +329,12 @@ public class LoginActivity extends Activity
                     }
                     else
                     {
-                        long totalSizeInByte = responseJson.optLong("Payload");
+                        totalSizeInByte = responseJson.optLong("Payload");
                         Helper.bytesConvertsToMb(totalSizeInByte, context);
-                        Intent dashboardIntent = new Intent(context, SyncActivity.class);
-                        dashboardIntent.putExtra(SyncActivity.IS_FROM_SETTING, false);
-                        dashboardIntent.putExtra(SyncActivity.KEY_MEDIA_SIZE, totalSizeInByte);
                         PreferenceHelper.storeMediaSize(context, totalSizeInByte);
-                        startActivity(dashboardIntent);
-                        finish();
+
+                        postNetworkRequest(REQUEST_GET_SETTINGS, DataProvider.ENDPOINT_USER, DataProvider.Actions.GET_SETTINGS,
+                                RequestParameter.urlEncoded("Org_Id", PreferenceHelper.getOrganizationId(context)));
                     }
                 }
                 catch (JSONException e)
@@ -353,7 +370,7 @@ public class LoginActivity extends Activity
                     {
                         editEmail.setText("");
                         notifySimple(getString(R.string.msg_please_check_your_email));
-                        //  startLoginActivity();
+
                     }
                     if (!isFinishing() && alertDialogForgetPassword != null && alertDialogForgetPassword.isShowing())
                         alertDialogForgetPassword.dismiss();
@@ -366,6 +383,40 @@ public class LoginActivity extends Activity
             else
             {
                 notifySimple(getString(R.string.msg_please_try_again_later));
+            }
+        }
+        else if (requestCode == REQUEST_GET_SETTINGS)
+        {
+            if (status)
+            {
+                try
+                {
+                    JSONObject responseJson = new JSONObject(response);
+                    int requestStatus = responseJson.optInt("Status");
+                    if (requestStatus > 0)
+                    {
+                        notifySimple(DataHelper.getLocalizationMessageFromCode(context, String.valueOf(requestStatus), LOCALIZATION_TYPE_ERROR_CODE));
+                    }
+                    else
+                    {
+                        JSONObject userJson = responseJson.optJSONObject("Payload");
+
+                        Intent dashboardIntent = new Intent(context, SyncActivity.class);
+                        dashboardIntent.putExtra(SyncActivity.IS_FROM_SETTING, false);
+                        dashboardIntent.putExtra(SyncActivity.KEY_MEDIA_SIZE, totalSizeInByte);
+                        startActivity(dashboardIntent);
+                        finish();
+
+                    }
+                }
+                catch (JSONException e)
+                {
+                    notifySimple(getString(R.string.msg_invalid_response_from_server));
+                }
+            }
+            else
+            {
+                notifySimple(getString(R.string.msg_cannot_complete_request));
             }
         }
     }

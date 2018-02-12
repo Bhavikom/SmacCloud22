@@ -76,26 +76,6 @@ public class DemoActivity extends Activity implements View.OnClickListener
 
     public void updateLanguage()
     {
-        /*if (PreferenceHelper.getSelectedLanguage(context).equals("") || PreferenceHelper.getSelectedLanguage(context).equals("en"))
-        {
-            //if (PreferenceHelper.getSelectedLanguage(context).equals("")){
-            PreferenceHelper.storeSelectedLanguage(context, "en");
-            Helper.setUpLanguage(context, PreferenceHelper.getSelectedLanguage(context));
-            languageChange.setImageResource(R.drawable.ic_flag_english);
-            buttonLogin.setText(getResources().getString(R.string.login));
-            buttonTryDemo.setText(getResources().getString(R.string.tra_demo));
-            //}
-
-        }
-        else if (PreferenceHelper.getSelectedLanguage(context).equals("") || PreferenceHelper.getSelectedLanguage(context).equals("de"))
-        {
-            PreferenceHelper.storeSelectedLanguage(context, "de");
-            Helper.setUpLanguage(context, PreferenceHelper.getSelectedLanguage(context));
-            languageChange.setImageResource(R.drawable.ic_flag_german);
-            buttonLogin.setText(getResources().getString(R.string.login));
-            buttonTryDemo.setText(getResources().getString(R.string.tra_demo));
-        }*/
-
         if (PreferenceHelper.getSelectedLanguage(context).equals("") || PreferenceHelper.getSelectedLanguage(context).equals("en"))
         {
             if (PreferenceHelper.getSelectedLanguage(context).equals(""))

@@ -2,8 +2,19 @@ package de.smac.smaccloud.activity;
 
 
 import android.content.Intent;
+import android.content.res.Resources;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.v4.graphics.drawable.DrawableCompat;
+import android.support.v7.graphics.drawable.DrawerArrowDrawable;
+import android.support.v7.widget.Toolbar;
+import android.text.Html;
 import android.view.MenuItem;
+
+import com.bumptech.glide.load.engine.Resource;
 
 import de.smac.smaccloud.R;
 import de.smac.smaccloud.base.Activity;
@@ -11,12 +22,14 @@ import de.smac.smaccloud.base.Helper;
 import de.smac.smaccloud.fragment.MediaFragment;
 import de.smac.smaccloud.fragment.ShowdownloadProcessFragment;
 import de.smac.smaccloud.helper.InterfaceStopDownload;
+import de.smac.smaccloud.helper.PreferenceHelper;
 import de.smac.smaccloud.model.Channel;
 
 /**
  * Media activity for show media
  */
-public class MediaActivity extends Activity implements ShowdownloadProcessFragment.interfaceAsyncResponseDownloadProcess{
+public class MediaActivity extends Activity implements ShowdownloadProcessFragment.interfaceAsyncResponseDownloadProcess
+{
 
     public InterfaceStopDownload interfaceStopDownload;
     public static final String EXTRA_CHANNEL = "extra_channel";
@@ -33,13 +46,15 @@ public class MediaActivity extends Activity implements ShowdownloadProcessFragme
     private int parentId = -1;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_media);
         Helper.retainOrientation(MediaActivity.this);
         Intent extras = getIntent();
-        if (extras != null) {
+        if (extras != null)
+        {
             channel = extras.getExtras().getParcelable(EXTRA_CHANNEL);
             isGrid = extras.getExtras().getBoolean(EXTRA_VIEW);
             parentId = extras.getExtras().getInt(EXTRA_PARENT);
@@ -54,13 +69,20 @@ public class MediaActivity extends Activity implements ShowdownloadProcessFragme
         if (getSupportActionBar() != null)
         {
             getSupportActionBar().setTitle(channel.name);
+            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(PreferenceHelper.getAppBackColor(context))));
+            final Drawable upArrow = getResources().getDrawable(R.drawable.ic_back_material_vector);
+            upArrow.setColorFilter(Color.parseColor(PreferenceHelper.getAppColor(context)), PorterDuff.Mode.SRC_ATOP);
+            getSupportActionBar().setHomeAsUpIndicator(upArrow);
+            toolbar.setTitleTextColor(Color.parseColor(PreferenceHelper.getAppColor(context)));
         }
 
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        switch (item.getItemId())
+        {
             case android.R.id.home:
                 onBackPressed();
                 break;
@@ -68,11 +90,13 @@ public class MediaActivity extends Activity implements ShowdownloadProcessFragme
         return super.onOptionsItemSelected(item);
     }
 
+
     @Override
     public void onBackPressed()
     {
-        if(fragmentManager.getBackStackEntryCount() == 3){
-            if(interfaceStopDownload != null)
+        if (fragmentManager.getBackStackEntryCount() == 3)
+        {
+            if (interfaceStopDownload != null)
                 interfaceStopDownload.stopDownload();
         }
         if (fragmentManager.getBackStackEntryCount() == 1)
@@ -85,7 +109,8 @@ public class MediaActivity extends Activity implements ShowdownloadProcessFragme
     }
 
     @Override
-    public void processFinish(String output) {
+    public void processFinish(String output)
+    {
 
     }
 

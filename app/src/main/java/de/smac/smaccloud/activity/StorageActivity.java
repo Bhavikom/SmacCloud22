@@ -1,6 +1,10 @@
 package de.smac.smaccloud.activity;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.StatFs;
@@ -17,6 +21,7 @@ import de.smac.smaccloud.base.Activity;
 import de.smac.smaccloud.base.Helper;
 import de.smac.smaccloud.data.DataHelper;
 import de.smac.smaccloud.fragment.MediaFragment;
+import de.smac.smaccloud.helper.PreferenceHelper;
 import de.smac.smaccloud.model.Media;
 
 public class StorageActivity extends Activity
@@ -44,10 +49,14 @@ public class StorageActivity extends Activity
         if (getSupportActionBar() != null)
         {
             getSupportActionBar().setTitle(getString(R.string.label_storage));
+            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(PreferenceHelper.getAppBackColor(context))));
+            final Drawable upArrow = getResources().getDrawable(R.drawable.ic_back_material_vector);
+            upArrow.setColorFilter(Color.parseColor(PreferenceHelper.getAppColor(context)), PorterDuff.Mode.SRC_ATOP);
+            getSupportActionBar().setHomeAsUpIndicator(upArrow);
+            toolbar.setTitleTextColor(Color.parseColor(PreferenceHelper.getAppColor(context)));
         }
         Helper.setupTypeface(findViewById(R.id.parentLayout), Helper.robotoRegularTypeface);
-        txtStorage.setTypeface(Helper.robotoBoldTypeface);
-        txtMedia.setTypeface(Helper.robotoBoldTypeface);
+
 
     }
 

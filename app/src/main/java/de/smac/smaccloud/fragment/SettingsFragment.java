@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.os.BatteryManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -73,7 +74,7 @@ import static de.smac.smaccloud.base.Helper.LOCALIZATION_TYPE_ERROR_CODE;
 /**
  * Show settings
  */
-public class SettingsFragment extends Fragment implements View.OnClickListener
+public class SettingsFragment extends Fragment
 {
 
     public static final int REQUEST_CODE_SAVE_SIGNATURE = 101;
@@ -122,11 +123,7 @@ public class SettingsFragment extends Fragment implements View.OnClickListener
     {
         super.onStart();
         Helper.setupTypeface(findViewById(R.id.parentLayout), Helper.robotoRegularTypeface);
-        textViewAccount.setTypeface(Helper.robotoBoldTypeface);
-        textViewSharing.setTypeface(Helper.robotoBoldTypeface);
-        textViewTitleSynchronization.setTypeface(Helper.robotoBoldTypeface);
-        textViewInformation.setTypeface(Helper.robotoBoldTypeface);
-        textViewLogin.setTypeface(Helper.robotoBoldTypeface);
+        Helper.setupTypeface(parentLayout, Helper.robotoRegularTypeface);
     }
 
     @Override
@@ -202,14 +199,6 @@ public class SettingsFragment extends Fragment implements View.OnClickListener
         textViewSynchronizeNow = (TextView) findViewById(R.id.txt_synchronize_now);
         toggleButtonAutoDownload = (SwitchButton) findViewById(R.id.toggleAutoDownload);
 
-        if (prefManager.isDemoLogin())
-        {
-            btnPassword.setVisibility(View.GONE);
-        }
-        else
-        {
-            btnPassword.setVisibility(View.VISIBLE);
-        }
         if (prefManager.isFullDownloadMedia())
         {
             toggleButtonAutoDownload.setChecked(true);
@@ -394,7 +383,6 @@ public class SettingsFragment extends Fragment implements View.OnClickListener
             public void onClick(View view)
             {
                 final AlertDialog alertDialog;
-                AlertDialog.Builder builder = new AlertDialog.Builder(context);
                 switch (view.getId())
                 {
                     case R.id.btn_change_language:
@@ -443,7 +431,7 @@ public class SettingsFragment extends Fragment implements View.OnClickListener
                     case R.id.btn_synchronize_now:
                         Helper.preventTwoClick(btnSynchronizeNow);
                         AlertDialog dialog = new AlertDialog.Builder(context).create();
-                        dialog.setTitle(context.getString(R.string.app_title));
+                        dialog.setTitle(context.getString(R.string.app_name));
                         dialog.setMessage(context.getString(R.string.sync_update_dialog));
                         dialog.setButton(AlertDialog.BUTTON_POSITIVE, context.getString(R.string.ok),
                                 new DialogInterface.OnClickListener()
@@ -481,8 +469,9 @@ public class SettingsFragment extends Fragment implements View.OnClickListener
 
                                             }
                                             postNetworkRequest(REQUEST_SYNC, DataProvider.ENDPOINT_SYNC, DataProvider.Actions.SYNC,
+                                                    /*RequestParameter.urlEncoded("Org_Id", String.valueOf()),*/
                                                     RequestParameter.jsonArray("UserLikes", jsonArrayUserLikes), RequestParameter.jsonArray("UserComments", jsonArrayUserComments),
-                                                    RequestParameter.urlEncoded("UserId", String.valueOf(userPreference.userId)), RequestParameter.urlEncoded("LastSyncDate", lastSyncDate));
+                                                    RequestParameter.urlEncoded("UserId", String.valueOf(userPreference.userId)), RequestParameter.urlEncoded("LastSyncDate", lastSyncDate), RequestParameter.urlEncoded("Org_Id", String.valueOf(PreferenceHelper.getOrganizationId(context))));
 
 
                                         }
@@ -507,20 +496,33 @@ public class SettingsFragment extends Fragment implements View.OnClickListener
                         dialog.show();
                         break;
 
-                  /*  case R.id.compoundButtonLogout:
-                        PreferenceHelper.removeUserContext(getActivity());
-                        Intent loginActivity = new Intent(getActivity(), LoginActivity.class);
-                        loginActivity.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        startActivity(loginActivity);
-                        getActivity().finish();
-                        break;*/
-
                     case R.id.btn_about_us:
                         startActivity(new Intent(getActivity(), AboutUsActivity.class));
                         break;
 
                     case R.id.btn_password:
-                        startActivity(new Intent(getActivity(), ChangePasswordActivity.class));
+                        if (prefManager.isDemoLogin())
+                        {
+                            AlertDialog.Builder builder1 = new AlertDialog.Builder(context);
+                            builder1.setTitle(getString(R.string.access_denied_title));
+                            builder1.setMessage(getString(R.string.access_denied_message));
+                            builder1.setPositiveButton(getString(R.string.ok),
+                                    new DialogInterface.OnClickListener()
+                                    {
+                                        public void onClick(DialogInterface dialog, int which)
+                                        {
+                                            dialog.dismiss();
+                                        }
+                                    });
+
+                            AlertDialog dialog1 = builder1.create();
+
+                            dialog1.show();
+                        }
+                        else
+                        {
+                            startActivity(new Intent(getActivity(), ChangePasswordActivity.class));
+                        }
                         break;
 
                     case R.id.btn_sign_out:
@@ -574,8 +576,8 @@ public class SettingsFragment extends Fragment implements View.OnClickListener
         LinearLayout linearParent = (LinearLayout) view.findViewById(R.id.parentLayout);
         Helper.setupTypeface(linearParent, Helper.robotoRegularTypeface);
 
-        TextView txt = (TextView) view.findViewById(R.id.txt_signOut_title);
-        txt.setTypeface(Helper.robotoBlackTypeface);
+        TextView txtSignOutTitle = (TextView) view.findViewById(R.id.txt_signOut_title);
+        txtSignOutTitle.setTextColor(Color.parseColor(PreferenceHelper.getAppColor(context)));
 
         RelativeLayout keepDownloadFile = (RelativeLayout) view.findViewById(R.id.btn_keep_download_files);
         final RelativeLayout deleteDownloadFile = (RelativeLayout) view.findViewById(R.id.btn_delete_download_files);
@@ -588,6 +590,7 @@ public class SettingsFragment extends Fragment implements View.OnClickListener
             {
                 if (Helper.isNetworkAvailable(context))
                 {
+                    DELETE_USER_PREFERENCE = false;
                     postNetworkRequest(REQUEST_LOGOUT, DataProvider.ENDPOINT_LOGOUT, DataProvider.Actions.LOGOUT);
 
                 }
@@ -602,6 +605,7 @@ public class SettingsFragment extends Fragment implements View.OnClickListener
         });
         deleteDownloadFile.setOnClickListener(new View.OnClickListener()
         {
+
             @Override
             public void onClick(View v)
             {
@@ -934,7 +938,7 @@ public class SettingsFragment extends Fragment implements View.OnClickListener
                             user.populateUsingId(context);
                             userPreference.userId = user.id;
                             PreferenceHelper.storeSyncStatus(context, true);
-                            showUpdatedDialog(getString(R.string.label_synchronization), getString(R.string.sync_data_update_sucessfully));
+                            showUpdatedDialog(getString(R.string.title_synchronization), getString(R.string.sync_data_update_sucessfully));
                             //Helper.showSimpleDialog(context, getString(R.string.sync_data_update_sucessfully));
 
 
@@ -976,6 +980,7 @@ public class SettingsFragment extends Fragment implements View.OnClickListener
                     }
                     else
                     {
+
                         if (DELETE_USER_PREFERENCE)
                         {
                             UserPreference userPreference = new UserPreference();
@@ -983,6 +988,7 @@ public class SettingsFragment extends Fragment implements View.OnClickListener
                             DataHelper.getUserPreference(getActivity(), userPreference);
                             DataHelper.removeMediaPhysically(activity, parentLayout);
                             DataHelper.closeLocalDatabase(context);
+                            PreferenceHelper.removeUserThemePreferences(context);
                             prefManager.saveFullDownloadMedia(false);
 
                             if (context.deleteDatabase(userPreference.databaseName))
@@ -994,10 +1000,10 @@ public class SettingsFragment extends Fragment implements View.OnClickListener
                         }
 
                         PreferenceHelper.removeUserContext(context);
-
                         Intent loginActivity = new Intent(getActivity(), DemoActivity.class);
                         loginActivity.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         new FCMInstanceIdService(context).deleteInstanceId();
+                        PreferenceHelper.removeUserThemePreferences(context);
                         startActivity(loginActivity);
                         getActivity().finish();
                     }
@@ -1101,16 +1107,6 @@ public class SettingsFragment extends Fragment implements View.OnClickListener
         syncIntent.putExtra(SyncActivity.IS_FROM_SETTING, true);
         startActivity(syncIntent);
 
-    }
-
-    @Override
-    public void onClick(View v)
-    {
-        /*switch (v.getId()) {
-            case R.id.btn_sign_out:
-                buildDialog(R.style.DialogAnimation, getString(R.string.sign_out_message));
-                break;
-        }*/
     }
 
     @Override

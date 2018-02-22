@@ -1,8 +1,8 @@
 <android.support.design.widget.CoordinatorLayout
+    android:id="@+id/parentLayout"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:smaccloud="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:id="@+id/parentLayout"
     android:layout_height="match_parent"
     android:background="@color/white"
     android:fitsSystemWindows="true">
@@ -51,10 +51,10 @@
         smaccloud:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
+            android:id="@+id/parentLayout1"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@color/white"
-            android:id="@+id/parentLayout1"
             android:orientation="vertical"
             smaccloud:layout_behavior="@string/appbar_scrolling_view_behavior">
 
@@ -85,7 +85,9 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="vertical">
 
                 <LinearLayout
                     android:id="@+id/btn_open"
@@ -101,16 +103,20 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:gravity="center"
-                        android:textStyle="bold"
                         android:textColor="@color/white"
-                        android:textSize="@dimen/title_very_small"/>
+                        android:textSize="@dimen/title_very_small"
+                        android:textStyle="bold"/>
 
-                    <ProgressBar
-                        android:id="@+id/progressBar"
-                        style="@android:style/Widget.Holo.Light.ProgressBar.Horizontal"
+                    <SeekBar
+                        android:id="@+id/seekBar_progress"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:visibility="gone"/>
+                        android:layout_height="20dip"
+                        android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                        android:layout_marginRight="@dimen/activity_horizontal_margin"
+                        android:indeterminateOnly="false"
+                        android:visibility="gone"
+                        />
+
                 </LinearLayout>
 
 
@@ -434,10 +440,10 @@
                 android:layout_marginBottom="@dimen/padding_small"
                 android:background="@drawable/rounded_red_bg"
                 android:text="@string/delete"
-                android:textStyle="bold"
                 android:textAllCaps="false"
                 android:textColor="@color/white"
-                android:textSize="@dimen/title_very_small"/>
+                android:textSize="@dimen/title_very_small"
+                android:textStyle="bold"/>
         </LinearLayout>
     </android.support.v4.widget.NestedScrollView>
 </android.support.design.widget.CoordinatorLayout>

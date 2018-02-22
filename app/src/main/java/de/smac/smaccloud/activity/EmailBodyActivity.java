@@ -22,6 +22,7 @@ import android.widget.TextView;
 import de.smac.smaccloud.R;
 import de.smac.smaccloud.base.Activity;
 import de.smac.smaccloud.helper.PreferenceHelper;
+import de.smac.smaccloud.service.FCMMessagingService;
 
 public class EmailBodyActivity extends Activity
 {
@@ -29,6 +30,26 @@ public class EmailBodyActivity extends Activity
     EditText editEmailBody;
     MenuInflater inflater;
 
+    public static Drawable convertTextToDrawable(Context context, String text, int color)
+    {
+        TextView txtActionAdd = new TextView(context);
+        txtActionAdd.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        txtActionAdd.setText(text);
+        txtActionAdd.setTextColor(color);
+        txtActionAdd.setTextSize(TypedValue.COMPLEX_UNIT_PX, context.getResources().getDimension(R.dimen.title_small));
+
+        txtActionAdd.measure(
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+        txtActionAdd.layout(0, 0, txtActionAdd.getMeasuredWidth(), txtActionAdd.getMeasuredHeight());
+
+        txtActionAdd.setDrawingCacheEnabled(true);
+        txtActionAdd.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
+        Bitmap bitmap = Bitmap.createBitmap(txtActionAdd.getDrawingCache());
+        txtActionAdd.setDrawingCacheEnabled(false);
+
+        return new BitmapDrawable(context.getResources(), bitmap);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -36,8 +57,24 @@ public class EmailBodyActivity extends Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_email_body);
         editEmailBody = (EditText) findViewById(R.id.edit_emailBody);
+        editEmailBody.setText(PreferenceHelper.getEmailBody(context));
+        editEmailBody.setSelection(editEmailBody.getText().length());
+        applyThemeColor();
+        FCMMessagingService.themeChangeNotificationListener = new FCMMessagingService.ThemeChangeNotificationListener()
+        {
+            @Override
+            public void onThemeChangeNotificationReceived()
+            {
+                applyThemeColor();
+            }
+        };
 
 
+    }
+
+    public void applyThemeColor()
+    {
+        updateParentThemeColor();
         if (getSupportActionBar() != null)
         {
             getSupportActionBar().setTitle(getString(R.string.label_email_body));
@@ -47,9 +84,6 @@ public class EmailBodyActivity extends Activity
             getSupportActionBar().setHomeAsUpIndicator(upArrow);
             toolbar.setTitleTextColor(Color.parseColor(PreferenceHelper.getAppColor(context)));
         }
-        editEmailBody.setText(PreferenceHelper.getEmailBody(context));
-        editEmailBody.setSelection(editEmailBody.getText().length());
-
     }
 
     @Override
@@ -92,24 +126,11 @@ public class EmailBodyActivity extends Activity
         imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
         return true;
     }
-    public static Drawable convertTextToDrawable(Context context, String text, int color)
+
+    @Override
+    protected void onResume()
     {
-        TextView txtActionAdd = new TextView(context);
-        txtActionAdd.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        txtActionAdd.setText(text);
-        txtActionAdd.setTextColor(color);
-        txtActionAdd.setTextSize(TypedValue.COMPLEX_UNIT_PX, context.getResources().getDimension(R.dimen.title_small));
-
-        txtActionAdd.measure(
-                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
-                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
-        txtActionAdd.layout(0, 0, txtActionAdd.getMeasuredWidth(), txtActionAdd.getMeasuredHeight());
-
-        txtActionAdd.setDrawingCacheEnabled(true);
-        txtActionAdd.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
-        Bitmap bitmap = Bitmap.createBitmap(txtActionAdd.getDrawingCache());
-        txtActionAdd.setDrawingCacheEnabled(false);
-
-        return new BitmapDrawable(context.getResources(), bitmap);
+        super.onResume();
+        applyThemeColor();
     }
 }

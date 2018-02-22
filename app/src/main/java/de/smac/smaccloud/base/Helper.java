@@ -98,15 +98,13 @@ import static de.smac.smaccloud.fragment.MediaFragment.REQ_IS_MEDIA_DELETED;
 @SuppressWarnings("unused")
 public class Helper
 {
-
     public static final int REQUEST_PLAY_RESOLUTION = -1001;
     public static final String PREFERENCE_GCM_ID = "gcm_reg_id";
     public static final String PREFERENCE_GCM_APP_ID = "gcm_app_id";
     public final static String DOWNLOAD_ACTION = "com.samb.download";
-
     public static final ArrayList<Integer> selectedMediaTypeList = new ArrayList<>();
     public static final ArrayList<String> selectedChannelsList = new ArrayList<>();
-
+    public static Typeface globalFace;
     public static boolean isPaused = false;
     public static long NETWORK_CALL_DURATION = 7000;
     public static boolean IS_DIALOG_SHOW = true;
@@ -118,10 +116,18 @@ public class Helper
     public static String LOCALIZATION_TYPE_COMPANY_SIZE = "5";
 
     public static Typeface robotoLightTypeface;
-    public static Typeface robotoBlackTypeface;
-    public static Typeface robotoBoldTypeface;
-    public static Typeface robotoMediumTypeface;
     public static Typeface robotoRegularTypeface;
+    public static Typeface timesNewRomanTypeface;
+    public static Typeface dhurjatiTypeface;
+    public static Typeface crimsonTextTypeface;
+    public static Typeface ebGaraMondTypeface;
+    public static Typeface latoTypeface;
+    public static Typeface montserratTypeface;
+    public static Typeface openSansTypeface;
+    public static Typeface robotoCondensedTypeface;
+    public static Typeface slaboSansTypeface;
+    public static Typeface sourceSerifProTypeface;
+    public static Typeface ubuntuTypeface;
 
     public static int SCREEN_HEIGHT;
     public static String fontNameTimesNewRoman = "Times New Roman";
@@ -222,54 +228,99 @@ public class Helper
 
     public static Typeface getCurrentTypeface()
     {
-        Typeface globalFace;
-        if (PreferenceHelper.getAppFontName(SMACCloudApplication.getInstance()).equalsIgnoreCase(fontNameTimesNewRoman))
+
+        try
         {
-            globalFace = Typeface.createFromAsset(SMACCloudApplication.getInstance().getAssets(), Helper.fontPathTimesNewRoman);
+            if (PreferenceHelper.getAppFontName(SMACCloudApplication.getInstance()).equalsIgnoreCase(fontNameTimesNewRoman))
+            {
+                if (timesNewRomanTypeface == null)
+                    timesNewRomanTypeface = Typeface.createFromAsset(SMACCloudApplication.getInstance().getAssets(), Helper.fontPathTimesNewRoman);
+                return timesNewRomanTypeface;
+                //      globalFace = Typeface.createFromAsset(SMACCloudApplication.getInstance().getAssets(), Helper.fontPathTimesNewRoman);
+            }
+            else if (PreferenceHelper.getAppFontName(SMACCloudApplication.getInstance()).equalsIgnoreCase(fontNameDhurjati))
+            {
+                if (dhurjatiTypeface == null)
+                    dhurjatiTypeface = Typeface.createFromAsset(SMACCloudApplication.getInstance().getAssets(), Helper.fontPathDhurjati);
+                return dhurjatiTypeface;
+                //globalFace = Typeface.createFromAsset(SMACCloudApplication.getInstance().getAssets(), Helper.fontPathDhurjati);
+            }
+            else if (PreferenceHelper.getAppFontName(SMACCloudApplication.getInstance()).equalsIgnoreCase(fontNameCrimsonText))
+            {
+                if (crimsonTextTypeface == null)
+                    crimsonTextTypeface = Typeface.createFromAsset(SMACCloudApplication.getInstance().getAssets(), Helper.fontPathCrimsonText);
+                return crimsonTextTypeface;
+                //  globalFace = Typeface.createFromAsset(SMACCloudApplication.getInstance().getAssets(), Helper.fontPathCrimsonText);
+            }
+            else if (PreferenceHelper.getAppFontName(SMACCloudApplication.getInstance()).equalsIgnoreCase(fontNameEBGaramond))
+            {
+                if (ebGaraMondTypeface == null)
+                    ebGaraMondTypeface = Typeface.createFromAsset(SMACCloudApplication.getInstance().getAssets(), Helper.fontPathEBGaramond);
+                return ebGaraMondTypeface;
+//                globalFace = Typeface.createFromAsset(SMACCloudApplication.getInstance().getAssets(), Helper.fontPathEBGaramond);
+            }
+            else if (PreferenceHelper.getAppFontName(SMACCloudApplication.getInstance()).equalsIgnoreCase(fontNameLato))
+            {
+                if (latoTypeface == null)
+                    latoTypeface = Typeface.createFromAsset(SMACCloudApplication.getInstance().getAssets(), Helper.fontNameLato);
+                return latoTypeface;
+                //globalFace = Typeface.createFromAsset(SMACCloudApplication.getInstance().getAssets(), Helper.fontPathLato);
+            }
+            else if (PreferenceHelper.getAppFontName(SMACCloudApplication.getInstance()).equalsIgnoreCase(fontNameMontserrat))
+            {
+                if (montserratTypeface == null)
+                    montserratTypeface = Typeface.createFromAsset(SMACCloudApplication.getInstance().getAssets(), Helper.fontPathMontserrat);
+                return montserratTypeface;
+                //      globalFace = Typeface.createFromAsset(SMACCloudApplication.getInstance().getAssets(), Helper.fontPathMontserrat);
+            }
+            else if (PreferenceHelper.getAppFontName(SMACCloudApplication.getInstance()).equalsIgnoreCase(fontNameOpenSans))
+            {
+                if (openSansTypeface == null)
+                    openSansTypeface = Typeface.createFromAsset(SMACCloudApplication.getInstance().getAssets(), Helper.fontPathOpenSans);
+                return openSansTypeface;
+                //globalFace = Typeface.createFromAsset(SMACCloudApplication.getInstance().getAssets(), Helper.fontPathOpenSans);
+            }
+            else if (PreferenceHelper.getAppFontName(SMACCloudApplication.getInstance()).equalsIgnoreCase(fontNameRobotoCondensed))
+            {
+                if (robotoCondensedTypeface == null)
+                    robotoCondensedTypeface = Typeface.createFromAsset(SMACCloudApplication.getInstance().getAssets(), Helper.fontPathRobotoCondensed);
+                return robotoCondensedTypeface;
+                //globalFace = Typeface.createFromAsset(SMACCloudApplication.getInstance().getAssets(), Helper.fontPathRobotoCondensed);
+            }
+            else if (PreferenceHelper.getAppFontName(SMACCloudApplication.getInstance()).equalsIgnoreCase(fontNameSlabo))
+            {
+                if (slaboSansTypeface == null)
+                    slaboSansTypeface = Typeface.createFromAsset(SMACCloudApplication.getInstance().getAssets(), Helper.fontPathSlabo);
+                return slaboSansTypeface;
+                //globalFace = Typeface.createFromAsset(SMACCloudApplication.getInstance().getAssets(), Helper.fontPathSlabo);
+            }
+            else if (PreferenceHelper.getAppFontName(SMACCloudApplication.getInstance()).equalsIgnoreCase(fontNameSourceSerifPro))
+            {
+                if (sourceSerifProTypeface == null)
+                    sourceSerifProTypeface = Typeface.createFromAsset(SMACCloudApplication.getInstance().getAssets(), Helper.fontPathSourceSerifPro);
+                return sourceSerifProTypeface;
+                //globalFace = Typeface.createFromAsset(SMACCloudApplication.getInstance().getAssets(), Helper.fontPathSourceSerifPro);
+            }
+            else if (PreferenceHelper.getAppFontName(SMACCloudApplication.getInstance()).equalsIgnoreCase(fontNameUbuntu))
+            {
+                if (ubuntuTypeface == null)
+                    ubuntuTypeface = Typeface.createFromAsset(SMACCloudApplication.getInstance().getAssets(), Helper.fontPathUbuntu);
+                return ubuntuTypeface;
+                //globalFace = Typeface.createFromAsset(SMACCloudApplication.getInstance().getAssets(), Helper.fontPathUbuntu);
+            }
+            else
+            {
+                if (robotoCondensedTypeface == null)
+                    robotoCondensedTypeface = Typeface.createFromAsset(SMACCloudApplication.getInstance().getAssets(), Helper.fontPathRoboto);
+                return robotoCondensedTypeface;
+                //globalFace = Typeface.createFromAsset(SMACCloudApplication.getInstance().getAssets(), Helper.fontPathRoboto);
+            }
         }
-        else if (PreferenceHelper.getAppFontName(SMACCloudApplication.getInstance()).equalsIgnoreCase(fontNameDhurjati))
+        catch (Exception ex)
         {
-            globalFace = Typeface.createFromAsset(SMACCloudApplication.getInstance().getAssets(), Helper.fontPathDhurjati);
-        }
-        else if (PreferenceHelper.getAppFontName(SMACCloudApplication.getInstance()).equalsIgnoreCase(fontNameCrimsonText))
-        {
-            globalFace = Typeface.createFromAsset(SMACCloudApplication.getInstance().getAssets(), Helper.fontPathCrimsonText);
-        }
-        else if (PreferenceHelper.getAppFontName(SMACCloudApplication.getInstance()).equalsIgnoreCase(fontNameEBGaramond))
-        {
-            globalFace = Typeface.createFromAsset(SMACCloudApplication.getInstance().getAssets(), Helper.fontPathEBGaramond);
-        }
-        else if (PreferenceHelper.getAppFontName(SMACCloudApplication.getInstance()).equalsIgnoreCase(fontNameLato))
-        {
-            globalFace = Typeface.createFromAsset(SMACCloudApplication.getInstance().getAssets(), Helper.fontPathLato);
-        }
-        else if (PreferenceHelper.getAppFontName(SMACCloudApplication.getInstance()).equalsIgnoreCase(fontNameMontserrat))
-        {
-            globalFace = Typeface.createFromAsset(SMACCloudApplication.getInstance().getAssets(), Helper.fontPathMontserrat);
-        }
-        else if (PreferenceHelper.getAppFontName(SMACCloudApplication.getInstance()).equalsIgnoreCase(fontNameOpenSans))
-        {
-            globalFace = Typeface.createFromAsset(SMACCloudApplication.getInstance().getAssets(), Helper.fontPathOpenSans);
-        }
-        else if (PreferenceHelper.getAppFontName(SMACCloudApplication.getInstance()).equalsIgnoreCase(fontNameRobotoCondensed))
-        {
-            globalFace = Typeface.createFromAsset(SMACCloudApplication.getInstance().getAssets(), Helper.fontPathRobotoCondensed);
-        }
-        else if (PreferenceHelper.getAppFontName(SMACCloudApplication.getInstance()).equalsIgnoreCase(fontNameSlabo))
-        {
-            globalFace = Typeface.createFromAsset(SMACCloudApplication.getInstance().getAssets(), Helper.fontPathSlabo);
-        }
-        else if (PreferenceHelper.getAppFontName(SMACCloudApplication.getInstance()).equalsIgnoreCase(fontNameSourceSerifPro))
-        {
-            globalFace = Typeface.createFromAsset(SMACCloudApplication.getInstance().getAssets(), Helper.fontPathSourceSerifPro);
-        }
-        else if (PreferenceHelper.getAppFontName(SMACCloudApplication.getInstance()).equalsIgnoreCase(fontNameUbuntu))
-        {
-            globalFace = Typeface.createFromAsset(SMACCloudApplication.getInstance().getAssets(), Helper.fontPathUbuntu);
-        }
-        else
-        {
-            globalFace = Typeface.createFromAsset(SMACCloudApplication.getInstance().getAssets(), Helper.fontPathRoboto);
+            if (robotoCondensedTypeface == null)
+                robotoCondensedTypeface = Typeface.createFromAsset(SMACCloudApplication.getInstance().getAssets(), Helper.fontPathRoboto);
+
         }
         return globalFace;
     }

@@ -39,7 +39,7 @@ import static de.smac.smaccloud.base.Helper.LOCALIZATION_TYPE_ERROR_CODE;
 
 public class LoginActivity extends Activity
 {
-    //this is check to confilg
+
     public static final int REQUEST_LOGIN = 4301;
     public static final int REQUEST_GET_SETTINGS = 102;
     public static final int REQUEST_MEDIA_SIZE = 4302;
@@ -87,9 +87,7 @@ public class LoginActivity extends Activity
         new FCMInstanceIdService(context).onTokenRefresh();
 
         Helper.setupTypeface(findViewById(R.id.parentLayout), Helper.robotoRegularTypeface);
-        textTitle.setTypeface(Helper.robotoBoldTypeface);
-        buttonForgetPassword.setTypeface(Helper.robotoMediumTypeface);
-        btnLogin.setTypeface(Helper.robotoMediumTypeface);
+
         if (savedInstanceState != null)
         {
             CharSequence savedText = savedInstanceState.getCharSequence(KEY_TEXT_VALUE);
@@ -123,8 +121,8 @@ public class LoginActivity extends Activity
         btnLogin = (Button) findViewById(R.id.buttonLogin);
         parentLayout = (LinearLayout) findViewById(R.id.parentLayout);
         textTitle = (TextView) findViewById(R.id.textTitle);
-        editEmail.setText("testting@email.com");
-        editPassword.setText("123456");
+        /*editEmail.setText("testting@email.com");
+        editPassword.setText("123456");*/
 
     }
 
@@ -174,7 +172,6 @@ public class LoginActivity extends Activity
                         {
                             editEmail.setError(getString(R.string.invalid_email));
                         }
-
 
                         else if (Helper.isNetworkAvailable(context))
                         {
@@ -271,7 +268,6 @@ public class LoginActivity extends Activity
                             userPreference.add(context);
                             PreferenceHelper.storeUserContext(context, userPreference);
                             user.add(context);
-                            //PreferenceHelper.getToken(context);
                             Helper.IS_DIALOG_SHOW = false;
                             if (dialog != null && !dialog.isShowing())
                                 dialog.show();

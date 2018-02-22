@@ -45,11 +45,6 @@ public class DemoActivity extends Activity implements View.OnClickListener
         buttonLogin = (Button) findViewById(R.id.btn_login);
         buttonTryDemo = (Button) findViewById(R.id.btn_try_demo);
 
-        textViewTitle.setTypeface(Helper.robotoBoldTypeface);
-        buttonLogin.setTypeface(Helper.robotoMediumTypeface);
-        buttonTryDemo.setTypeface(Helper.robotoMediumTypeface);
-        textViewConfigureServer.setTypeface(Helper.robotoBoldTypeface);
-
         buttonLogin.setOnClickListener(this);
         buttonTryDemo.setOnClickListener(this);
         languageChange.setOnClickListener(this);

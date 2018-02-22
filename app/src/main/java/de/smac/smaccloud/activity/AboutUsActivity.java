@@ -2,7 +2,6 @@ package de.smac.smaccloud.activity;
 
 import android.graphics.Color;
 import android.graphics.PorterDuff;
-import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -23,6 +22,7 @@ import de.smac.smaccloud.base.Helper;
 import de.smac.smaccloud.data.DataHelper;
 import de.smac.smaccloud.helper.DataProvider;
 import de.smac.smaccloud.helper.PreferenceHelper;
+import de.smac.smaccloud.service.FCMMessagingService;
 
 import static de.smac.smaccloud.base.Helper.LOCALIZATION_TYPE_ERROR_CODE;
 
@@ -54,14 +54,40 @@ public class AboutUsActivity extends Activity
         textViewPlanValue = (TextView) findViewById(R.id.txt_plan_value);
         textViewAppyear = (TextView) findViewById(R.id.txt_app_name_year);
         textViewCopirights = (TextView) findViewById(R.id.txt_copyRights);
-        Helper.robotoBoldTypeface = Typeface.createFromAsset(this.getAssets(), Helper.fontPathRoboto);
-        textViewAppTitle.setTextColor(Color.parseColor(PreferenceHelper.getAppColor(context)));
-        textViewCopirights.setTextColor(Color.parseColor(PreferenceHelper.getAppColor(context)));
+        // Helper.robotoBoldTypeface = Typeface.createFromAsset(this.getAssets(), Helper.fontPathRoboto);
+
         Calendar calendar = Calendar.getInstance();
         int year = calendar.get(Calendar.YEAR);
-        textViewCopirights.setText(getString(R.string.copyright).concat(" ").concat("@").concat(String.valueOf(year).concat(" ").concat(getString(R.string.copyright1))));
+        textViewCopirights.setText(getString(R.string.copyright).concat(" ").concat(String.valueOf(year).concat(" ").concat(getString(R.string.copyright1))));
 
 
+        if (Helper.isNetworkAvailable(context))
+        {
+            postNetworkRequest(REQUEST_ABOUTUS, DataProvider.ENDPOINT_ABOUTUS, DataProvider.Actions.ABOUTUS);
+        }
+        else
+        {
+            Helper.showMessage(this, false, getString(R.string.msg_please_check_your_connection));
+        }
+        textViewReleaseNoValue.setText(BuildConfig.VERSION_NAME);
+        applyThemeColor();
+        FCMMessagingService.themeChangeNotificationListener = new FCMMessagingService.ThemeChangeNotificationListener()
+        {
+            @Override
+            public void onThemeChangeNotificationReceived()
+            {
+                applyThemeColor();
+            }
+        };
+
+    }
+
+    public void applyThemeColor()
+    {
+        updateParentThemeColor();
+
+        textViewAppTitle.setTextColor(Color.parseColor(PreferenceHelper.getAppColor(context)));
+        textViewCopirights.setTextColor(getResources().getColor(R.color.black));
         if (getSupportActionBar() != null)
         {
             getSupportActionBar().setTitle(getString(R.string.label_about_us));
@@ -71,17 +97,16 @@ public class AboutUsActivity extends Activity
             getSupportActionBar().setHomeAsUpIndicator(upArrow);
             toolbar.setTitleTextColor(Color.parseColor(PreferenceHelper.getAppColor(context)));
         }
-        if (Helper.isNetworkAvailable(context))
-        {
-            postNetworkRequest(REQUEST_ABOUTUS, DataProvider.ENDPOINT_ABOUTUS, DataProvider.Actions.ABOUTUS);
-        }
-        else
-        {
-            Helper.showMessage(this, false, getString(R.string.msg_please_check_your_connection));
-        }
+        textViewAppTitle.setTextColor(Color.parseColor(PreferenceHelper.getAppColor(context)));
+        textViewCopirights.setTextColor(getResources().getColor(R.color.black));
+        Helper.setupTypeface(parentLayout, Helper.robotoRegularTypeface);
+    }
 
-        textViewReleaseNoValue.setText(BuildConfig.VERSION_NAME);
-
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+        applyThemeColor();
     }
 
     @Override

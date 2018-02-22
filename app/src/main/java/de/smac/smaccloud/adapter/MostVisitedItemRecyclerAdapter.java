@@ -65,10 +65,6 @@ public class MostVisitedItemRecyclerAdapter extends RecyclerView.Adapter<Recycle
 
         final CommentHolder mostVisitedItemHolder = (CommentHolder) holder;
         RecentItem recentItem = recentItems.get(position);
-        /*mostVisitedItemHolder.txtFileName.setTypeface(Helper.robotoBoldTypeface);
-        mostVisitedItemHolder.txtChannelName.setTypeface(Helper.robotoRegularTypeface);
-        mostVisitedItemHolder.labelVisit.setTypeface(Helper.robotoRegularTypeface);
-        mostVisitedItemHolder.txtVisitCount.setTypeface(Helper.robotoRegularTypeface);*/
 
         try
         {

@@ -124,16 +124,6 @@ public class ShareActivity extends Activity implements View.OnClickListener
         linearAttachList.addView(addSelectedMedia(media));
         selectedAttachmentList.add(media);
         updateAttachmentLabel();
-        Helper.setupTypeface(findViewById(R.id.parentLayout), Helper.robotoRegularTypeface);
-        Helper.setupUI(ShareActivity.this, parentLayout, parentLayout);
-        if (getSupportActionBar() != null)
-        {
-            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(PreferenceHelper.getAppBackColor(context))));
-            final Drawable upArrow = getResources().getDrawable(R.drawable.ic_back_material_vector);
-            upArrow.setColorFilter(Color.parseColor(PreferenceHelper.getAppColor(context)), PorterDuff.Mode.SRC_ATOP);
-            getSupportActionBar().setHomeAsUpIndicator(upArrow);
-            toolbar.setTitleTextColor(Color.parseColor(PreferenceHelper.getAppColor(context)));
-        }
 
         chipRecyclerView = (RecyclerView) chips_input_email_to.findViewById(R.id.chips_recycler);
         chipsInputEditText = (ChipsInputEditText) chipRecyclerView.getChildAt(chipRecyclerView.getChildCount() - 1);
@@ -164,9 +154,7 @@ public class ShareActivity extends Activity implements View.OnClickListener
     {
         inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_activity_share_file, menu);
-        Drawable drawable = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_send_white, null);
-        drawable = DrawableCompat.wrap(drawable);
-        DrawableCompat.setTint(drawable, Color.parseColor(PreferenceHelper.getAppColor(context)));
+        applyThemeColor();
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -276,7 +264,7 @@ public class ShareActivity extends Activity implements View.OnClickListener
         parentLayout = (LinearLayout) findViewById(R.id.parentLayout);
         linearAttachList = (LinearLayout) findViewById(R.id.child_attachment_list);
         chips_input_email_to = (ChipsInput) findViewById(R.id.chips_input_email_to);
-        Helper.setupTypeface(parentLayout, Helper.robotoRegularTypeface);
+
         chips_input_email_to.addChipsListener(new ChipsInput.ChipsListener()
         {
             @Override
@@ -345,6 +333,33 @@ public class ShareActivity extends Activity implements View.OnClickListener
         imageViewAttach.setOnClickListener(this);
         imageViewEditSignature.setOnClickListener(this);
         textEmailFrom.setEnabled(false);
+        applyThemeColor();
+    }
+
+    public void applyThemeColor()
+    {
+        updateParentThemeColor();
+        Helper.setupTypeface(findViewById(R.id.parentLayout), Helper.robotoRegularTypeface);
+        Helper.setupUI(ShareActivity.this, parentLayout, parentLayout);
+        if (getSupportActionBar() != null)
+        {
+            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(PreferenceHelper.getAppBackColor(context))));
+            final Drawable upArrow = getResources().getDrawable(R.drawable.ic_back_material_vector);
+            upArrow.setColorFilter(Color.parseColor(PreferenceHelper.getAppColor(context)), PorterDuff.Mode.SRC_ATOP);
+            getSupportActionBar().setHomeAsUpIndicator(upArrow);
+            toolbar.setTitleTextColor(Color.parseColor(PreferenceHelper.getAppColor(context)));
+        }
+        Helper.setupTypeface(parentLayout, Helper.robotoRegularTypeface);
+        Drawable drawable = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_send_white, null);
+        drawable = DrawableCompat.wrap(drawable);
+        DrawableCompat.setTint(drawable, Color.parseColor(PreferenceHelper.getAppColor(context)));
+    }
+
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+        applyThemeColor();
     }
 
     public void setImage(String path)

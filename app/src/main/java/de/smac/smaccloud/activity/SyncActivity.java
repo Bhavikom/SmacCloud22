@@ -253,15 +253,7 @@ public class SyncActivity extends Activity
         });
 
         Helper.setupTypeface(findViewById(R.id.parentLayout), Helper.robotoLightTypeface);
-        textViewTitle.setTypeface(Helper.robotoBoldTypeface);
-        textViewSubTitle.setTypeface(Helper.robotoMediumTypeface);
-        textViewAutoDownload.setTypeface(Helper.robotoRegularTypeface);
-        textViewDownloadFileContain.setTypeface(Helper.robotoRegularTypeface);
-        textViewDownloadOnDemandTitle.setTypeface(Helper.robotoBoldTypeface);
-        textViewDownloadOnDemandInfo.setTypeface(Helper.robotoLightTypeface);
-        textViewAutoDownloadTitle.setTypeface(Helper.robotoBoldTypeface);
-        textViewAutoDownloadInfo.setTypeface(Helper.robotoLightTypeface);
-        buttonDownload.setTypeface(Helper.robotoMediumTypeface);
+
 
 
     }
@@ -272,7 +264,6 @@ public class SyncActivity extends Activity
         View view = activity.getLayoutInflater().inflate(R.layout.activity_download_on_demand, null);
         view.setLayoutParams(new RelativeLayout.LayoutParams(Helper.getDeviceWidth(activity) / 3, ViewGroup.LayoutParams.WRAP_CONTENT));
         TextView txtDownloadOnDownload = (TextView) view.findViewById(R.id.txt_download_on_demand);
-        txtDownloadOnDownload.setTypeface(Helper.robotoBlackTypeface);
 
         dialog.setLayout(view)
                 .setGravity(EasyDialog.GRAVITY_BOTTOM)
@@ -290,7 +281,6 @@ public class SyncActivity extends Activity
         View view = activity.getLayoutInflater().inflate(R.layout.activity_auto_download, null);
         view.setLayoutParams(new RelativeLayout.LayoutParams(Helper.getDeviceWidth(activity) / 3, ViewGroup.LayoutParams.WRAP_CONTENT));
         TextView txtAutoDownload = (TextView) view.findViewById(R.id.txt_auto_download);
-        txtAutoDownload.setTypeface(Helper.robotoBlackTypeface);
         dialog.setLayout(view)
                 .setGravity(EasyDialog.GRAVITY_BOTTOM)
                 .setBackgroundColor(activity.getResources().getColor(R.color.transparent_black_color))

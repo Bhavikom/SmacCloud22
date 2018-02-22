@@ -3,7 +3,6 @@ package de.smac.smaccloud.activity;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -32,7 +31,6 @@ import android.widget.TextView;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -91,7 +89,6 @@ public class UserCommentViewActivity extends Activity
         media = this.getIntent().getParcelableExtra(MediaFragment.EXTRA_MEDIA);
         channel = this.getIntent().getParcelableExtra(MediaFragment.EXTRA_CHANNEL);
 
-
         edtMediaComment.addTextChangedListener(new TextWatcher()
         {
             @Override
@@ -117,18 +114,6 @@ public class UserCommentViewActivity extends Activity
             {
             }
         });
-
-        if (getSupportActionBar() != null)
-        {
-            getSupportActionBar().setTitle(media.name);
-            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(PreferenceHelper.getAppBackColor(context))));
-            final Drawable upArrow = getResources().getDrawable(R.drawable.ic_back_material_vector);
-            upArrow.setColorFilter(Color.parseColor(PreferenceHelper.getAppColor(context)), PorterDuff.Mode.SRC_ATOP);
-            getSupportActionBar().setHomeAsUpIndicator(upArrow);
-            toolbar.setTitleTextColor(Color.parseColor(PreferenceHelper.getAppColor(context)));
-
-        }
-
         try
         {
             if (usersComments != null)
@@ -176,8 +161,8 @@ public class UserCommentViewActivity extends Activity
 
         scrollComment = (ScrollView) findViewById(R.id.scrollComment);
         commentLinearLayout = (LinearLayout) findViewById(R.id.commentLinearLayout);
-        Helper.setupTypeface(parentLayout, Helper.robotoRegularTypeface);
-        Helper.setupUI(this, parentLayout, parentLayout);
+        applyThemeColor();
+
         btnSend.setOnTouchListener(null);
 
     }
@@ -194,6 +179,27 @@ public class UserCommentViewActivity extends Activity
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    public void applyThemeColor()
+    {
+        updateParentThemeColor();
+        if (getSupportActionBar() != null)
+        {
+            if (media != null)
+            {
+
+                getSupportActionBar().setTitle(media.name);
+                getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(PreferenceHelper.getAppBackColor(context))));
+            }
+            final Drawable upArrow = getResources().getDrawable(R.drawable.ic_back_material_vector);
+            upArrow.setColorFilter(Color.parseColor(PreferenceHelper.getAppColor(context)), PorterDuff.Mode.SRC_ATOP);
+            getSupportActionBar().setHomeAsUpIndicator(upArrow);
+            toolbar.setTitleTextColor(Color.parseColor(PreferenceHelper.getAppColor(context)));
+
+        }
+        Helper.setupTypeface(parentLayout, Helper.robotoRegularTypeface);
+        Helper.setupUI(this, parentLayout, parentLayout);
     }
 
     @Override
@@ -226,7 +232,7 @@ public class UserCommentViewActivity extends Activity
                             {
                                 public void onClick(DialogInterface dialog, int which)
                                 {
-                                        dialog.dismiss();
+                                    dialog.dismiss();
                                 }
                             });
 
@@ -389,6 +395,13 @@ public class UserCommentViewActivity extends Activity
         }
         Helper.IS_DIALOG_SHOW = true;
 
+    }
+
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+        applyThemeColor();
     }
 
     public void addUserCommentInLinearLayout(ArrayList<UserComment> usersCommentsList)

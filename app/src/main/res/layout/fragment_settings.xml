@@ -268,10 +268,10 @@
                 android:paddingBottom="@dimen/padding_very_small"
                 android:paddingLeft="@dimen/padding_large"
                 android:paddingTop="@dimen/padding_very_small"
-                android:textStyle="bold"
                 android:text="@string/label_synchronization"
                 android:textColor="@color/Gray57"
-                android:textSize="@dimen/title_very_small"/>
+                android:textSize="@dimen/title_very_small"
+                android:textStyle="bold"/>
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -365,9 +365,9 @@
                 android:paddingLeft="@dimen/padding_large"
                 android:paddingTop="@dimen/padding_very_small"
                 android:text="@string/label_information"
-                android:textStyle="bold"
                 android:textColor="@color/Gray57"
-                android:textSize="@dimen/title_very_small"/>
+                android:textSize="@dimen/title_very_small"
+                android:textStyle="bold"/>
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -466,6 +466,38 @@
                         android:layout_height="wrap_content"
                         android:layout_centerVertical="true"
                         android:text="@string/label_terms"
+                        android:textColor="@color/black_color"
+                        android:textSize="@dimen/title_very_small"/>
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:layout_marginRight="@dimen/padding_4dp"
+                        android:src="@drawable/ic_next"/>
+                </RelativeLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="0.2dp"
+                    android:layout_marginLeft="@dimen/padding_medium"
+                    android:background="@color/Gray57"/>
+
+                <RelativeLayout
+                    android:id="@+id/buttonPrivacy"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/padding_medium"
+                    android:orientation="horizontal"
+                    android:paddingBottom="@dimen/padding_2dp"
+                    android:paddingTop="@dimen/padding_4dp">
+
+                    <TextView
+                        android:id="@+id/txt_privacy"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:text="@string/label_privacy_policy"
                         android:textColor="@color/black_color"
                         android:textSize="@dimen/title_very_small"/>
 

@@ -11,7 +11,6 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.google.android.gms.internal.zzagr;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.google.gson.Gson;
@@ -34,6 +33,7 @@ import de.smac.smaccloud.model.Announcement;
 import de.smac.smaccloud.model.UserComment;
 import de.smac.smaccloud.model.UserLike;
 
+import static com.google.android.gms.internal.zzahn.runOnUiThread;
 import static de.smac.smaccloud.base.Activity.notificationIconValueChangeListener;
 
 public class FCMMessagingService extends FirebaseMessagingService
@@ -63,6 +63,7 @@ public class FCMMessagingService extends FirebaseMessagingService
     private static final String NOTIFICATION_DELETED_ACTION = "NOTIFICATION_DELETED";
     public static FCMPushReceiveListener fcmPushReceiveListener;
     public static CommentPushReceiveListener commentPushReceiveListener;
+    public static ThemeChangeNotificationListener themeChangeNotificationListener;
 
     String TAG = "SMAC CLOUD";
     Context context;
@@ -88,7 +89,7 @@ public class FCMMessagingService extends FirebaseMessagingService
         // Check if message contains a data payload.
         if (PreferenceHelper.hasUserContext(context) && remoteMessage.getData().size() > 0)
         {
-            zzagr.runOnUiThread(new Runnable()
+            runOnUiThread(new Runnable()
             {
                 @Override
                 public void run()
@@ -264,6 +265,10 @@ public class FCMMessagingService extends FirebaseMessagingService
                     {
                         notificationIconValueChangeListener.onNotificationIconValueChanged();
                     }
+                    if (themeChangeNotificationListener != null)
+                    {
+                        themeChangeNotificationListener.onThemeChangeNotificationReceived();
+                    }
                 }
             });
         }
@@ -316,5 +321,10 @@ public class FCMMessagingService extends FirebaseMessagingService
     public interface CommentPushReceiveListener
     {
         public void onCommentPushReceived();
+    }
+
+    public interface ThemeChangeNotificationListener
+    {
+        public void onThemeChangeNotificationReceived();
     }
 }

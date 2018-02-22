@@ -67,6 +67,7 @@ public class Activity extends AppCompatActivity
     protected NetworkService.NetworkBinder networkBinder;
     protected FragmentManager fragmentManager;
     String value;
+    String lightBgColor;
     private Intent networkServiceIntent;
     private ServiceConnection networkConnection;
     private NetworkService.RequestCompleteCallback networkCallback;
@@ -130,45 +131,24 @@ public class Activity extends AppCompatActivity
         initializeComponents();
         bindEvents();
         refreshLayoutTypeface();
-        String lightBgColor;
-
-        if (parentLayout != null)
+        updateParentThemeColor();
+        /*FCMMessagingService.themeChangeNotificationListener = new FCMMessagingService.ThemeChangeNotificationListener()
         {
-
-            lightBgColor = PreferenceHelper.getAppBackColor(context);
-            if (lightBgColor != null && lightBgColor.length() > 0)
+            @Override
+            public void onThemeChangeNotificationReceived()
             {
-                lightBgColor = lightBgColor.substring(1, lightBgColor.length());
-                String value = "#40" + lightBgColor;
-                parentLayout.setBackgroundColor(Color.parseColor(value));
+                updateParentThemeColor();
             }
-           /* else
-            {
-                lightBgColor = "#000000";
-                lightBgColor = lightBgColor.substring(1, lightBgColor.length());
-                String value = "#40" + lightBgColor;
-                parentLayout.setBackgroundColor(Color.parseColor(value));
-            }*/
+        };*/
 
-        }
-        else if (findViewById(android.R.id.content) != null)
-        {
-            lightBgColor = PreferenceHelper.getAppBackColor(context);
-            if (lightBgColor != null && lightBgColor.length() > 0)
-            {
-                lightBgColor = lightBgColor.substring(1, lightBgColor.length());
-                String value = "#40" + lightBgColor;
-                findViewById(android.R.id.content).setBackgroundColor(Color.parseColor(value));
-            }
-            /*else
-            {
-                lightBgColor = "#000000";
-                lightBgColor = lightBgColor.substring(1, lightBgColor.length());
-                String value = "#40" + lightBgColor;
-                findViewById(android.R.id.content).setBackgroundColor(Color.parseColor(value));
-            }*/
 
-        }
+    }
+
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+        updateParentThemeColor();
     }
 
     protected void initializeComponents()
@@ -219,6 +199,7 @@ public class Activity extends AppCompatActivity
                 }
             }
         };
+
     }
 
     protected void bindEvents()
@@ -261,6 +242,47 @@ public class Activity extends AppCompatActivity
         if (addToBackStack)
             transaction.addToBackStack(fragment.getClass().getSimpleName());
         transaction.commit();
+    }
+
+    public void updateParentThemeColor()
+    {
+        if (parentLayout != null)
+        {
+
+            lightBgColor = PreferenceHelper.getAppBackColor(context);
+            if (lightBgColor != null && lightBgColor.length() > 0)
+            {
+                lightBgColor = lightBgColor.substring(1, lightBgColor.length());
+                String value = "#40" + lightBgColor;
+                parentLayout.setBackgroundColor(Color.parseColor(value));
+            }
+            else
+            {
+                lightBgColor = "#000000";
+                lightBgColor = lightBgColor.substring(1, lightBgColor.length());
+                String value = "#40" + lightBgColor;
+                parentLayout.setBackgroundColor(Color.parseColor(value));
+            }
+
+        }
+        else if (findViewById(android.R.id.content) != null)
+        {
+            lightBgColor = PreferenceHelper.getAppBackColor(context);
+            if (lightBgColor != null && lightBgColor.length() > 0)
+            {
+                lightBgColor = lightBgColor.substring(1, lightBgColor.length());
+                String value = "#40" + lightBgColor;
+                findViewById(android.R.id.content).setBackgroundColor(Color.parseColor(value));
+            }
+            else
+            {
+                lightBgColor = "#000000";
+                lightBgColor = lightBgColor.substring(1, lightBgColor.length());
+                String value = "#40" + lightBgColor;
+                findViewById(android.R.id.content).setBackgroundColor(Color.parseColor(value));
+            }
+
+        }
     }
 
     protected void onNetworkReady()

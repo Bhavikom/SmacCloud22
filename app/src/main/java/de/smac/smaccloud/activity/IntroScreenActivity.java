@@ -7,7 +7,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -118,7 +117,7 @@ public class IntroScreenActivity extends Activity
                 R.layout.activity_introduction_slide6,
 
         };
-        Helper.setupTypeface(relativeLayout, Helper.robotoBoldTypeface);
+        Helper.setupTypeface(relativeLayout, Helper.robotoRegularTypeface);
 
         // adding bottom dots
         addBottomDots(0);

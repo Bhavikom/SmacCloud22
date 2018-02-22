@@ -30,6 +30,7 @@ import de.smac.smaccloud.R;
 import de.smac.smaccloud.base.Activity;
 import de.smac.smaccloud.base.Helper;
 import de.smac.smaccloud.helper.PreferenceHelper;
+import de.smac.smaccloud.service.FCMMessagingService;
 
 public class BccAddressChipLayoutActivity extends Activity
 {
@@ -67,16 +68,7 @@ public class BccAddressChipLayoutActivity extends Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bcc_address_chiplayout);
         parentLayout = (LinearLayout) findViewById(R.id.parentLayout);
-        Helper.setupTypeface(parentLayout, Helper.robotoRegularTypeface);
-        if (getSupportActionBar() != null)
-        {
-            getSupportActionBar().setTitle(getString(R.string.label_bcc));
-            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(PreferenceHelper.getAppBackColor(context))));
-            final Drawable upArrow = getResources().getDrawable(R.drawable.ic_back_material_vector);
-            upArrow.setColorFilter(Color.parseColor(PreferenceHelper.getAppColor(context)), PorterDuff.Mode.SRC_ATOP);
-            getSupportActionBar().setHomeAsUpIndicator(upArrow);
-            toolbar.setTitleTextColor(Color.parseColor(PreferenceHelper.getAppColor(context)));
-        }
+
         Helper.setupUI(this, parentLayout, parentLayout);
 
         chips_input_email_bcc = (ChipsInput) findViewById(R.id.chips_input_email_bcc);
@@ -136,8 +128,32 @@ public class BccAddressChipLayoutActivity extends Activity
 
             }
         });
+        applyThemeColor();
+        FCMMessagingService.themeChangeNotificationListener = new FCMMessagingService.ThemeChangeNotificationListener()
+        {
+            @Override
+            public void onThemeChangeNotificationReceived()
+            {
+                applyThemeColor();
+            }
+        };
 
 
+    }
+
+    public void applyThemeColor()
+    {
+        updateParentThemeColor();
+        Helper.setupTypeface(parentLayout, Helper.robotoRegularTypeface);
+        if (getSupportActionBar() != null)
+        {
+            getSupportActionBar().setTitle(getString(R.string.label_bcc));
+            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(PreferenceHelper.getAppBackColor(context))));
+            final Drawable upArrow = getResources().getDrawable(R.drawable.ic_back_material_vector);
+            upArrow.setColorFilter(Color.parseColor(PreferenceHelper.getAppColor(context)), PorterDuff.Mode.SRC_ATOP);
+            getSupportActionBar().setHomeAsUpIndicator(upArrow);
+            toolbar.setTitleTextColor(Color.parseColor(PreferenceHelper.getAppColor(context)));
+        }
     }
 
     @Override
@@ -200,4 +216,10 @@ public class BccAddressChipLayoutActivity extends Activity
         return super.onCreateOptionsMenu(menu);
     }
 
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+        applyThemeColor();
+    }
 }

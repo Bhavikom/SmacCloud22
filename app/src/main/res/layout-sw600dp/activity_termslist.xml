@@ -25,6 +25,7 @@
             android:layout_height="wrap_content"
             android:gravity="start"
             android:text="description"
+            android:layout_marginTop="@dimen/padding_very_small"
             android:textSize="@dimen/title_ultra_small"/>
     </LinearLayout>
 

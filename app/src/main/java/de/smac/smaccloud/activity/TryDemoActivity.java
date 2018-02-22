@@ -1,6 +1,7 @@
 package de.smac.smaccloud.activity;
 
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -47,6 +48,7 @@ import de.smac.smaccloud.model.User;
 import de.smac.smaccloud.model.UserComment;
 import de.smac.smaccloud.model.UserLike;
 import de.smac.smaccloud.model.UserPreference;
+import de.smac.smaccloud.service.FCMInstanceIdService;
 import de.smac.smaccloud.widgets.RecyclerItemClickListener;
 
 import static de.smac.smaccloud.activity.SyncActivity.REQUEST_SYNC;
@@ -74,6 +76,7 @@ public class TryDemoActivity extends Activity implements View.OnClickListener
     ArrayList<String> arrayListCompanyType;
     ArrayList<String> arrayListCompanySize;
     MaterialBetterSpinner spinnerOccupation, spinnerCompanyType, spinnerEmployeeStrength;
+    ProgressDialog progressDialog;
     private PreferenceHelper prefManager;
     private ArrayList<UserLike> arrayListUserLikes;
     private ArrayList<UserComment> arrayListUserComments;
@@ -104,7 +107,7 @@ public class TryDemoActivity extends Activity implements View.OnClickListener
         btnStartDemo = (Button) findViewById(R.id.btn_start_demo);
 
         Helper.setupTypeface(parentLayout, Helper.robotoRegularTypeface);
-        btnStartDemo.setTypeface(Helper.robotoMediumTypeface);
+
 
         btnStartDemo.setOnClickListener(this);
         countryList.setOnClickListener(this);
@@ -134,6 +137,17 @@ public class TryDemoActivity extends Activity implements View.OnClickListener
         }
 
         Helper.setupUI(this, parentLayout, parentLayout);
+        Helper.GCM.getCloudMessagingId(TryDemoActivity.this, new Helper.GCM.RegistrationComplete()
+        {
+            @Override
+            public void onRegistrationComplete(String registrationId)
+            {
+                deviceId = registrationId;
+            }
+        });
+
+        new FCMInstanceIdService(context).onTokenRefresh();
+
     }
 
     @Override
@@ -204,13 +218,15 @@ public class TryDemoActivity extends Activity implements View.OnClickListener
     }
 
     @Override
-    protected void onNetworkResponse(int requestCode, boolean status, String response)
+    protected void onNetworkResponse(int requestCode, boolean status, final String response)
     {
         super.onNetworkResponse(requestCode, status, response);
+        Helper.IS_DIALOG_SHOW = true;
         if (requestCode == REQUEST_LOGIN)
         {
             if (status)
             {
+
                 try
                 {
                     JSONObject responseJson = new JSONObject(response);
@@ -218,6 +234,7 @@ public class TryDemoActivity extends Activity implements View.OnClickListener
                     if (requestStatus > 0)
                     {
                         notifySimple(DataHelper.getLocalizationMessageFromCode(context, String.valueOf(requestStatus), LOCALIZATION_TYPE_ERROR_CODE));
+
                     }
                     else
                     {
@@ -234,12 +251,14 @@ public class TryDemoActivity extends Activity implements View.OnClickListener
                             PreferenceHelper.storeToken(context, userJson.optString("AccessToken"));
                         if (userPreference.userId == -1)
                         {
+
                             userPreference.userId = user.id; //user.id;
                             userPreference.lastSyncDate = "01/01/2001";
                             userPreference.databaseName = DataProvider.random();
                             userPreference.add(context);
                             PreferenceHelper.storeUserContext(context, userPreference);
                             user.add(context);
+                            Helper.IS_DIALOG_SHOW = false;
 
                             // Call sync service
                             arrayListUserLikes = new ArrayList<>();
@@ -248,6 +267,7 @@ public class TryDemoActivity extends Activity implements View.OnClickListener
                             jsonArrayUserComments = new JSONArray();
                             userPreference.populateUsingUserId(context);
                             String lastSyncDate = "01/01/2001";
+
                             postNetworkRequest(REQUEST_SYNC, DataProvider.ENDPOINT_SYNC, DataProvider.Actions.SYNC,
                                     RequestParameter.jsonArray("UserLikes", jsonArrayUserLikes), RequestParameter.jsonArray("UserComments", jsonArrayUserComments),
                                     RequestParameter.urlEncoded("UserId", String.valueOf(user.id)), RequestParameter.urlEncoded("LastSyncDate", lastSyncDate), RequestParameter.urlEncoded("Org_Id", PreferenceHelper.getOrganizationId(context)));
@@ -268,210 +288,252 @@ public class TryDemoActivity extends Activity implements View.OnClickListener
                 catch (JSONException | ParseException e)
                 {
                     notifySimple(getString(R.string.msg_invalid_response_from_server));
+                    if (progressDialog != null)
+                    {
+                        progressDialog.dismiss();
+                    }
+
                 }
+
             }
             else
             {
-                notifySimple(getString(R.string.msg_cannot_complete_request));
+                notifySimple(getString(R.string.msg_network_connection_not_available));
+                if (progressDialog != null)
+                {
+                    progressDialog.dismiss();
+                }
             }
 
         }
         else if (requestCode == REQUEST_SYNC)
         {
+            Helper.IS_DIALOG_SHOW = true;
             if (status)
             {
-                try
+                new Thread(new Runnable()
                 {
-                    JSONObject syncJson = new JSONObject(response);
-                    int requestStatus = syncJson.optInt("Status");
-                    if (requestStatus > 0)
+                    @Override
+                    public void run()
                     {
-                        notifySimple(syncJson.optString("Message"));
-                    }
-                    else
-                    {
-
-                        notifySimple(getString(R.string.msg_data_sync));
-                        syncJson = syncJson.optJSONObject("Payload");
-                        Log.e("payload", syncJson.toString());
-
-                        if (!(arrayListUserLikes.size() <= 0))
-                        {
-                            for (UserLike userLike : arrayListUserLikes)
-                            {
-                                userLike.removeoffline(context);
-                            }
-                        }
-                        if (!(arrayListUserComments.size() <= 0))
-                        {
-                            for (UserComment userComment : arrayListUserComments)
-                            {
-                                userComment.removeOffline(context);
-                            }
-                        }
-                        ArrayList<Channel> arraylistChannels = new ArrayList<>();
-                        JSONArray channelJsonArray = syncJson.optJSONArray("Channels");
                         try
                         {
-                            Channel.parseListFromJson(channelJsonArray, arraylistChannels);
-                            for (Channel channel : arraylistChannels)
+                            JSONObject syncJson = new JSONObject(response);
+                            int requestStatus = syncJson.optInt("Status");
+                            if (requestStatus > 0)
                             {
-                                switch (channel.syncType)
-                                {
-                                    case 1:
-                                        channel.add(context);
-                                        break;
-
-                                    case 2:
-                                        channel.saveChanges(context);
-                                        break;
-
-                                    case 3:
-                                        channel.remove(context);
-                                        break;
-                                }
-                                addCreator(channel.creator);
-                            }
-                            JSONArray mediaJsonArray = syncJson.optJSONArray("Media");
-                            ArrayList<Media> arrayListMediaList = new ArrayList<>();
-                            Media.parseListFromJson(mediaJsonArray, arrayListMediaList);
-                            for (Media media : arrayListMediaList)
-                            {
-                                switch (media.syncType)
-                                {
-                                    case 1:
-                                        media.add(context);
-
-                                        break;
-                                    case 2:
-                                        media.saveChanges(context);
-                                        break;
-
-                                    case 3:
-                                        media.remove(context);
-                                        break;
-                                }
-                                Log.e("Media type", media.type + media.currentVersionId);
-                                if (!(media.type.equals("folder")))
-                                {
-                                    addMediaVersion(media.currentVersion);
-                                }
+                                notifySimple(syncJson.optString("Message"));
 
                             }
-                            JSONArray channelFilesJsonArray = syncJson.optJSONArray("ChannelFiles");
-                            ArrayList<ChannelFiles> arraylistChhannelFiles = new ArrayList<>();
-                            ChannelFiles.parseListFromJson(channelFilesJsonArray, arraylistChhannelFiles);
-                            for (ChannelFiles channelFile : arraylistChhannelFiles)
+                            else
                             {
-                                switch (channelFile.syncType)
+
+                             //   notifySimple(getString(R.string.msg_data_sync));
+                                syncJson = syncJson.optJSONObject("Payload");
+                                Log.e("payload", syncJson.toString());
+
+                                if (!(arrayListUserLikes.size() <= 0))
                                 {
-                                    case 1:
-                                        channelFile.add(context);
-                                        break;
-
-                                    case 2:
-                                        channelFile.saveChanges(context);
-                                        break;
-
-                                    case 3:
-                                        channelFile.remove(context);
-                                        break;
+                                    for (UserLike userLike : arrayListUserLikes)
+                                    {
+                                        userLike.removeoffline(context);
+                                    }
                                 }
-                            }
-
-                            JSONArray channelUsersJsonArray = syncJson.optJSONArray("ChannelUsers");
-                            ArrayList<ChannelUser> arraylistChannelUsers = new ArrayList<>();
-                            ChannelUser.parseListFromJson(channelUsersJsonArray, arraylistChannelUsers);
-                            for (ChannelUser channelUser : arraylistChannelUsers)
-                            {
-                                switch (channelUser.syncType)
+                                if (!(arrayListUserComments.size() <= 0))
                                 {
-                                    case 1:
-                                        channelUser.add(context);
-                                        break;
-                                    case 2:
-                                        channelUser.saveChanges(context);
-                                        break;
-                                    case 3:
-                                        channelUser.remove(context);
-                                        break;
+                                    for (UserComment userComment : arrayListUserComments)
+                                    {
+                                        userComment.removeOffline(context);
+                                    }
                                 }
-                            }
-
-                            JSONArray userCommentsJsonArray = syncJson.optJSONArray("UserComments");
-                            ArrayList<UserComment> arraylistuserComments = new ArrayList<>();
-                            UserComment.parseListFromJson(userCommentsJsonArray, arraylistuserComments);
-                            for (UserComment usercomment : arraylistuserComments)
-                            {
-                                switch (usercomment.syncType)
+                                ArrayList<Channel> arraylistChannels = new ArrayList<>();
+                                JSONArray channelJsonArray = syncJson.optJSONArray("Channels");
+                                try
                                 {
-                                    case 1:
-                                        usercomment.add(context);
-                                        break;
-                                    case 2:
-                                        usercomment.saveChanges(context);
-                                        break;
-                                    case 3:
-                                        usercomment.remove(context);
-                                        break;
+                                    Channel.parseListFromJson(channelJsonArray, arraylistChannels);
+                                    for (Channel channel : arraylistChannels)
+                                    {
+                                        switch (channel.syncType)
+                                        {
+                                            case 1:
+                                                channel.add(context);
+                                                break;
+
+                                            case 2:
+                                                channel.saveChanges(context);
+                                                break;
+
+                                            case 3:
+                                                channel.remove(context);
+                                                break;
+                                        }
+                                        addCreator(channel.creator);
+                                    }
+                                    JSONArray mediaJsonArray = syncJson.optJSONArray("Media");
+                                    ArrayList<Media> arrayListMediaList = new ArrayList<>();
+                                    Media.parseListFromJson(mediaJsonArray, arrayListMediaList);
+                                    for (Media media : arrayListMediaList)
+                                    {
+                                        switch (media.syncType)
+                                        {
+                                            case 1:
+                                                media.add(context);
+
+                                                break;
+                                            case 2:
+                                                media.saveChanges(context);
+                                                break;
+
+                                            case 3:
+                                                media.remove(context);
+                                                break;
+                                        }
+                                        Log.e("Media type", media.type + media.currentVersionId);
+                                        if (!(media.type.equals("folder")))
+                                        {
+                                            addMediaVersion(media.currentVersion);
+                                        }
+
+                                    }
+                                    JSONArray channelFilesJsonArray = syncJson.optJSONArray("ChannelFiles");
+                                    ArrayList<ChannelFiles> arraylistChhannelFiles = new ArrayList<>();
+                                    ChannelFiles.parseListFromJson(channelFilesJsonArray, arraylistChhannelFiles);
+                                    for (ChannelFiles channelFile : arraylistChhannelFiles)
+                                    {
+                                        switch (channelFile.syncType)
+                                        {
+                                            case 1:
+                                                channelFile.add(context);
+                                                break;
+
+                                            case 2:
+                                                channelFile.saveChanges(context);
+                                                break;
+
+                                            case 3:
+                                                channelFile.remove(context);
+                                                break;
+                                        }
+                                    }
+
+                                    JSONArray channelUsersJsonArray = syncJson.optJSONArray("ChannelUsers");
+                                    ArrayList<ChannelUser> arraylistChannelUsers = new ArrayList<>();
+                                    ChannelUser.parseListFromJson(channelUsersJsonArray, arraylistChannelUsers);
+                                    for (ChannelUser channelUser : arraylistChannelUsers)
+                                    {
+                                        switch (channelUser.syncType)
+                                        {
+                                            case 1:
+                                                channelUser.add(context);
+                                                break;
+                                            case 2:
+                                                channelUser.saveChanges(context);
+                                                break;
+                                            case 3:
+                                                channelUser.remove(context);
+                                                break;
+                                        }
+                                    }
+
+                                    JSONArray userCommentsJsonArray = syncJson.optJSONArray("UserComments");
+                                    ArrayList<UserComment> arraylistuserComments = new ArrayList<>();
+                                    UserComment.parseListFromJson(userCommentsJsonArray, arraylistuserComments);
+                                    for (UserComment usercomment : arraylistuserComments)
+                                    {
+                                        switch (usercomment.syncType)
+                                        {
+                                            case 1:
+                                                usercomment.add(context);
+                                                break;
+                                            case 2:
+                                                usercomment.saveChanges(context);
+                                                break;
+                                            case 3:
+                                                usercomment.remove(context);
+                                                break;
+                                        }
+                                    }
+                                    JSONArray userLikeJsonArray = syncJson.optJSONArray("UserLikes");
+                                    ArrayList<UserLike> arraylistuserLikes = new ArrayList<>();
+                                    UserLike.parseListFromJson(userLikeJsonArray, arraylistuserLikes);
+                                    for (UserLike userLike : arraylistuserLikes)
+                                    {
+                                        switch (userLike.syncType)
+                                        {
+                                            case 1:
+                                                userLike.add(context);
+                                                break;
+                                            case 2:
+                                                userLike.saveChanges(context);
+                                                break;
+                                            case 3:
+                                                userLike.remove(context);
+                                                break;
+                                        }
+                                        addCreator(userLike.user);
+                                    }
+
+                                    UserPreference userPreference = new UserPreference();
+                                    userPreference.userId = PreferenceHelper.getUserContext(context);
+                                    userPreference.populateUsingUserId(context);
+                                    userPreference.lastSyncDate = syncJson.optString("LastSyncDate");
+                                    userPreference.saveChanges(context);
+                                    Log.e("lastsync", userPreference.lastSyncDate);
+                                    User user = new User();
+                                    user.id = PreferenceHelper.getUserContext(context);
+                                    user.populateUsingId(context);
+                                    userPreference.userId = user.id;
+
+                                    PreferenceHelper.storeSyncStatus(context, true);
+                                    startDashboardActivity();
+                                    finish();
+
+
                                 }
-                            }
-                            JSONArray userLikeJsonArray = syncJson.optJSONArray("UserLikes");
-                            ArrayList<UserLike> arraylistuserLikes = new ArrayList<>();
-                            UserLike.parseListFromJson(userLikeJsonArray, arraylistuserLikes);
-                            for (UserLike userLike : arraylistuserLikes)
-                            {
-                                switch (userLike.syncType)
+                                catch (JSONException | ParseException e)
                                 {
-                                    case 1:
-                                        userLike.add(context);
-                                        break;
-                                    case 2:
-                                        userLike.saveChanges(context);
-                                        break;
-                                    case 3:
-                                        userLike.remove(context);
-                                        break;
+                                    if (progressDialog != null)
+                                    {
+                                        progressDialog.dismiss();
+                                    }
+                                    e.printStackTrace();
                                 }
-                                addCreator(userLike.user);
+                                catch (Exception e)
+                                {
+                                    if (progressDialog != null)
+                                    {
+                                        progressDialog.dismiss();
+                                    }
+                                    e.printStackTrace();
+                                }
+                                if (progressDialog != null)
+                                {
+                                    progressDialog.dismiss();
+                                }
+
                             }
-
-                            UserPreference userPreference = new UserPreference();
-                            userPreference.userId = PreferenceHelper.getUserContext(context);
-                            userPreference.populateUsingUserId(context);
-                            userPreference.lastSyncDate = syncJson.optString("LastSyncDate");
-                            userPreference.saveChanges(context);
-                            Log.e("lastsync", userPreference.lastSyncDate);
-                            User user = new User();
-                            user.id = PreferenceHelper.getUserContext(context);
-                            user.populateUsingId(context);
-                            userPreference.userId = user.id;
-
-                            PreferenceHelper.storeSyncStatus(context, true);
-                            startDashboardActivity();
-                            finish();
-
-
                         }
-                        catch (JSONException | ParseException e)
+                        catch (JSONException e)
                         {
-                            e.printStackTrace();
-                        }
-                        catch (Exception e)
-                        {
-                            e.printStackTrace();
+                            notifySimple(getString(R.string.msg_invalid_response_from_server));
+                            if (progressDialog != null)
+                            {
+                                progressDialog.dismiss();
+                            }
                         }
 
                     }
-                }
-                catch (JSONException e)
-                {
-                    notifySimple(getString(R.string.msg_invalid_response_from_server));
-                }
+                }).start();
+
 
             }
             else
             {
+                if (progressDialog != null)
+                {
+                    progressDialog.dismiss();
+
+                }
                 notifySimple(getString(R.string.msg_cannot_complete_request));
             }
         }
@@ -519,11 +581,19 @@ public class TryDemoActivity extends Activity implements View.OnClickListener
                 }
                 else
                 {
-                    Helper.hideSoftKeyboard(TryDemoActivity.this);
                     if (Helper.isNetworkAvailable(context))
                     {
+                        Helper.IS_DIALOG_SHOW = false;
+                        progressDialog = new ProgressDialog(TryDemoActivity.this);
+                        progressDialog.setMessage(getString(R.string.msg_please_wait));
+                        progressDialog.setCancelable(false);
+                        progressDialog.setIndeterminate(true);
+                        progressDialog.show();
+                        Helper.hideSoftKeyboard(TryDemoActivity.this);
+                        Helper.IS_DIALOG_SHOW = false;
+
                         postNetworkRequest(REQUEST_LOGIN, DataProvider.ENDPOINT_USER, DataProvider.Actions.DEMO_USER,
-                                RequestParameter.urlEncoded("Name", editName), RequestParameter.urlEncoded("BusinessName", spinnerOccupation.getText().toString()), RequestParameter.urlEncoded("IndustryType", spinnerCompanyType.getText().toString()), RequestParameter.urlEncoded("NumOfEmployee", spinnerEmployeeStrength.getText().toString()), RequestParameter.urlEncoded("NewsLatterAllow", toggleNewsLetter.isChecked() ? "true" : "false"), RequestParameter.urlEncoded("Email", editEmail), RequestParameter.urlEncoded("Country", selectCountry), RequestParameter.urlEncoded("DeviceToken", "123456"), RequestParameter.urlEncoded("DeviceType", "Android"), RequestParameter.urlEncoded("IsDeleted", "false"), RequestParameter.urlEncoded("IsDemoUser", "true"))
+                                RequestParameter.urlEncoded("Name", editName), RequestParameter.urlEncoded("BusinessName", spinnerOccupation.getText().toString()), RequestParameter.urlEncoded("IndustryType", spinnerCompanyType.getText().toString()), RequestParameter.urlEncoded("NumOfEmployee", spinnerEmployeeStrength.getText().toString()), RequestParameter.urlEncoded("NewsLatterAllow", toggleNewsLetter.isChecked() ? "true" : "false"), RequestParameter.urlEncoded("Email", editEmail), RequestParameter.urlEncoded("Country", selectCountry), RequestParameter.urlEncoded("DeviceToken", PreferenceHelper.getFCMTokenId(context)), RequestParameter.urlEncoded("DeviceType", "Android"), RequestParameter.urlEncoded("IsDeleted", "false"), RequestParameter.urlEncoded("IsDemoUser", "true"))
                         ;
                     }
                     else
@@ -544,7 +614,6 @@ public class TryDemoActivity extends Activity implements View.OnClickListener
                 recyclerListCountry.setLayoutManager(recyclerViewLayoutManager);
                 CountryListAdapter countryListAdapter = new CountryListAdapter(context, arrayListCountry);
                 LinearLayout linearLayout = (LinearLayout) dialog.findViewById(R.id.parentLayout);
-                Helper.setupTypeface(linearLayout, Helper.robotoBoldTypeface);
                 recyclerListCountry.setAdapter(countryListAdapter);
                 recyclerListCountry.addOnItemTouchListener(
                         new RecyclerItemClickListener(context, new RecyclerItemClickListener.OnItemClickListener()

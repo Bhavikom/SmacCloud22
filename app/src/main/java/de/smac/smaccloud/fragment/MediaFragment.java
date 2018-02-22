@@ -10,7 +10,11 @@ import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
@@ -57,6 +61,7 @@ import de.smac.smaccloud.model.User;
 import de.smac.smaccloud.model.UserComment;
 import de.smac.smaccloud.model.UserLike;
 import de.smac.smaccloud.service.DownloadFileFromURL;
+import de.smac.smaccloud.service.FCMMessagingService;
 import de.smac.smaccloud.service.SMACCloudApplication;
 import de.smac.smaccloud.widgets.UserCommentDialog;
 
@@ -125,7 +130,6 @@ public class MediaFragment extends Fragment implements DownloadFileFromURL.inter
                 final Intent intentlocal = intent;
                 if (intent.getAction().equals(Helper.DOWNLOAD_ACTION))
                 {
-                    //Log.e(""," get string receiver : "+intent.getStringArrayExtra("media_object"));
                     final Media mediaReceived = intentlocal.getParcelableExtra("media_object");
                     final String position = intentlocal.getStringExtra("position");
                     handler.postDelayed(new Runnable()
@@ -495,10 +499,40 @@ public class MediaFragment extends Fragment implements DownloadFileFromURL.inter
         mediaAdapter = new MediaAdapter(activity, arrayListMedia, this, recyclerView);
         mediaAdapter.setGrid(isGrid);
         recyclerView.setAdapter(mediaAdapter);
+        //applyThemeColor();
         updateMediaList();
 
         user = new User();
         user.id = PreferenceHelper.getUserContext(context);
+        applyThemeColor();
+
+        FCMMessagingService.themeChangeNotificationListener = new FCMMessagingService.ThemeChangeNotificationListener()
+        {
+            @Override
+            public void onThemeChangeNotificationReceived()
+            {
+                applyThemeColor();
+            }
+        };
+    }
+
+
+    public void applyThemeColor()
+    {
+        activity.updateParentThemeColor();
+        if (activity.getSupportActionBar() != null)
+        {
+            activity.getSupportActionBar().setTitle(channel.name);
+            activity.getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(PreferenceHelper.getAppBackColor(context))));
+            final Drawable upArrow = getResources().getDrawable(R.drawable.ic_back_material_vector);
+            upArrow.setColorFilter(Color.parseColor(PreferenceHelper.getAppColor(context)), PorterDuff.Mode.SRC_ATOP);
+            activity.getSupportActionBar().setHomeAsUpIndicator(upArrow);
+            if (toolbar != null)
+            {
+                toolbar.setTitleTextColor(Color.parseColor(PreferenceHelper.getAppColor(context)));
+            }
+        }
+        recyclerView.getAdapter().notifyDataSetChanged();
     }
 
     @Override
@@ -574,6 +608,7 @@ public class MediaFragment extends Fragment implements DownloadFileFromURL.inter
     @Override
     public void onResume()
     {
+        super.onResume();
         try
         {
             if (activity.getSupportActionBar() != null)
@@ -592,7 +627,7 @@ public class MediaFragment extends Fragment implements DownloadFileFromURL.inter
         {
             ex.printStackTrace();
         }
-        super.onResume();
+        applyThemeColor();
     }
 
 
@@ -847,9 +882,9 @@ public class MediaFragment extends Fragment implements DownloadFileFromURL.inter
                 mediaAdapter.notifyDataSetChanged();
             }
         }
-        else
-        {
-        }
+
 
     }
+
+
 }

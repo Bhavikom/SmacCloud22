@@ -51,6 +51,7 @@ import de.smac.smaccloud.model.Media;
 import de.smac.smaccloud.model.MediaVersion;
 import de.smac.smaccloud.model.User;
 import de.smac.smaccloud.service.DownloadFileFromURL;
+import de.smac.smaccloud.service.FCMMessagingService;
 
 import static de.smac.smaccloud.base.NetworkService.KEY_AUTHORIZATION;
 
@@ -103,6 +104,7 @@ public class MediaDetailActivity extends Activity implements DownloadFileFromURL
         this.activity = this;
         user = new User();
         setMediaDetails(media);
+        applyThemeColor();
 
         if (media.isDownloaded == 0)
         {
@@ -155,11 +157,20 @@ public class MediaDetailActivity extends Activity implements DownloadFileFromURL
         parentLayout = (LinearLayout) findViewById(R.id.parentLayout1);
         btnLike = (LinearLayout) findViewById(R.id.btnMediaLike);
         btnComment = (LinearLayout) findViewById(R.id.btnMediaComment);
-        Helper.setupTypeface(parentLayout, Helper.robotoRegularTypeface);
-
         btnDelete = (Button) findViewById(R.id.btnDelete);
-        Helper.setupTypeface(findViewById(R.id.parentLayout), Helper.robotoBoldTypeface);
+        mediaImage.setLayoutParams(new CollapsingToolbarLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Helper.getDeviceHeight(this) / 3));
+        applyThemeColor();
 
+    }
+
+    public void applyThemeColor()
+    {
+        updateParentThemeColor();
+
+        imageViewLike.setColorFilter(Color.parseColor(PreferenceHelper.getAppColor(context)));
+        imageViewComment.setColorFilter(Color.parseColor(PreferenceHelper.getAppColor(context)));
+        btnShare.setColorFilter(Color.parseColor(PreferenceHelper.getAppColor(context)));
+        Helper.setupTypeface(parentLayout, Helper.robotoRegularTypeface);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
         {
             btn_open.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(PreferenceHelper.getAppColor(context))));
@@ -169,11 +180,6 @@ public class MediaDetailActivity extends Activity implements DownloadFileFromURL
             btn_open.setBackgroundColor(Color.parseColor(PreferenceHelper.getAppColor(context)));
         }
 
-        mediaImage.setLayoutParams(new CollapsingToolbarLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Helper.getDeviceHeight(this) / 3));
-
-        imageViewLike.setColorFilter(Color.parseColor(PreferenceHelper.getAppColor(context)));
-        imageViewComment.setColorFilter(Color.parseColor(PreferenceHelper.getAppColor(context)));
-        btnShare.setColorFilter(Color.parseColor(PreferenceHelper.getAppColor(context)));
     }
 
     @Override
@@ -327,7 +333,14 @@ public class MediaDetailActivity extends Activity implements DownloadFileFromURL
         btnLike.setOnClickListener(clickListener);
         btnComment.setOnClickListener(clickListener);
 
-
+        FCMMessagingService.themeChangeNotificationListener = new FCMMessagingService.ThemeChangeNotificationListener()
+        {
+            @Override
+            public void onThemeChangeNotificationReceived()
+            {
+                applyThemeColor();
+            }
+        };
     }
 
 
@@ -350,6 +363,7 @@ public class MediaDetailActivity extends Activity implements DownloadFileFromURL
         super.onResume();
         txtLikesCounter.setText(String.valueOf(DataHelper.getMediaLikeCount(context, media.id)));
         txtCommentCounter.setText(String.valueOf(DataHelper.getMediaCommentCount(context, media.id)));
+        applyThemeColor();
 
 
     }

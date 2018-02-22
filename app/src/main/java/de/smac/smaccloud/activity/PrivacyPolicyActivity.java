@@ -5,45 +5,30 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.view.MenuItem;
-import android.widget.ListView;
-
-import java.util.ArrayList;
-import java.util.List;
+import android.widget.LinearLayout;
 
 import de.smac.smaccloud.R;
-import de.smac.smaccloud.adapter.TermsConditionListAdapter;
 import de.smac.smaccloud.base.Activity;
+import de.smac.smaccloud.base.Helper;
 import de.smac.smaccloud.helper.PreferenceHelper;
-import de.smac.smaccloud.model.TermsAndCondition;
 import de.smac.smaccloud.service.FCMMessagingService;
 
-public class TermsActivity extends Activity
+/**
+ * Created by S Soft on 2/13/2018.
+ */
+
+public class PrivacyPolicyActivity extends Activity
 {
-    ListView listView;
-    List<TermsAndCondition> rowItems;
+    LinearLayout parentLayout;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState)
+    protected void onCreate(@Nullable Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_terms);
-
-        String[] titles = new String[]{getString(R.string.title1), getString(R.string.title2), getString(R.string.title3), getString(R.string.title4), getString(R.string.title5), getString(R.string.title6), getString(R.string.title7), getString(R.string.title8)};
-        String[] descriptions = new String[]{getString(R.string.description1), getString(R.string.description2), getString(R.string.description3), getString(R.string.description4), getString(R.string.description5), getString(R.string.description6), getString(R.string.description7), getString(R.string.description8)};
-
-
-        rowItems = new ArrayList<TermsAndCondition>();
-        for (int i = 0; i < titles.length; i++)
-        {
-            TermsAndCondition item = new TermsAndCondition(titles[i], descriptions[i]);
-            rowItems.add(item);
-        }
-
-        listView = (ListView) findViewById(R.id.termsAndConditionListView);
-        final TermsConditionListAdapter adapter = new TermsConditionListAdapter(this,
-                R.layout.activity_termslist, rowItems);
-        listView.setAdapter(adapter);
+        setContentView(R.layout.activity_privacy_policy);
+        parentLayout = (LinearLayout) findViewById(R.id.parentLayout);
         applyThemeColor();
         FCMMessagingService.themeChangeNotificationListener = new FCMMessagingService.ThemeChangeNotificationListener()
         {
@@ -62,22 +47,14 @@ public class TermsActivity extends Activity
         updateParentThemeColor();
         if (getSupportActionBar() != null)
         {
-            getSupportActionBar().setTitle(getString(R.string.label_terms));
+            getSupportActionBar().setTitle(getString(R.string.label_privacy_policy));
             getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(PreferenceHelper.getAppBackColor(context))));
             final Drawable upArrow = getResources().getDrawable(R.drawable.ic_back_material_vector);
             upArrow.setColorFilter(Color.parseColor(PreferenceHelper.getAppColor(context)), PorterDuff.Mode.SRC_ATOP);
             getSupportActionBar().setHomeAsUpIndicator(upArrow);
             toolbar.setTitleTextColor(Color.parseColor(PreferenceHelper.getAppColor(context)));
-
         }
-
-    }
-
-    @Override
-    protected void onResume()
-    {
-        super.onResume();
-        applyThemeColor();
+        Helper.setupTypeface(parentLayout, Helper.robotoRegularTypeface);
     }
 
     @Override
@@ -93,4 +70,10 @@ public class TermsActivity extends Activity
         }
     }
 
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+        applyThemeColor();
+    }
 }

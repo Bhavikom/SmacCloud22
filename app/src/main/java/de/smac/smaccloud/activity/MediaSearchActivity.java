@@ -74,6 +74,7 @@ import de.smac.smaccloud.helper.PreferenceHelper;
 import de.smac.smaccloud.model.Channel;
 import de.smac.smaccloud.model.Media;
 import de.smac.smaccloud.model.RecentItem;
+import de.smac.smaccloud.service.FCMMessagingService;
 import de.smac.smaccloud.widgets.CircularTextView;
 import de.smac.smaccloud.widgets.NonScrollListView;
 
@@ -96,6 +97,7 @@ public class MediaSearchActivity extends Activity implements View.OnClickListene
     TextView btnSort;
     TextView btnFilter;
     NonScrollListView list_search_result;
+    Activity activity;
 
     public static void updateSearchingList(Context context)
     {
@@ -234,12 +236,8 @@ public class MediaSearchActivity extends Activity implements View.OnClickListene
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
-        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(PreferenceHelper.getAppBackColor(context))));
-        setTitle(getString(R.string.label_search));
-        final Drawable upArrow = getResources().getDrawable(R.drawable.ic_back_material_vector);
-        upArrow.setColorFilter(Color.parseColor(PreferenceHelper.getAppColor(context)), PorterDuff.Mode.SRC_ATOP);
-        getSupportActionBar().setHomeAsUpIndicator(upArrow);
-        toolbar.setTitleTextColor(Color.parseColor(PreferenceHelper.getAppColor(context)));
+        //applyThemeColor();
+        this.activity = activity;
         Helper.setupUI(MediaSearchActivity.this, findViewById(R.id.parentLayout), findViewById(R.id.parentLayout));
     }
 
@@ -248,8 +246,6 @@ public class MediaSearchActivity extends Activity implements View.OnClickListene
     {
         super.initializeComponents();
         selectedSortAttributeIndex = 0;
-        //selectedMediaTypeList = new ArrayList<>();
-        //selectedChannelsList = new ArrayList<>();
 
         edt_search = (EditText) findViewById(R.id.edt_search);
         edt_search.setTypeface(robotoLightTypeface);
@@ -364,16 +360,15 @@ public class MediaSearchActivity extends Activity implements View.OnClickListene
             });
 
             layoutDynamicFrame = (FrameLayout) findViewById(R.id.layoutDynamicFrame);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+            FCMMessagingService.themeChangeNotificationListener = new FCMMessagingService.ThemeChangeNotificationListener()
             {
-                btnSort.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(PreferenceHelper.getAppColor(context))));
-                btnFilter.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(PreferenceHelper.getAppColor(context))));
-            }
-            else
-            {
-                btnSort.setBackgroundColor(Color.parseColor(PreferenceHelper.getAppColor(context)));
-                btnFilter.setBackgroundColor(Color.parseColor(PreferenceHelper.getAppColor(context)));
-            }
+                @Override
+                public void onThemeChangeNotificationReceived()
+                {
+                    applyThemeColor();
+                }
+            };
+
 
         }
         catch (Exception ex)
@@ -465,6 +460,7 @@ public class MediaSearchActivity extends Activity implements View.OnClickListene
     {
         super.onResume();
         layoutDynamicFrame.setVisibility(View.GONE);
+        applyThemeColor();
     }
 
     @Override
@@ -619,6 +615,47 @@ public class MediaSearchActivity extends Activity implements View.OnClickListene
         layoutDynamicFrame.setVisibility(View.GONE);
     }
 
+    public void applyThemeColor()
+    {
+        updateParentThemeColor();
+        if (getSupportActionBar() != null)
+        {
+
+            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(PreferenceHelper.getAppBackColor(context))));
+            setTitle(getString(R.string.label_search));
+            final Drawable upArrow = getResources().getDrawable(R.drawable.ic_back_material_vector);
+            upArrow.setColorFilter(Color.parseColor(PreferenceHelper.getAppColor(context)), PorterDuff.Mode.SRC_ATOP);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2)
+            {
+                if (getActionBar() != null)
+                {
+
+                    getActionBar().setHomeAsUpIndicator(upArrow);
+                }
+            }
+            else
+            {
+                if (getSupportActionBar() != null)
+                {
+
+                    getSupportActionBar().setHomeAsUpIndicator(upArrow);
+                }
+            }
+            toolbar.setTitleTextColor(Color.parseColor(PreferenceHelper.getAppColor(context)));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+            {
+                btnSort.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(PreferenceHelper.getAppColor(context))));
+                btnFilter.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(PreferenceHelper.getAppColor(context))));
+            }
+            else
+            {
+                btnSort.setBackgroundColor(Color.parseColor(PreferenceHelper.getAppColor(context)));
+                btnFilter.setBackgroundColor(Color.parseColor(PreferenceHelper.getAppColor(context)));
+            }
+        }
+
+    }
+
     public static class FilterDialog extends DialogFragment
     {
         View content;
@@ -637,7 +674,6 @@ public class MediaSearchActivity extends Activity implements View.OnClickListene
             list_channel_names = (NonScrollListView) content.findViewById(R.id.list_channel_names);
             parentLayout = (LinearLayout) content.findViewById(R.id.parentLayout);
             Helper.setupTypeface(parentLayout, Helper.robotoRegularTypeface);
-
 
             setupFileTypeList();
             setupChannelsList();
@@ -735,10 +771,9 @@ public class MediaSearchActivity extends Activity implements View.OnClickListene
                 @Override
                 public View getView(int position, View convertView, ViewGroup parent)
                 {
-                    //View v = LayoutInflater.from(getContext()).inflate(android.R.layout.simple_list_item_multiple_choice, null);
+
                     View v = LayoutInflater.from(getContext()).inflate(android.R.layout.select_dialog_multichoice, null);
                     TextView tv = (TextView) v.findViewById(android.R.id.text1);
-                    //tv.setTextColor(Color.WHITE);
                     tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.title_small));
                     tv.setTypeface(MediaSearchActivity.robotoLightTypeface);
                     tv.setSingleLine(true);

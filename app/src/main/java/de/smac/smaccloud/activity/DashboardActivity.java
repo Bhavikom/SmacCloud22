@@ -64,8 +64,6 @@ public class DashboardActivity extends Activity implements SettingsFragment.Inte
     public LinearLayout parentLayout;
     public NavigationView navigationDashboard;
     public EasyDialog notificationDialog;
-    FrameLayout frameLayoutNavigationHeader;
-    private Menu menu;
     private DrawerLayout drawerLayout;
     private TextView textviewNavigationHeader;
     private int currentNavigationItem = 0;
@@ -191,6 +189,7 @@ public class DashboardActivity extends Activity implements SettingsFragment.Inte
 
     public void applyTheme()
     {
+        updateParentThemeColor();
         //change actionbar color
         if (getSupportActionBar() != null)
         {

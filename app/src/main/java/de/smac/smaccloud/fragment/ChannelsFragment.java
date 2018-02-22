@@ -228,10 +228,12 @@ public class ChannelsFragment extends Fragment
 
     public void applyThemeColor()
     {
+        activity.updateParentThemeColor();
         if (activity instanceof DashboardActivity)
         {
             ((DashboardActivity) activity).applyTheme();
         }
+        activity.updateParentThemeColor();
 
         if (mMenu != null && mMenu.findItem(R.id.action_notifications) != null)
         {
@@ -277,7 +279,6 @@ public class ChannelsFragment extends Fragment
         {
             ((DashboardActivity) (activity)).navigationDashboard.getMenu().findItem(R.id.menuChannels).setCheckable(true).setChecked(true);
         }
-
         applyThemeColor();
     }
 }

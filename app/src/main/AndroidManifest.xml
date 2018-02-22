@@ -193,6 +193,10 @@
             </intent-filter>
         </service>
 
+        <activity
+            android:name="de.smac.smaccloud.activity.PrivacyPolicyActivity"
+            android:configChanges="orientation"/>
+
         <!-- END FIREBASE CLOUD MESSAGING-->
 
     </application>

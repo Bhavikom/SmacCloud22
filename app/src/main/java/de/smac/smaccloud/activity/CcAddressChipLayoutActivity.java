@@ -33,6 +33,7 @@ import de.smac.smaccloud.R;
 import de.smac.smaccloud.base.Activity;
 import de.smac.smaccloud.base.Helper;
 import de.smac.smaccloud.helper.PreferenceHelper;
+import de.smac.smaccloud.service.FCMMessagingService;
 
 public class CcAddressChipLayoutActivity extends Activity
 {
@@ -70,20 +71,9 @@ public class CcAddressChipLayoutActivity extends Activity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cc_address_chiplayout);
-        if (getSupportActionBar() != null)
-        {
-            getSupportActionBar().setTitle(getString(R.string.label_cc));
-            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(PreferenceHelper.getAppBackColor(context))));
-            final Drawable upArrow = getResources().getDrawable(R.drawable.ic_back_material_vector);
-            upArrow.setColorFilter(Color.parseColor(PreferenceHelper.getAppColor(context)), PorterDuff.Mode.SRC_ATOP);
-            getSupportActionBar().setHomeAsUpIndicator(upArrow);
-            toolbar.setTitleTextColor(Color.parseColor(PreferenceHelper.getAppColor(context)));
-        }
+
         parentLayout = (LinearLayout) findViewById(R.id.parentLayout);
         chips_input_email_cc = (ChipsInput) findViewById(R.id.chips_input_email_cc);
-
-
-        Helper.setupTypeface(chips_input_email_cc, Helper.robotoRegularTypeface);
 
         chips_input_email_cc.addChipsListener(new ChipsInput.ChipsListener()
         {
@@ -142,6 +132,31 @@ public class CcAddressChipLayoutActivity extends Activity
 
             }
         });
+        applyThemeColor();
+        FCMMessagingService.themeChangeNotificationListener=new FCMMessagingService.ThemeChangeNotificationListener()
+        {
+            @Override
+            public void onThemeChangeNotificationReceived()
+            {
+                applyThemeColor();
+            }
+        };
+
+    }
+
+    public void applyThemeColor()
+    {
+        updateParentThemeColor();
+        if (getSupportActionBar() != null)
+        {
+            getSupportActionBar().setTitle(getString(R.string.label_cc));
+            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(PreferenceHelper.getAppBackColor(context))));
+            final Drawable upArrow = getResources().getDrawable(R.drawable.ic_back_material_vector);
+            upArrow.setColorFilter(Color.parseColor(PreferenceHelper.getAppColor(context)), PorterDuff.Mode.SRC_ATOP);
+            getSupportActionBar().setHomeAsUpIndicator(upArrow);
+            toolbar.setTitleTextColor(Color.parseColor(PreferenceHelper.getAppColor(context)));
+        }
+        Helper.setupTypeface(chips_input_email_cc, Helper.robotoRegularTypeface);
 
     }
 
@@ -218,5 +233,12 @@ public class CcAddressChipLayoutActivity extends Activity
                 INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
         return true;
+    }
+
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+        applyThemeColor();
     }
 }

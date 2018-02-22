@@ -51,7 +51,6 @@ public class ForgotPasswordActivity extends Activity
             getSupportActionBar().setTitle(getString(R.string.forgot_password));
         }
         Helper.setupTypeface(findViewById(R.id.parentLayout), Helper.robotoRegularTypeface);
-        textViewForgotTitle.setTypeface(Helper.robotoBoldTypeface);
         if (savedInstanceState != null)
         {
             CharSequence savedText = savedInstanceState.getCharSequence(KEY_TEXT_VALUE);

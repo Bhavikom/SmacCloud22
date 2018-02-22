@@ -16,6 +16,7 @@ import de.smac.smaccloud.adapter.TermsConditionListAdapter;
 import de.smac.smaccloud.base.Activity;
 import de.smac.smaccloud.helper.PreferenceHelper;
 import de.smac.smaccloud.model.TermsAndCondition;
+import de.smac.smaccloud.service.FCMMessagingService;
 
 public class OpenSourceLibrariesActivity extends Activity
 {
@@ -30,7 +31,7 @@ public class OpenSourceLibrariesActivity extends Activity
         setContentView(R.layout.activity_open_source_libraris);
         openSourceList = (ListView) findViewById(R.id.openSourceList);
         String[] titles = new String[]{getString(R.string.openSource_title1), getString(R.string.openSource_title2), getString(R.string.openSource_title3), getString(R.string.openSource_title4), getString(R.string.openSource_title5), getString(R.string.openSource_title6), getString(R.string.openSource_title7), getString(R.string.openSource_title8)};
-        String[] descriptions = new String[]{getString(R.string.openSource_description1), getString(R.string.openSource_description2), getString(R.string.openSource_description3), getString(R.string.openSource_description4), getString(R.string.openSource_description5), getString(R.string.openSource_description6),getString(R.string.openSource_description7),getString(R.string.openSource_description8)};
+        String[] descriptions = new String[]{getString(R.string.openSource_description1), getString(R.string.openSource_description2), getString(R.string.openSource_description3), getString(R.string.openSource_description4), getString(R.string.openSource_description5), getString(R.string.openSource_description6), getString(R.string.openSource_description7), getString(R.string.openSource_description8)};
 
         rowItems = new ArrayList<TermsAndCondition>();
         for (int i = 0; i < titles.length; i++)
@@ -41,6 +42,21 @@ public class OpenSourceLibrariesActivity extends Activity
         TermsConditionListAdapter adapter = new TermsConditionListAdapter(this,
                 R.layout.activity_termslist, rowItems);
         openSourceList.setAdapter(adapter);
+        applyThemeColor();
+        FCMMessagingService.themeChangeNotificationListener = new FCMMessagingService.ThemeChangeNotificationListener()
+        {
+            @Override
+            public void onThemeChangeNotificationReceived()
+            {
+                applyThemeColor();
+            }
+        };
+
+    }
+
+    public void applyThemeColor()
+    {
+        updateParentThemeColor();
         if (getSupportActionBar() != null)
         {
             getSupportActionBar().setTitle(getString(R.string.label_open_source_libraries));
@@ -65,4 +81,10 @@ public class OpenSourceLibrariesActivity extends Activity
         }
     }
 
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+        applyThemeColor();
+    }
 }

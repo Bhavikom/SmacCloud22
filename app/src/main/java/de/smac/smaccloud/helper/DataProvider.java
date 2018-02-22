@@ -8,15 +8,9 @@ import java.util.Random;
 import de.smac.smaccloud.service.SMACCloudApplication;
 
 public class DataProvider
-
 {
-    public static final String SERVICE_PROTOCOL = "https://";
-    public static String SERVICE_HOST = (!PreferenceHelper.getServiceWeburl(SMACCloudApplication.getInstance()).isEmpty() ? PreferenceHelper.getServiceWeburl(SMACCloudApplication.getInstance()) : SERVICE_PROTOCOL + "smaccloud.smacsoftwares.de:2020/");
-    //public static final String SERVICE_HOST = SERVICE_PROTOCOL + "truckerservices.ssoft.in:8092/";
-    /*public static final String SERVICE_HOST = SERVICE_PROTOCOL + "salescloud.ssoft.in:8082/";*/
-    //public static final String SERVICE_HOST = SERVICE_PROTOCOL + "salescloud.dharminfotech.com:8082/";
-    //public static final String SERVICE_HOST = SERVICE_PROTOCOL + "smaccloud.azurewebsites.net/";
-    /*public static final String SERVICE_PATH = SERVICE_HOST + "SalesCloudService.svc/json/";*/
+    public static final String SERVICE_PROTOCOL = "http://";
+    public static String SERVICE_HOST = (!PreferenceHelper.getServiceWeburl(SMACCloudApplication.getInstance()).isEmpty() ? PreferenceHelper.getServiceWeburl(SMACCloudApplication.getInstance()) : SERVICE_PROTOCOL + "smac-local.sambt.xyz/smac-local/");
     public static String SERVICE_PATH = SERVICE_HOST + "";
     //public static final String SERVICE_PATH = SERVICE_HOST + "SmacCloudService/";
     //public static final String SERVICE_PATH = SERVICE_HOST + "SmacCloud/";
@@ -31,8 +25,6 @@ public class DataProvider
     public static String ENDPOINT_LOGOUT = SERVICE_PATH + "Logout";
     public static String ENDPOINT_ABOUTUS = SERVICE_PATH + "AboutUs";
     public static String ENDPOINT_UPDATE_TOKEN = SERVICE_PATH + "Update/Token";
-
-
 
 
     /**

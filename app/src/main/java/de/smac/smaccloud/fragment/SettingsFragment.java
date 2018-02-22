@@ -43,6 +43,7 @@ import de.smac.smaccloud.activity.DashboardActivity;
 import de.smac.smaccloud.activity.DemoActivity;
 import de.smac.smaccloud.activity.EmailBodyActivity;
 import de.smac.smaccloud.activity.OpenSourceLibrariesActivity;
+import de.smac.smaccloud.activity.PrivacyPolicyActivity;
 import de.smac.smaccloud.activity.SetSignatureActivity;
 import de.smac.smaccloud.activity.StorageActivity;
 import de.smac.smaccloud.activity.SyncActivity;
@@ -67,6 +68,7 @@ import de.smac.smaccloud.model.UserLike;
 import de.smac.smaccloud.model.UserPreference;
 import de.smac.smaccloud.service.DownloadService;
 import de.smac.smaccloud.service.FCMInstanceIdService;
+import de.smac.smaccloud.service.FCMMessagingService;
 
 import static de.smac.smaccloud.activity.SetSignatureActivity.PERMISSION_REQUEST_CODE;
 import static de.smac.smaccloud.base.Helper.LOCALIZATION_TYPE_ERROR_CODE;
@@ -74,7 +76,7 @@ import static de.smac.smaccloud.base.Helper.LOCALIZATION_TYPE_ERROR_CODE;
 /**
  * Show settings
  */
-public class SettingsFragment extends Fragment
+public class SettingsFragment extends Fragment implements FCMMessagingService.ThemeChangeNotificationListener
 {
 
     public static final int REQUEST_CODE_SAVE_SIGNATURE = 101;
@@ -94,6 +96,7 @@ public class SettingsFragment extends Fragment
     RelativeLayout btnBCCAddress;
     RelativeLayout buttonStorage;
     RelativeLayout buttonTerms;
+    RelativeLayout buttonPrivacyPolicy;
     RelativeLayout buttonOpenSourceLibraries;
     RelativeLayout buttonHelp;
     RelativeLayout btnSynchronizeNow;
@@ -122,8 +125,7 @@ public class SettingsFragment extends Fragment
     public void onStart()
     {
         super.onStart();
-        Helper.setupTypeface(findViewById(R.id.parentLayout), Helper.robotoRegularTypeface);
-        Helper.setupTypeface(parentLayout, Helper.robotoRegularTypeface);
+        //applyThemeColor();
     }
 
     @Override
@@ -140,6 +142,7 @@ public class SettingsFragment extends Fragment
             }
             ((DashboardActivity) (activity)).navigationDashboard.getMenu().findItem(R.id.menuSettings).setCheckable(true).setChecked(true);
         }
+        applyThemeColor();
     }
 
     @Override
@@ -172,6 +175,7 @@ public class SettingsFragment extends Fragment
         btnSynchronizeNow = (RelativeLayout) findViewById(R.id.btn_synchronize_now);
         buttonStorage = (RelativeLayout) findViewById(R.id.buttonStorage);
         buttonTerms = (RelativeLayout) findViewById(R.id.buttonTerms);
+        buttonPrivacyPolicy = (RelativeLayout) findViewById(R.id.buttonPrivacy);
         buttonOpenSourceLibraries = (RelativeLayout) findViewById(R.id.button_openSource_Libraries);
         buttonHelp = (RelativeLayout) findViewById(R.id.button_help);
         btnAboutUs = (RelativeLayout) findViewById(R.id.btn_about_us);
@@ -198,6 +202,7 @@ public class SettingsFragment extends Fragment
         textViewSignOut = (TextView) findViewById(R.id.txt_sign_out);
         textViewSynchronizeNow = (TextView) findViewById(R.id.txt_synchronize_now);
         toggleButtonAutoDownload = (SwitchButton) findViewById(R.id.toggleAutoDownload);
+        applyThemeColor();
 
         if (prefManager.isFullDownloadMedia())
         {
@@ -270,6 +275,23 @@ public class SettingsFragment extends Fragment
                 }
             }
         });
+        FCMMessagingService.themeChangeNotificationListener = new FCMMessagingService.ThemeChangeNotificationListener()
+        {
+            @Override
+            public void onThemeChangeNotificationReceived()
+            {
+                applyThemeColor();
+            }
+        };
+    }
+
+    public void applyThemeColor()
+    {
+        activity.updateParentThemeColor();
+        // TODO: 2/20/2018 Remove unnecessary code
+        Helper.setupTypeface(findViewById(R.id.parentLayout), Helper.robotoRegularTypeface);
+        Helper.setupTypeface(parentLayout, Helper.robotoRegularTypeface);
+        Helper.setupTypeface(getActivity().findViewById(R.id.parentLayout), Helper.robotoRegularTypeface);
     }
 
     public void showLowBatteryStatusDialog()
@@ -413,6 +435,10 @@ public class SettingsFragment extends Fragment
                         startActivity(new Intent(getActivity(), TermsActivity.class));
                         break;
 
+                    case R.id.buttonPrivacy:
+                        startActivity(new Intent(getActivity(), PrivacyPolicyActivity.class));
+                        break;
+
                     case R.id.button_openSource_Libraries:
                         startActivity(new Intent(getActivity(), OpenSourceLibrariesActivity.class));
                         break;
@@ -422,7 +448,7 @@ public class SettingsFragment extends Fragment
                         Helper.preventTwoClick(buttonHelp);
                         Intent intent = new Intent(Intent.ACTION_SEND);
                         intent.setType("plain/text");
-                        intent.putExtra(Intent.EXTRA_EMAIL, new String[]{""});
+                        intent.putExtra(Intent.EXTRA_EMAIL, new String[]{"support@smacsoftwares.de"});
                         intent.putExtra(Intent.EXTRA_SUBJECT, "");
                         intent.putExtra(Intent.EXTRA_TEXT, "");
                         startActivity(Intent.createChooser(intent, ""));
@@ -536,7 +562,7 @@ public class SettingsFragment extends Fragment
                 }
             }
         };
-        Helper.setupTypeface(getActivity().findViewById(R.id.parentLayout), Helper.robotoRegularTypeface);
+
         btnPassword.setOnClickListener(onClickListener);
         btnChangeLanguage.setOnClickListener(onClickListener);
         btnEmailBody.setOnClickListener(onClickListener);
@@ -545,6 +571,7 @@ public class SettingsFragment extends Fragment
         btnSignature.setOnClickListener(onClickListener);
         buttonStorage.setOnClickListener(onClickListener);
         buttonTerms.setOnClickListener(onClickListener);
+        buttonPrivacyPolicy.setOnClickListener(onClickListener);
         buttonOpenSourceLibraries.setOnClickListener(onClickListener);
         buttonHelp.setOnClickListener(onClickListener);
         btnAboutUs.setOnClickListener(onClickListener);
@@ -1122,6 +1149,12 @@ public class SettingsFragment extends Fragment
     {
         super.onConfigurationChanged(newConfig);
         updateLanguage();
+    }
+
+    @Override
+    public void onThemeChangeNotificationReceived()
+    {
+        applyThemeColor();
     }
 
     public interface InterfacechangeLanguage

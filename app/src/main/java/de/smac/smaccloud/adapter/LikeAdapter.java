@@ -95,4 +95,5 @@ public class LikeAdapter extends RecyclerView.Adapter<LikeAdapter.LikeHolder>
             Helper.setupTypeface(itemView, Helper.robotoRegularTypeface);
         }
     }
+
 }

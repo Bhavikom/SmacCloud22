@@ -62,7 +62,7 @@
                     android:layout_marginLeft="@dimen/padding_small"
                     android:layout_weight="50"
                     android:text="@string/version_no"
-                    android:textColor="@color/gray1"
+                    android:textColor="@color/black"
                     android:textSize="@dimen/title_very_small"/>
 
 
@@ -93,7 +93,7 @@
                     android:layout_marginLeft="@dimen/padding_small"
                     android:layout_weight="50"
                     android:text="@string/na"
-                    android:textColor="@color/gray1"
+                    android:textColor="@color/black"
                     android:textSize="@dimen/title_very_small"/>
 
             </LinearLayout>
@@ -122,7 +122,7 @@
                     android:layout_marginLeft="@dimen/padding_small"
                     android:layout_weight="50"
                     android:text="@string/na"
-                    android:textColor="@color/gray1"
+                    android:textColor="@color/black"
                     android:textSize="@dimen/title_very_small"/>
 
             </LinearLayout>

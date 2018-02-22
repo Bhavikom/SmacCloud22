@@ -5,12 +5,15 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.BottomSheetDialog;
+import android.support.design.widget.Snackbar;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import org.json.JSONException;
@@ -39,6 +42,7 @@ public class OrganizationActivity extends Activity implements View.OnClickListen
     String validUrl;
     Boolean isFromDemo = false;
     Bundle bundle;
+    ImageView btnInfo;
 
 
     @Override
@@ -50,14 +54,17 @@ public class OrganizationActivity extends Activity implements View.OnClickListen
         Helper.retainOrientation(OrganizationActivity.this);
         btnContinue = (Button) findViewById(R.id.btn_continue);
         editOrganization = (EditText) findViewById(R.id.edit_organization);
+        btnInfo = (ImageView) findViewById(R.id.img_info);
         //editOrganization.setText("http://138.201.245.106:3101/");
         //editOrganization.setText("http://46.4.49.27:2010/");
-        editOrganization.setText("https://smaccloud.smacsoftwares.de:2020/");
+       // editOrganization.setText("https://smaccloud.smacsoftwares.de:2020/");
+        editOrganization.setText("http://smac-local.sambt.xyz/smac-local/");
         parentLayout = (LinearLayout) findViewById(R.id.parentLayout);
 
         Helper.setupTypeface(parentLayout, Helper.robotoRegularTypeface);
-        btnContinue.setTypeface(Helper.robotoMediumTypeface);
+        //btnContinue.setTypeface(Helper.robotoMediumTypeface);
         btnContinue.setOnClickListener(this);
+        btnInfo.setOnClickListener(this);
 
         if (getSupportActionBar() != null)
         {
@@ -147,6 +154,11 @@ public class OrganizationActivity extends Activity implements View.OnClickListen
                             });
                     alertDialog.show();
                 }
+                break;
+            case R.id.img_info:
+                final BottomSheetDialog btmSheetSortDialog = new BottomSheetDialog(context);
+                btmSheetSortDialog.setContentView(R.layout.activity_bottom_sheet_behavior);
+                btmSheetSortDialog.show();
                 break;
 
         }

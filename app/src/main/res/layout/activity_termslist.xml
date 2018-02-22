@@ -26,6 +26,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="start"
+            android:layout_marginTop="@dimen/padding_very_small"
             android:text="description"
             android:textSize="@dimen/title_very_small"/>
     </LinearLayout>

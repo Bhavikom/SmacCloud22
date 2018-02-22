@@ -26,6 +26,7 @@ import de.smac.smaccloud.R;
 import de.smac.smaccloud.base.Activity;
 import de.smac.smaccloud.base.Helper;
 import de.smac.smaccloud.helper.PreferenceHelper;
+import de.smac.smaccloud.service.FCMMessagingService;
 import de.smac.smaccloud.widgets.SquareImageView;
 
 public class SetSignatureActivity extends Activity
@@ -41,6 +42,28 @@ public class SetSignatureActivity extends Activity
     String path;
     String localPath;
 
+    public static Drawable convertTextToDrawable(Context context, String text, int color)
+    {
+        TextView txtActionAdd = new TextView(context);
+        txtActionAdd.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        txtActionAdd.setText(text);
+        txtActionAdd.setTextColor(color);
+
+        txtActionAdd.setTextSize(TypedValue.COMPLEX_UNIT_PX, context.getResources().getDimension(R.dimen.title_small));
+
+        txtActionAdd.measure(
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+        txtActionAdd.layout(0, 0, txtActionAdd.getMeasuredWidth(), txtActionAdd.getMeasuredHeight());
+
+        txtActionAdd.setDrawingCacheEnabled(true);
+        txtActionAdd.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
+        Bitmap bitmap = Bitmap.createBitmap(txtActionAdd.getDrawingCache());
+        txtActionAdd.setDrawingCacheEnabled(false);
+
+        return new BitmapDrawable(context.getResources(), bitmap);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -52,7 +75,21 @@ public class SetSignatureActivity extends Activity
 
         editSignature.setText(PreferenceHelper.getSignature(context));
         editSignature.setSelection(editSignature.getText().length());
+        applyThemeColor();
+        FCMMessagingService.themeChangeNotificationListener = new FCMMessagingService.ThemeChangeNotificationListener()
+        {
+            @Override
+            public void onThemeChangeNotificationReceived()
+            {
+                applyThemeColor();
+            }
+        };
 
+    }
+
+    public void applyThemeColor()
+    {
+        updateParentThemeColor();
         Helper.setupTypeface(parentLayout, Helper.robotoRegularTypeface);
 
         if (getSupportActionBar() != null)
@@ -64,7 +101,6 @@ public class SetSignatureActivity extends Activity
             getSupportActionBar().setHomeAsUpIndicator(upArrow);
             toolbar.setTitleTextColor(Color.parseColor(PreferenceHelper.getAppColor(context)));
         }
-
     }
 
     @Override
@@ -76,7 +112,6 @@ public class SetSignatureActivity extends Activity
         menu.findItem(R.id.action_reset).setIcon(convertTextToDrawable(context, getString(R.string.label_reset), Color.parseColor(PreferenceHelper.getAppColor(context))));//   menu.findItem(R.id.action_reset).setVisible(true);
         return super.onCreateOptionsMenu(menu);
     }
-
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
@@ -103,7 +138,6 @@ public class SetSignatureActivity extends Activity
         return super.onOptionsItemSelected(item);
     }
 
-
     @Override
     public boolean onTouchEvent(MotionEvent event)
     {
@@ -112,25 +146,11 @@ public class SetSignatureActivity extends Activity
         imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
         return true;
     }
-    public static Drawable convertTextToDrawable(Context context, String text, int color)
+
+    @Override
+    protected void onResume()
     {
-        TextView txtActionAdd = new TextView(context);
-        txtActionAdd.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        txtActionAdd.setText(text);
-        txtActionAdd.setTextColor(color);
-
-        txtActionAdd.setTextSize(TypedValue.COMPLEX_UNIT_PX, context.getResources().getDimension(R.dimen.title_small));
-
-        txtActionAdd.measure(
-                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
-                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
-        txtActionAdd.layout(0, 0, txtActionAdd.getMeasuredWidth(), txtActionAdd.getMeasuredHeight());
-
-        txtActionAdd.setDrawingCacheEnabled(true);
-        txtActionAdd.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
-        Bitmap bitmap = Bitmap.createBitmap(txtActionAdd.getDrawingCache());
-        txtActionAdd.setDrawingCacheEnabled(false);
-
-        return new BitmapDrawable(context.getResources(), bitmap);
+        super.onResume();
+        applyThemeColor();
     }
 }

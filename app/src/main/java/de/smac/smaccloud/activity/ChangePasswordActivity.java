@@ -30,6 +30,7 @@ import de.smac.smaccloud.base.RequestParameter;
 import de.smac.smaccloud.data.DataHelper;
 import de.smac.smaccloud.helper.DataProvider;
 import de.smac.smaccloud.helper.PreferenceHelper;
+import de.smac.smaccloud.service.FCMMessagingService;
 
 import static de.smac.smaccloud.base.Helper.LOCALIZATION_TYPE_ERROR_CODE;
 
@@ -59,15 +60,6 @@ public class ChangePasswordActivity extends Activity implements View.OnClickList
 
         parentLayout = (LinearLayout) findViewById(R.id.parentLayout);
 
-        if (getSupportActionBar() != null)
-        {
-            getSupportActionBar().setTitle(getString(R.string.hint_password));
-            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(PreferenceHelper.getAppBackColor(context))));
-            final Drawable upArrow = getResources().getDrawable(R.drawable.ic_back_material_vector);
-            upArrow.setColorFilter(Color.parseColor(PreferenceHelper.getAppColor(context)), PorterDuff.Mode.SRC_ATOP);
-            getSupportActionBar().setHomeAsUpIndicator(upArrow);
-            toolbar.setTitleTextColor(Color.parseColor(PreferenceHelper.getAppColor(context)));
-        }
         if (savedInstanceState != null)
         {
             CharSequence savedText = savedInstanceState.getCharSequence(KEY_TEXT_VALUE);
@@ -95,6 +87,30 @@ public class ChangePasswordActivity extends Activity implements View.OnClickList
         textInputCurrentPassword = (TextInputLayout) findViewById(R.id.textInputCurrentPassword);
         textInputNewPassword = (TextInputLayout) findViewById(R.id.textInputNewPassword);
         textInputConfirmPassword = (TextInputLayout) findViewById(R.id.textInputConfirmPassword);
+        applyThemeColor();
+        FCMMessagingService.themeChangeNotificationListener = new FCMMessagingService.ThemeChangeNotificationListener()
+        {
+            @Override
+            public void onThemeChangeNotificationReceived()
+            {
+                applyThemeColor();
+            }
+        };
+
+    }
+
+    public void applyThemeColor()
+    {
+        updateParentThemeColor();
+        if (getSupportActionBar() != null)
+        {
+            getSupportActionBar().setTitle(getString(R.string.hint_password));
+            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(PreferenceHelper.getAppBackColor(context))));
+            final Drawable upArrow = getResources().getDrawable(R.drawable.ic_back_material_vector);
+            upArrow.setColorFilter(Color.parseColor(PreferenceHelper.getAppColor(context)), PorterDuff.Mode.SRC_ATOP);
+            getSupportActionBar().setHomeAsUpIndicator(upArrow);
+            toolbar.setTitleTextColor(Color.parseColor(PreferenceHelper.getAppColor(context)));
+        }
         Helper.setupTypeface(linearLayout, Helper.robotoRegularTypeface);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
@@ -105,6 +121,7 @@ public class ChangePasswordActivity extends Activity implements View.OnClickList
         {
             btnChangePassword.setBackgroundColor(Color.parseColor(PreferenceHelper.getAppColor(context)));
         }
+
 
     }
 
@@ -247,6 +264,12 @@ public class ChangePasswordActivity extends Activity implements View.OnClickList
         }
     }
 
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+        applyThemeColor();
+    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item)

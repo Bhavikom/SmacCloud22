@@ -166,8 +166,6 @@ public class ShowdownloadProcessFragment extends Fragment implements DownloadFil
                             txtStopStart.setText("Start");
                             downloadContent.onPostExecute("");
                             downloadContent.onProgressUpdate("");
-                            //downloadContent.cancel(true);
-                            //downloadContent=null;
                             resetAllValue();
                         }
 
@@ -176,9 +174,6 @@ public class ShowdownloadProcessFragment extends Fragment implements DownloadFil
                     {
                         txtStopStart.setText("Stop");
                         callServiceTogetUrl();
-                        //new AsychTaskDownloadFileFromURL(activity, mediaItem).execute(url);
-                        // downloadContent = new AsychTaskDownloadFileFromURL(activity, mediaItem);
-                        // downloadContent.execute(url);
                         flagStartStop = false;
                     }
                 }

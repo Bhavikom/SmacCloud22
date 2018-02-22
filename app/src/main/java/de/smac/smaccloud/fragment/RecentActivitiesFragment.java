@@ -28,6 +28,7 @@ import de.smac.smaccloud.base.Helper;
 import de.smac.smaccloud.data.DataHelper;
 import de.smac.smaccloud.helper.PreferenceHelper;
 import de.smac.smaccloud.model.RecentItem;
+import de.smac.smaccloud.service.FCMMessagingService;
 import info.hoang8f.android.segmented.SegmentedGroup;
 
 public class RecentActivitiesFragment extends Fragment
@@ -58,7 +59,6 @@ public class RecentActivitiesFragment extends Fragment
     protected void initializeComponents()
     {
         parentLayout = (LinearLayout) getActivity().findViewById(R.id.parentLayout);
-        Helper.setupTypeface(parentLayout, Helper.robotoRegularTypeface);
         segmentTab = (SegmentedGroup) getActivity().findViewById(R.id.segmentTab);
         rdoRecent = (RadioButton) getActivity().findViewById(R.id.rdoRecent);
         rdoMostVisited = (RadioButton) getActivity().findViewById(R.id.rdoMostVisited);
@@ -66,16 +66,11 @@ public class RecentActivitiesFragment extends Fragment
         recyclerRecent = (RecyclerView) getActivity().findViewById(R.id.recyclerRecent);
         recyclerRecent.setHasFixedSize(true);
         recyclerRecent.setLayoutManager(recentListManager);
-        segmentTab.setTintColor(Color.parseColor(PreferenceHelper.getAppColor(context)));
-        /*recyclerRecent.addItemDecoration(new DividerItemDecoration(getActivity(), LinearLayoutManager.VERTICAL));
-        recyclerRecent.setItemAnimator(new DefaultItemAnimator());*/
 
         mostVisitedlistManager = new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false);
         recyclerMostVisited = (RecyclerView) getActivity().findViewById(R.id.recyclerMostVisited);
         recyclerMostVisited.setHasFixedSize(true);
         recyclerMostVisited.setLayoutManager(mostVisitedlistManager);
-      /*  recyclerMostVisited.addItemDecoration(new DividerItemDecoration(getActivity(), LinearLayoutManager.VERTICAL));
-        recyclerMostVisited.setItemAnimator(new DefaultItemAnimator());*/
 
         int orientation = this.getResources().getConfiguration().orientation;
         if (orientation == Configuration.ORIENTATION_PORTRAIT)
@@ -133,6 +128,26 @@ public class RecentActivitiesFragment extends Fragment
         {
             e.printStackTrace();
         }
+        applyThemeColor();
+        FCMMessagingService.themeChangeNotificationListener = new FCMMessagingService.ThemeChangeNotificationListener()
+        {
+            @Override
+            public void onThemeChangeNotificationReceived()
+            {
+
+                applyThemeColor();
+            }
+        };
+
+    }
+
+    public void applyThemeColor()
+    {
+        activity.updateParentThemeColor();
+        segmentTab.setTintColor(Color.parseColor(PreferenceHelper.getAppColor(context)));
+        Helper.setupTypeface(parentLayout, Helper.robotoRegularTypeface);
+        recyclerRecent.getAdapter().notifyDataSetChanged();
+        recyclerMostVisited.getAdapter().notifyDataSetChanged();
     }
 
     @Override
@@ -217,6 +232,7 @@ public class RecentActivitiesFragment extends Fragment
         {
             e.printStackTrace();
         }
+        applyThemeColor();
     }
 
     @Override

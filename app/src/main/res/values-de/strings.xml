@@ -8,8 +8,9 @@
 
     <!--Demo Screen String-->
     <string name="login">Anmelden</string>
+    <string name="sign_up">Sign Up</string>
     <string name="tra_demo">Versuche eine Demo</string>
-    <string name="configure_url">Configure URL</string>
+    <string name="smac_link">Configure URL</string>
     <string name="disable_comment_title">Comment Disable</string>
     <string name="disable_comment_message">Comment is disable in demo mode.</string>
     <string name="disable_like_title">Like Disable</string>
@@ -21,13 +22,16 @@
 
 
     <!-- Organization Screen String-->
-    <string name="organization_name">Organisations URL</string>
+    <string name="organization_name">Organisations</string>
     <string name="Continue">Fortsetzen</string>
     <string name="invalid_organization">Ungültige Organisation</string>
     <string name="enter_Organization_name">eintreten Organisations name</string>
 
     <!-- Try_Demo Screen String-->
     <string name="u_name">nennen</string>
+    <string name="address">Address</string>
+    <string name="contact">Contact</string>
+    <string name="mobileNo">Mobile No</string>
     <string name="designation">Bezeichnung</string>
     <string name="occupation">Occupation</string>
     <string name="Professional_field">Berufsfeld</string>
@@ -44,9 +48,20 @@
     <string name="enter_email_address">E-Mail-Adresse</string>
     <string name="invalid_email">Falsche E-Mail-Adresse</string>
 
+    <string name="name_validation">Enter UserName</string>
+    <string name="emailid_validation">Enter Email Id</string>
+    <string name="address_validation">Enter Address</string>
+    <string name="contact_validation">Enter contactNo</string>
+    <string name="mobileno_validation">Enter MobileNo</string>
+    <string name="oragnization_validation">Enter Organization</string>
+    <string name="password_validation">Enter password</string>
+    <string name="confirm_password_validation">Enter confirmPassword</string>
+
+
     <!--Login Screen-->
     <string name="hint_email">E-Mail-Adresse</string>
     <string name="hint_password">Passwort</string>
+    <string name="hint_confirm_password">Confirm password</string>
     <string name="forgot_password">Passwort vergessen?</string>
     <string name="please_select_first">Please Select First</string>
     <string name="enter_password">Enter Password</string>

@@ -696,8 +696,6 @@ public class MediaSearchActivity extends Activity implements View.OnClickListene
             toolbar.setNavigationIcon(R.drawable.ic_back_white);
             toolbar.setBackgroundColor(Color.parseColor(PreferenceHelper.getAppBackColor(getContext())));
             toolbar.setTitleTextColor(Color.parseColor(PreferenceHelper.getAppColor(getContext())));
-
-
             toolbar.setNavigationOnClickListener(new View.OnClickListener()
             {
                 @Override

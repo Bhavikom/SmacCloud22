@@ -112,9 +112,10 @@
     <color name="ivorya4">#EAE8EB</color>
     <color name="table_textColor">#48BFBF</color>
     <color name="transparent_black_color">#99000000</color>
-    <color name="orange_color">#F29001</color>
+    <!--<color name="orange_color">#F29001</color>-->
+    <color name="orange_color">#F76126</color>
     <color name="background_color">#F0F0F4</color>
-    <color name="button_orange_color">#FF950F</color>
+    <color name="button_orange_color">#F76126</color>
     <color name="orange_color_light">#F4D07F</color>
     <color name="recent_tab_color">#F4D07F</color>
 

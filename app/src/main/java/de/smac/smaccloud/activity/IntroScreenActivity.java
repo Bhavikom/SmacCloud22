@@ -28,6 +28,9 @@ import de.smac.smaccloud.helper.PreferenceHelper;
  */
 public class IntroScreenActivity extends Activity
 {
+    private boolean isLastPageSwiped;
+    private int counterPageScroll;
+
     RelativeLayout relativeLayout;
     private ViewPager viewPager;
     private MyViewPagerAdapter myViewPagerAdapter;
@@ -35,6 +38,7 @@ public class IntroScreenActivity extends Activity
     private TextView[] dots;
     private int[] layouts;
     private Button btnSkip, btnNext;
+    private int pagePosition;
     //	viewpager change listener
     ViewPager.OnPageChangeListener viewPagerPageChangeListener = new ViewPager.OnPageChangeListener()
     {
@@ -43,7 +47,7 @@ public class IntroScreenActivity extends Activity
         public void onPageSelected(int position)
         {
             addBottomDots(position);
-
+            pagePosition = position;
             // changing the next button text 'NEXT' / 'GOT IT'
             if (position == layouts.length - 1)
             {
@@ -63,15 +67,18 @@ public class IntroScreenActivity extends Activity
         }
 
         @Override
-        public void onPageScrolled(int arg0, float arg1, int arg2)
+        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels)
         {
-
         }
 
         @Override
-        public void onPageScrollStateChanged(int arg0)
+        public void onPageScrollStateChanged(int state)
         {
-
+            if(state == ViewPager.SCROLL_STATE_DRAGGING){
+                if(pagePosition == layouts.length - 1){
+                    launchHomeScreen();
+                }
+            }
         }
     };
     private PreferenceHelper prefManager;

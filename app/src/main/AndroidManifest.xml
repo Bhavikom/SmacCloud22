@@ -163,6 +163,9 @@
         <activity
             android:name="de.smac.smaccloud.activity.OrganizationActivity"
             android:configChanges="orientation"/>
+        <activity
+            android:name="de.smac.smaccloud.activity.SignUpActivity"
+            android:configChanges="orientation"/>
 
         <service
             android:name="de.smac.smaccloud.base.NetworkService"

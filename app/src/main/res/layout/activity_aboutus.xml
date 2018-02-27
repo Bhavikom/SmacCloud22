@@ -160,7 +160,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/copyright"
                     android:textColor="@color/black"
-                    android:textSize="@dimen/title_extra_small"/>
+                    android:textSize="@dimen/title_ultra_small"/>
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>

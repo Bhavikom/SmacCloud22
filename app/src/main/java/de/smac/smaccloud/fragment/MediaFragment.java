@@ -517,6 +517,7 @@ public class MediaFragment extends Fragment implements DownloadFileFromURL.inter
     }
 
 
+
     public void applyThemeColor()
     {
         activity.updateParentThemeColor();
@@ -631,6 +632,7 @@ public class MediaFragment extends Fragment implements DownloadFileFromURL.inter
     }
 
 
+
     @Override
     public void processFinish(String output)
     {
@@ -647,7 +649,6 @@ public class MediaFragment extends Fragment implements DownloadFileFromURL.inter
                 RequestParameter.urlEncoded("MediaId", String.valueOf(media1.id)),
                 RequestParameter.urlEncoded("Comment", commentText), RequestParameter.urlEncoded("Org_Id", String.valueOf(PreferenceHelper.getOrganizationId(context))));
     }
-
     @Override
     protected void onNetworkResponse(int requestCode, boolean status, String response)
     {

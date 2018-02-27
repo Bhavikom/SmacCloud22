@@ -121,11 +121,9 @@ public class LoginActivity extends Activity
         btnLogin = (Button) findViewById(R.id.buttonLogin);
         parentLayout = (LinearLayout) findViewById(R.id.parentLayout);
         textTitle = (TextView) findViewById(R.id.textTitle);
-        /*editEmail.setText("testting@email.com");
-        editPassword.setText("123456");*/
+
 
     }
-
     @Override
     protected void bindEvents()
     {

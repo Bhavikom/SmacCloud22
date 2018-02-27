@@ -359,13 +359,7 @@ public class ShowdownloadProcessFragment extends Fragment implements DownloadFil
                 URLConnection conection = url.openConnection();
                 conection.setConnectTimeout(600 * 1000);
                 conection.setReadTimeout(600 * 1000);
-                //conection.setRequestProperty(KEY_LANGUAGE_HEADER_PARAM, Locale.getDefault().getLanguage());
-                // input stream to read file - with 8k buffer
-                //InputStream input = new BufferedInputStream(url.openStream(), 8192);
-                // Output stream to write file
-                //OutputStream output = new FileOutputStream("/sdcard/downloadedfile.jpg");
 
-                //byte data[] = new byte[1024];
 
 
                 int userId = PreferenceHelper.getUserContext(context);

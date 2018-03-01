@@ -75,6 +75,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import de.smac.smaccloud.R;
 import de.smac.smaccloud.activity.DashboardActivity;
@@ -98,6 +100,12 @@ import static de.smac.smaccloud.fragment.MediaFragment.REQ_IS_MEDIA_DELETED;
 @SuppressWarnings("unused")
 public class Helper
 {
+    private static Pattern pattern;
+    private static Matcher matcher;
+
+    public static String PASSWORD_PATTERN =
+            "((?=.*[@#$%]).{6,20})";
+
     public static final int REQUEST_PLAY_RESOLUTION = -1001;
     public static final String PREFERENCE_GCM_ID = "gcm_reg_id";
     public static final String PREFERENCE_GCM_APP_ID = "gcm_app_id";
@@ -1294,6 +1302,13 @@ public class Helper
             }
             return false;
         }
+    }
+    public static boolean validatePassword(final String password){
+        pattern = Pattern.compile(PASSWORD_PATTERN);
+
+        matcher = pattern.matcher(password);
+        return matcher.matches();
+
     }
 }
 

@@ -58,7 +58,7 @@ public class OrganizationActivity extends Activity implements View.OnClickListen
         //editOrganization.setText("http://138.201.245.106:3101/");
         //editOrganization.setText("http://46.4.49.27:2010/");
         //editOrganization.setText("https://smaccloud.smacsoftwares.de:2020/");
-        editOrganization.setText("http://smac-local.sambt.xyz:2020/");
+        editOrganization.setText("http://smac-local.sambt.xyz:2020/User");
         parentLayout = (LinearLayout) findViewById(R.id.parentLayout);
 
         Helper.setupTypeface(parentLayout, Helper.robotoRegularTypeface);

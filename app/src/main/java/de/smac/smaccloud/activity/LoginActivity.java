@@ -50,7 +50,7 @@ public class LoginActivity extends Activity
 
     android.app.AlertDialog alertDialogForgetPassword;
     TextInputLayout textInputMail, textInputPassword;
-    //CustomProgressDialog dialog;
+    //CustomProgressDialog progressDialog;
     ProgressDialog dialog;
     long totalSizeInByte;
     private TextView textTitle;

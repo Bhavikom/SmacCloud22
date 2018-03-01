@@ -48,6 +48,7 @@ public class ChangePasswordActivity extends Activity implements View.OnClickList
     String lightbgColor;
     String value = "33";
     private LinearLayout parentLayout;
+
     private String deviceId = "00000-00000-00000-00000-00000";
 
 

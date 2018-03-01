@@ -121,6 +121,7 @@
                         android:drawableLeft="@drawable/ic_mandatory"
                         android:drawablePadding="@dimen/padding_1dp"
                         android:hint="@string/mobileNo"
+                        android:maxLength="15"
                         android:inputType="number"
                         android:singleLine="true"
                         android:textColor="@color/black"
@@ -163,7 +164,7 @@
                         android:drawableLeft="@drawable/ic_mandatory"
                         android:drawablePadding="@dimen/padding_1dp"
                         android:hint="@string/hint_password"
-                        android:inputType="text"
+                        android:inputType="textPassword"
                         android:singleLine="true"
                         android:textColor="@color/black"
                         android:textSize="@dimen/title_ultra_small"/>
@@ -184,7 +185,7 @@
                         android:drawableLeft="@drawable/ic_mandatory"
                         android:drawablePadding="@dimen/padding_1dp"
                         android:hint="@string/hint_confirm_password"
-                        android:inputType="text"
+                        android:inputType="textPassword"
                         android:singleLine="true"
                         android:textColor="@color/black"
                         android:textSize="@dimen/title_ultra_small"/>

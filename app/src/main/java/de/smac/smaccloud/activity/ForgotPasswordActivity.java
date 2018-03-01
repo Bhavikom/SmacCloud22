@@ -26,7 +26,7 @@ import de.smac.smaccloud.helper.DataProvider;
 import static de.smac.smaccloud.base.Helper.LOCALIZATION_TYPE_ERROR_CODE;
 
 /**
- * Call at forgot password
+ * Call at forgot strPassword
  */
 
 public class ForgotPasswordActivity extends Activity

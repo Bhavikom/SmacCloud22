@@ -30,7 +30,7 @@
     <!-- Try_Demo Screen String-->
     <string name="u_name">nennen</string>
     <string name="address">Address</string>
-    <string name="contact">Contact</string>
+    <string name="contact">Contact No</string>
     <string name="mobileNo">Mobile No</string>
     <string name="designation">Bezeichnung</string>
     <string name="occupation">Occupation</string>
@@ -53,10 +53,12 @@
     <string name="address_validation">Enter Address</string>
     <string name="contact_validation">Enter contactNo</string>
     <string name="mobileno_validation">Enter MobileNo</string>
+    <string name="contactNo_validation">Enter contactNo</string>
     <string name="oragnization_validation">Enter Organization</string>
     <string name="password_validation">Enter password</string>
     <string name="confirm_password_validation">Enter confirmPassword</string>
-
+    <string name="invalidMobileNo_validation">Mobile number should be 10 to 15 character long.</string>
+    <string name="password_spacial_character_validation">Password must be 8 characters long and at least one letter, one special character and one number.</string>
 
     <!--Login Screen-->
     <string name="hint_email">E-Mail-Adresse</string>
@@ -67,7 +69,7 @@
     <string name="enter_password">Enter Password</string>
     <string name="help_login">Need help logging in?</string>
     <string name="email_sent_successfully">E-Mail erfolgreich gesendet</string>
-    <string name="password_length_message">Password must requires at least six characters</string>
+    <string name="password_length_message">Please Enter at least 6 character in password</string>
     <string name="recognizing_and_sending_mail">Recognizing and sending mail…</string>
     <string name="authentication">Authentifizierung</string>
 

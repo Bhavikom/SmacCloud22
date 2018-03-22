@@ -52,12 +52,15 @@ public class FCMMessagingService extends FirebaseMessagingService
     public static final int ACTION_TYPE_CONTENT_UPDATED = 1805;
     public static final int ACTION_TYPE_MEDIA_LIKE = 1806;
     public static final int ACTION_TYPE_THEME_CHANGE = 1807;
+    public static final int ACTION_TYPE_SIMPLE_MESSAGE = 0;
 
     public static final String PUSH_TYPE_ADD_LIKE = "ADD_LIKE";
     public static final String PUSH_TYPE_SYNC = "SYNC";
     public static final String PUSH_TYPE_FORCE_SYNC = "FORCE_SYNC";
     public static final String PUSH_TYPE_ADD_COMMENT = "ADD_COMMENT";
     public static final String PUSH_TYPE_THEME_CHANGE = "THEME_CHANGE";
+    public static final String PUSH_TYPE_SIMPLE_MESSGAE = "SIMPLE_MESSAGE";
+
 
     public static final String KEY_NOTIFICATION_DATA = "NotificationData";
     private static final String NOTIFICATION_DELETED_ACTION = "NOTIFICATION_DELETED";
@@ -113,8 +116,6 @@ public class FCMMessagingService extends FirebaseMessagingService
                     switch (actionType)
                     {
                         case ACTION_TYPE_CHANNEL_ASSIGNED:
-                        case CHANNEL_UN_ASSIGNED:
-                        case ACTION_TYPE_CHANNEL_REMOVED:
                             announcement.type = PUSH_TYPE_FORCE_SYNC;
                             announcement.userId = -1;
                             announcement.associatedId = -1;
@@ -123,6 +124,24 @@ public class FCMMessagingService extends FirebaseMessagingService
                                 fcmPushReceiveListener.onFCMPushReceived(messageTitle, messageBody, remoteMessage.getData());
                             }
                             break;
+                        case CHANNEL_UN_ASSIGNED:
+                            announcement.type = PUSH_TYPE_FORCE_SYNC;
+                            announcement.userId = -1;
+                            announcement.associatedId = -1;
+                            if (fcmPushReceiveListener != null)
+                            {
+                                fcmPushReceiveListener.onFCMPushReceived(messageTitle, messageBody, remoteMessage.getData());
+                            }
+                            break;
+                        case ACTION_TYPE_CHANNEL_REMOVED:
+                           /* announcement.type = PUSH_TYPE_FORCE_SYNC;
+                            announcement.userId = -1;
+                            announcement.associatedId = -1;
+                            if (fcmPushReceiveListener != null)
+                            {
+                                fcmPushReceiveListener.onFCMPushReceived(messageTitle, messageBody, remoteMessage.getData());
+                            }
+                            break;*/
                         case ACTION_TYPE_MEDIA_COMMENT:
                             if (remoteMessage.getData().containsKey(KEY_DATA_DATA_CONTENT))
                             {
@@ -171,20 +190,28 @@ public class FCMMessagingService extends FirebaseMessagingService
                             {
                                 ex.printStackTrace();
                             }
-                            if (foreground)
+                            try
                             {
-                                if (fcmPushReceiveListener != null)
+
+                                if (foreground)
                                 {
-                                    fcmPushReceiveListener.onFCMPushReceived(messageTitle, messageBody, remoteMessage.getData());
+                                    if (fcmPushReceiveListener != null)
+                                    {
+                                        fcmPushReceiveListener.onFCMPushReceived(messageTitle, messageBody, remoteMessage.getData());
+                                    }
+                                    else
+                                    {
+                                        Toast.makeText(context, "onFCMPushReceived is NULL!!!", Toast.LENGTH_SHORT).show();
+                                    }
                                 }
                                 else
                                 {
-                                    Toast.makeText(context, "onFCMPushReceived is NULL!!!", Toast.LENGTH_SHORT).show();
+                                    sendNotification(messageTitle, messageBody, remoteMessage.getData());
                                 }
                             }
-                            else
+                            catch (Exception ex)
                             {
-                                sendNotification(messageTitle, messageBody, remoteMessage.getData());
+                                ex.printStackTrace();
                             }
                             break;
 
@@ -255,19 +282,42 @@ public class FCMMessagingService extends FirebaseMessagingService
                             }
                             break;
 
+
                         default:
-                            announcement.type = "";
+                            announcement.type = PUSH_TYPE_SIMPLE_MESSGAE;
+                            announcement.userId = -1;
+                            announcement.associatedId = -1;
+
+                            if (fcmPushReceiveListener != null)
+                            {
+                                fcmPushReceiveListener.onFCMPushReceived(messageTitle, messageBody, remoteMessage.getData());
+                            }
                             break;
                     }
                     DataHelper.addAnnouncement(context, announcement);
 
                     if (notificationIconValueChangeListener != null)
                     {
-                        notificationIconValueChangeListener.onNotificationIconValueChanged();
+                        try
+                        {
+
+                            notificationIconValueChangeListener.onNotificationIconValueChanged();
+                        }
+                        catch (Exception ex)
+                        {
+                            ex.printStackTrace();
+                        }
                     }
                     if (themeChangeNotificationListener != null)
                     {
-                        themeChangeNotificationListener.onThemeChangeNotificationReceived();
+                        try
+                        {
+                            themeChangeNotificationListener.onThemeChangeNotificationReceived();
+                        }
+                        catch (Exception ex)
+                        {
+                            ex.getMessage();
+                        }
                     }
                 }
             });

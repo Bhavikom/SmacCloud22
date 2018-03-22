@@ -10,8 +10,8 @@ android {
         applicationId "de.smac.smaccloud"
         minSdkVersion 17
         targetSdkVersion 25
-        versionCode 9
-        versionName "01.00.01"
+        versionCode 12
+        versionName "01.02.03"
         multiDexEnabled true
     }
     packagingOptions
@@ -26,18 +26,16 @@ android {
 
     buildTypes {
         release {
-            /*minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'*/
 
             debuggable false
             //shrinkResources true
-            //minifyEnabled true
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            //multiDexKeepFile file('multidex-config.txt')
+
         }
 
         debug {
-            //minifyEnabled true
+           // minifyEnabled true
             //shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }

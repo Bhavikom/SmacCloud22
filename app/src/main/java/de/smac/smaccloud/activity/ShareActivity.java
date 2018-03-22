@@ -600,6 +600,7 @@ public class ShareActivity extends Activity implements View.OnClickListener
                     @Override
                     public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation)
                     {
+                        img_media.setScaleType(ImageView.ScaleType.FIT_XY);
                         img_media.setImageBitmap(resource);
                         progressBar.setVisibility(View.GONE);
                     }
@@ -608,7 +609,8 @@ public class ShareActivity extends Activity implements View.OnClickListener
                     public void onLoadFailed(Exception e, Drawable errorDrawable)
                     {
                         super.onLoadFailed(e, errorDrawable);
-                        img_media.setImageBitmap(null);
+                        img_media.setImageResource(R.drawable.ic_logo);
+                        img_media.setScaleType(ImageView.ScaleType.FIT_CENTER);
                         progressBar.setVisibility(View.GONE);
                     }
                 });
@@ -726,7 +728,7 @@ public class ShareActivity extends Activity implements View.OnClickListener
             // TODO: 29-Jun-17 Pass IsAttach value dynamic
             postNetworkRequest(REQUEST_CODE_SHARE, DataProvider.ENDPOINT_SHARE, DataProvider.Actions.SEND_MESSAGE,
                     RequestParameter.urlEncoded("UserId", String.valueOf(user.id)), RequestParameter.urlEncoded("Subject", textSubject.getText().toString()),
-                    RequestParameter.urlEncoded("Body", textEmailBody.getText().toString()), RequestParameter.urlEncoded("Signature", textSignature.getText().toString()),
+                    RequestParameter.urlEncoded("Body", textEmailBody.getText().toString()), RequestParameter.urlEncoded("Signature", textSignature.getText().toString()), RequestParameter.urlEncoded("Org_Id", PreferenceHelper.getOrganizationId(context)),
                     RequestParameter.urlEncoded("IsAttach", String.valueOf(shareType)), RequestParameter.jsonArray("ToAddress", jsonArrayToAddress),
                     RequestParameter.jsonArray("CCAddress", jsonArrayCCAddress), RequestParameter.jsonArray("BCCAddress", jsonArrayBCCAddress),
                     RequestParameter.jsonObject("AttachmentList", jsonObjectAttachmentList));

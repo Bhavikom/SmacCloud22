@@ -92,13 +92,14 @@ public class ChannelsAdapter extends RecyclerView.Adapter<ChannelsAdapter.Channe
                     Glide.with(activity)
                             .load(imageUri)
                             .asBitmap()
+                            .placeholder(R.drawable.ic_logo)
                             .into(new SimpleTarget<Bitmap>()
                             {
                                 @Override
                                 public void onResourceReady(Bitmap bitmap, GlideAnimation<? super Bitmap> glideAnimation)
                                 {
                                     holder.imageIcon.setImageBitmap(bitmap);
-                                    holder.progressBarTemp.setVisibility(View.GONE);
+                                    holder.imageIcon.setScaleType(ImageView.ScaleType.FIT_XY);
 
                                 }
 
@@ -110,6 +111,7 @@ public class ChannelsAdapter extends RecyclerView.Adapter<ChannelsAdapter.Channe
                                             .load(imageUri)
                                             .asBitmap()
                                             .error(R.drawable.ic_channel)
+                                            .placeholder(R.drawable.ic_logo)
                                             .diskCacheStrategy(DiskCacheStrategy.ALL)
                                             .into(new SimpleTarget<Bitmap>()
                                             {
@@ -117,6 +119,7 @@ public class ChannelsAdapter extends RecyclerView.Adapter<ChannelsAdapter.Channe
                                                 public void onResourceReady(Bitmap bitmap, GlideAnimation<? super Bitmap> glideAnimation)
                                                 {
                                                     holder.imageIcon.setImageBitmap(bitmap);
+                                                    holder.imageIcon.setScaleType(ImageView.ScaleType.FIT_XY);
                                                     holder.progressBarTemp.setVisibility(View.GONE);
                                                 }
 
@@ -125,14 +128,21 @@ public class ChannelsAdapter extends RecyclerView.Adapter<ChannelsAdapter.Channe
                                                 {
                                                     super.onLoadFailed(e, errorDrawable);
                                                     holder.progressBarTemp.setVisibility(View.GONE);
-                                                    holder.imageIcon.setImageBitmap(null);
+                                                    holder.imageIcon.setImageResource(R.drawable.ic_logo);
+                                                    holder.imageIcon.setScaleType(ImageView.ScaleType.FIT_CENTER);
 
                                                 }
                                             });
                                 }
                             });
                 }
+                else
+                {
+
+
+                }
             }
+
             holder.compoundButtonDetail.setOnClickListener(onClickListener);
             holder.itemView.setOnClickListener(onClickListener);
 

@@ -83,16 +83,43 @@
                     android:textSize="@dimen/title_very_small"/>
             </LinearLayout>
 
-            <LinearLayout
+            <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
                 android:orientation="vertical">
 
                 <LinearLayout
-                    android:id="@+id/btn_open"
+                    android:id="@+id/linear_seekbar"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_margin="@dimen/padding_very_small"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <SeekBar
+                        android:id="@+id/seekbar"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentLeft="true"
+                        android:layout_centerVertical="true"
+                        android:layout_weight="1"/>
+
+                    <ImageView
+                        android:id="@+id/img_cancel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:layout_centerVertical="true"
+                        android:src="@drawable/ic_cancel"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/linear_download"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
                     android:layout_margin="@dimen/padding_very_small"
                     android:background="@drawable/orange_border_background"
                     android:gravity="center"
@@ -120,7 +147,7 @@
                 </LinearLayout>
 
 
-            </LinearLayout>
+            </FrameLayout>
 
             <View
                 android:layout_width="match_parent"

@@ -103,7 +103,7 @@ public class ChannelAttachAdapter extends RecyclerView.Adapter<ChannelAttachAdap
                             public void onResourceReady(Bitmap bitmap, GlideAnimation<? super Bitmap> glideAnimation)
                             {
                                 holder.imageIcon.setImageBitmap(bitmap);
-                                holder.imageIcon.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                                holder.imageIcon.setScaleType(ImageView.ScaleType.FIT_XY);
                             }
 
                             @Override
@@ -121,13 +121,15 @@ public class ChannelAttachAdapter extends RecyclerView.Adapter<ChannelAttachAdap
                                             public void onResourceReady(Bitmap bitmap, GlideAnimation<? super Bitmap> glideAnimation)
                                             {
                                                 holder.imageIcon.setImageBitmap(bitmap);
-                                                holder.imageIcon.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                                                holder.imageIcon.setScaleType(ImageView.ScaleType.FIT_XY);
                                             }
 
                                             @Override
                                             public void onLoadFailed(Exception e, Drawable errorDrawable)
                                             {
                                                 super.onLoadFailed(e, errorDrawable);
+                                                holder.imageIcon.setImageResource(R.drawable.ic_logo);
+                                                holder.imageIcon.setScaleType(ImageView.ScaleType.FIT_CENTER);
                                                 if (e != null && e.getMessage() != null)
                                                     Log.e("Glide", e.getMessage());
                                             }

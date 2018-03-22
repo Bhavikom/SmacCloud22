@@ -19,13 +19,13 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextPaint;
 import android.text.style.TypefaceSpan;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
-import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -50,9 +50,11 @@ import de.smac.smaccloud.fragment.RecentActivitiesFragment;
 import de.smac.smaccloud.fragment.SettingsFragment;
 import de.smac.smaccloud.helper.PreferenceHelper;
 import de.smac.smaccloud.model.Announcement;
+import de.smac.smaccloud.model.Media;
 import de.smac.smaccloud.model.MediaAllDownload;
 import de.smac.smaccloud.model.User;
 import de.smac.smaccloud.model.UserPreference;
+import de.smac.smaccloud.service.DownloadService;
 import de.smac.smaccloud.service.FCMMessagingService;
 
 /**
@@ -60,6 +62,7 @@ import de.smac.smaccloud.service.FCMMessagingService;
  */
 public class DashboardActivity extends Activity implements SettingsFragment.InterfacechangeLanguage
 {
+    private PreferenceHelper prefManager;
     private static ActionBarDrawerToggle drawerToggle;
     public LinearLayout parentLayout;
     public NavigationView navigationDashboard;
@@ -87,6 +90,7 @@ public class DashboardActivity extends Activity implements SettingsFragment.Inte
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dashboard);
+        prefManager = new PreferenceHelper(context);
         Helper.retainOrientation(DashboardActivity.this);
         User user = new User();
         UserPreference userPreference = new UserPreference();
@@ -250,13 +254,11 @@ public class DashboardActivity extends Activity implements SettingsFragment.Inte
 
                     navigateToFragment(R.id.layoutFrame, new ChannelsFragment(), getSupportFragmentManager().getBackStackEntryCount() != 0);
                     actionBar.setTitle(getString(R.string.label_channels));
-                    // ((DashboardActivity) this).getSupportActionBar().setTitle(R.string.label_channels);
                     drawerLayout.closeDrawer(navigationDashboard);
                     break;
 
                 case R.id.menuActivities:
                     navigateToFragment(R.id.layoutFrame, new RecentActivitiesFragment(), true);
-                    //((DashboardActivity) this).getSupportActionBar().setTitle(R.string.label_recent);
                     actionBar.setTitle(getString(R.string.label_recent));
                     drawerLayout.closeDrawer(navigationDashboard);
                     break;
@@ -272,7 +274,6 @@ public class DashboardActivity extends Activity implements SettingsFragment.Inte
                 case R.id.menuSettings:
                     navigateToFragment(R.id.layoutFrame, new SettingsFragment(), true);
                     actionBar.setTitle(getString(R.string.settings));
-                    //((DashboardActivity) this).getSupportActionBar().setTitle(R.string.settings);
                     drawerLayout.closeDrawer(navigationDashboard);
                     break;
             }
@@ -299,7 +300,7 @@ public class DashboardActivity extends Activity implements SettingsFragment.Inte
                     public void onClick(DialogInterface dialog, int which)
                     {
                         PreferenceHelper.removeUserContext(context);
-                        Intent loginActivity = new Intent(getApplicationContext(), DemoActivity.class);
+                        Intent loginActivity = new Intent(getApplicationContext(), IntroScreenActivity.class);
                         loginActivity.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         startActivity(loginActivity);
                         finish();
@@ -384,8 +385,6 @@ public class DashboardActivity extends Activity implements SettingsFragment.Inte
                 }
                 break;
             case R.id.action_search:
-                /*SearchDialog searchDialog = new SearchDialog(DashboardActivity.this);
-                searchDialog.show();*/
                 startActivity(new Intent(DashboardActivity.this, MediaSearchActivity.class));
                 break;
         }
@@ -572,5 +571,45 @@ public class DashboardActivity extends Activity implements SettingsFragment.Inte
         {
             applyCustomTypeFace(paint, newType);
         }
+    }
+
+    @Override
+    protected void onDestroy()
+    {
+        super.onDestroy();
+        Log.e(" @@@@@ "," on pause is called : ");
+        final ArrayList<MediaAllDownload> arraylistDownloadList = new ArrayList<MediaAllDownload>();
+        DataHelper.getAllDownloadList(context, arraylistDownloadList);
+        if(arraylistDownloadList != null && arraylistDownloadList.size() > 0)
+        {
+            for (int i = 0; i < arraylistDownloadList.size(); i++)
+            {
+                try
+                {
+                    if (arraylistDownloadList.get(i).isDownloading == 1)
+                    {
+                        Media tempMedia = new Media();
+                        tempMedia.id = arraylistDownloadList.get(i).mediaId;
+                        DataHelper.getMedia(context, tempMedia);
+                        tempMedia.isDownloading = 0;
+                        DataHelper.updateMedia(context, tempMedia);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    ex.printStackTrace();
+                }
+            }
+        }
+        DownloadService.isDownloading = false;
+        prefManager.saveFullDownloadMedia(false);
+    }
+
+    @Override
+    protected void onPause()
+    {
+        super.onPause();
+
+
     }
 }

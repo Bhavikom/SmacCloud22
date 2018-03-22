@@ -100,11 +100,10 @@ import static de.smac.smaccloud.fragment.MediaFragment.REQ_IS_MEDIA_DELETED;
 @SuppressWarnings("unused")
 public class Helper
 {
-    private static Pattern pattern;
-    private static Matcher matcher;
-
-    public static String PASSWORD_PATTERN =
-            "((?=.*[@#$%]).{6,20})";
+    public static Media mediaToCancel = null;
+    public static final String START_DOWNLOAD = "start_download";
+    public static final String START_DOWNLOAD_FROM_DETAIL = "start_download_from_detail";
+    public static final String STOP_DOWNLOAD = "stop_download";
 
     public static final int REQUEST_PLAY_RESOLUTION = -1001;
     public static final String PREFERENCE_GCM_ID = "gcm_reg_id";
@@ -112,6 +111,8 @@ public class Helper
     public final static String DOWNLOAD_ACTION = "com.samb.download";
     public static final ArrayList<Integer> selectedMediaTypeList = new ArrayList<>();
     public static final ArrayList<String> selectedChannelsList = new ArrayList<>();
+    public static String PASSWORD_PATTERN =
+            "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[$@$!%*#?&])[A-Za-z\\d$@$!%*#?&]{8,}$";
     public static Typeface globalFace;
     public static boolean isPaused = false;
     public static long NETWORK_CALL_DURATION = 7000;
@@ -122,7 +123,6 @@ public class Helper
     public static String LOCALIZATION_TYPE_ERROR_CODE = "3";
     public static String LOCALIZATION_TYPE_COMPANY_TYPE = "4";
     public static String LOCALIZATION_TYPE_COMPANY_SIZE = "5";
-
     public static Typeface robotoLightTypeface;
     public static Typeface robotoRegularTypeface;
     public static Typeface timesNewRomanTypeface;
@@ -136,7 +136,6 @@ public class Helper
     public static Typeface slaboSansTypeface;
     public static Typeface sourceSerifProTypeface;
     public static Typeface ubuntuTypeface;
-
     public static int SCREEN_HEIGHT;
     public static String fontNameTimesNewRoman = "Times New Roman";
     public static String fontNameDhurjati = "Dhurjati";
@@ -149,7 +148,6 @@ public class Helper
     public static String fontNameSlabo = "Slabo_27px";
     public static String fontNameSourceSerifPro = "Source_Serif_Pro";
     public static String fontNameUbuntu = "Ubuntu";
-
     public static String fontPathRoboto = "fonts/roboto.regular.ttf";
     public static String fontPathTimesNewRoman = "fonts/Crimson-Roman.ttf";
     public static String fontPathDhurjati = "fonts/Dhurjati-Regular.ttf";
@@ -162,21 +160,19 @@ public class Helper
     public static String fontPathSlabo = "fonts/Slabo27px-Regular.ttf";
     public static String fontPathSourceSerifPro = "fonts/SourceSerifPro-Regular.ttf";
     public static String fontPathUbuntu = "fonts/Ubuntu-Regular.ttf";
-
-
     public static int SCREEN_WIDTH;
-
     public static SimpleDateFormat dateFormatGlobal;
     public static SimpleDateFormat dateFormatGlobal2;
     public static SimpleDateFormat dateFormatGlobalCurrentDateTime;
     public static DisplayImageOptions options = new DisplayImageOptions.Builder().cacheInMemory(true)
             .cacheOnDisc(true).resetViewBeforeLoading(true).build();
-
     public static int LAYOUT_FLAGS = View.SYSTEM_UI_FLAG_LAYOUT_STABLE
             | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
             | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION;
     public static int HIDE_FLAGS = LAYOUT_FLAGS | View.SYSTEM_UI_FLAG_FULLSCREEN
             | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
+    private static Pattern pattern;
+    private static Matcher matcher;
 
     /**
      * Apply typeface to all the widget in child view of any parent layout
@@ -686,6 +682,10 @@ public class Helper
             videoViewerActivityIntent.putExtra(DocumentViewerActivity.EXTRA_MEDIA, media);
             context.startActivity(videoViewerActivityIntent);
         }
+        else
+        {
+            Helper.showSimpleDialog(context, context.getString(R.string.un_supported_file_format_msg));
+        }
 
         DataHelper.insertRecentItem(context, media.id, PreferenceHelper.getUserContext(context));
     }
@@ -1181,6 +1181,14 @@ public class Helper
         }, 1000);
     }
 
+    public static boolean validatePassword(final String password)
+    {
+        pattern = Pattern.compile(PASSWORD_PATTERN);
+
+        matcher = pattern.matcher(password);
+        return matcher.matches();
+
+    }
 
     /**
      * This class is used to perform Google Cloud Messaging(GCM) related operations
@@ -1303,12 +1311,39 @@ public class Helper
             return false;
         }
     }
-    public static boolean validatePassword(final String password){
-        pattern = Pattern.compile(PASSWORD_PATTERN);
+    public static String getVersionName(Context context){
+        PackageInfo pinfo = null;
+        try
+        {
+            pinfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
+        }
+        catch (PackageManager.NameNotFoundException e)
+        {
+            e.printStackTrace();
+        }
+        String versionName = pinfo.versionName;
 
-        matcher = pattern.matcher(password);
-        return matcher.matches();
-
+        return versionName;
+    }
+    public static int getVersionNo(Context context){
+        PackageInfo pinfo = null;
+        try
+        {
+            pinfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
+        }
+        catch (PackageManager.NameNotFoundException e)
+        {
+            e.printStackTrace();
+        }
+        int versionNumber = pinfo.versionCode;
+        return versionNumber;
+    }
+    public static void openPlayStoreUrl(Context context,String appPackageName){
+        try {
+            context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + appPackageName)));
+        } catch (android.content.ActivityNotFoundException anfe) {
+            context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + appPackageName)));
+        }
     }
 }
 

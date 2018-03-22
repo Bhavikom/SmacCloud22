@@ -54,6 +54,7 @@ public class LikeAdapter extends RecyclerView.Adapter<LikeAdapter.LikeHolder>
         final int finalPosition = position;
         User user = userLikes.get(position).user;
         holder.labelUserName.setText(user.name);
+
         try
         {
 
@@ -69,6 +70,7 @@ public class LikeAdapter extends RecyclerView.Adapter<LikeAdapter.LikeHolder>
         drawable = DrawableCompat.wrap(drawable);
         DrawableCompat.setTint(drawable, Color.parseColor(PreferenceHelper.getAppColor(context)));
     }
+
 
     @Override
     public int getItemCount()

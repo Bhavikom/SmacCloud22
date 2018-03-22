@@ -567,7 +567,6 @@ public class DataHelper
         channelValues.put(CHANNEL_LOCATION, channel.location);
         channelValues.put(CHANNEL_IS_SYNCED, String.valueOf(channel.isSynced));
         channelValues.put(CHANNEL_THUMBNAIL, String.valueOf(channel.thumbnail));
-        //SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss a");
         if (channel.insertDate != null)
             channelValues.put(CHANNEL_INSERT_DATE, Helper.getDateFormate().format(channel.insertDate));
         if (channel.updateDate != null)
@@ -585,7 +584,7 @@ public class DataHelper
         SQLiteDatabase db = LocalDatabase.getWritable(context);
         String whereClause = CHANNEL_ID + " = ?";
         String[] whereArgs = new String[]{String.valueOf(channel.id)};
-        long removeChannelCount = db.delete(TABLE_USER, whereClause, whereArgs);
+        long removeChannelCount = db.delete(TABLE_CHANNEL, whereClause, whereArgs);
         return (removeChannelCount > 0);
     }
 
@@ -1078,22 +1077,33 @@ public class DataHelper
 
     public static final void getAllDownloadList(Context context, ArrayList<MediaAllDownload> downloadList)
     {
-        SQLiteDatabase db = LocalDatabase.getWritable(context);
-        Cursor cur = db.rawQuery("SELECT * FROM " + TABLE_MEDIA + " where " + MEDIA_IS_DOWNLOADED + "= 0 and " + MEDIA_TYPE + " <> \'folder\'", null);
-
-        if (cur != null && cur.moveToFirst())
+        try
         {
-            do
+            SQLiteDatabase db = LocalDatabase.getWritable(context);
+            Cursor cur = db.rawQuery("SELECT * FROM " + TABLE_MEDIA + " where " + MEDIA_IS_DOWNLOADED + "= 0 and " + MEDIA_TYPE + " <> \'folder\'", null);
+
+            if (cur != null && cur.moveToFirst())
             {
-                MediaAllDownload mediaAllDownload = new MediaAllDownload();
-                mediaAllDownload.mediaId = cur.getInt(cur.getColumnIndex(MEDIA_ID));
-                mediaAllDownload.currentVersionId = cur.getInt(cur.getColumnIndex(MEDIA_CURRENT_VERSION_ID));
-                downloadList.add(mediaAllDownload);
+                do
+                {
+                    MediaAllDownload mediaAllDownload = new MediaAllDownload();
+                    mediaAllDownload.mediaId = cur.getInt(cur.getColumnIndex(MEDIA_ID));
+                    mediaAllDownload.currentVersionId = cur.getInt(cur.getColumnIndex(MEDIA_CURRENT_VERSION_ID));
+                    mediaAllDownload.isDownloading = cur.getInt(cur.getColumnIndex(MEDIA_IS_DOWNLOADING));
+                    downloadList.add(mediaAllDownload);
+                }
+                while (cur.moveToNext());
             }
-            while (cur.moveToNext());
+            if (cur != null)
+            {
+                cur.close();
+            }
         }
-        if (cur != null)
-            cur.close();
+        catch (Exception e)
+        {
+            Log.e(" get all media ", " exception while feting data : " + e.toString());
+        }
+
     }
 
     public static final int getMediaParentId(Context context, int id)
@@ -2278,7 +2288,7 @@ public class DataHelper
             announcementValues.put(ANNOUNCEMENT_DELETEDATE, Helper.getDateFormate().format(announcement.deleteDate));
 
 
-        if (!announcement.type.equalsIgnoreCase(FCMMessagingService.PUSH_TYPE_SYNC))
+        if (announcement.type != null && !announcement.type.equalsIgnoreCase(FCMMessagingService.PUSH_TYPE_SYNC))
         {
             return db.replace(TABLE_ANNOUNCEMENT, null, announcementValues) > 0;
         }

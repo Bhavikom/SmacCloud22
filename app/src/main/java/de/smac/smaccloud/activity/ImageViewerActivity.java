@@ -51,6 +51,7 @@ import de.smac.smaccloud.model.Channel;
 import de.smac.smaccloud.model.Media;
 import de.smac.smaccloud.model.UserComment;
 import de.smac.smaccloud.model.UserLike;
+import de.smac.smaccloud.service.FCMInstanceIdService;
 import de.smac.smaccloud.widgets.EnableDisableViewPager;
 import de.smac.smaccloud.widgets.TouchImageView;
 import de.smac.smaccloud.widgets.UserCommentDialog;
@@ -69,6 +70,7 @@ public class ImageViewerActivity extends Activity implements View.OnClickListene
     public Boolean checkLike;
     public RelativeLayout parentLayout;
     public boolean isvisiblefooter = true;
+    public String deviceId = "00000-00000-00000-00000-00000";
     String json = "";
     //ImageViewTouch imageToDisplayFullScreen;
     Bundle extras;
@@ -104,6 +106,15 @@ public class ImageViewerActivity extends Activity implements View.OnClickListene
         setContentView(R.layout.activity_image_viewer);
         footerLayout = (LinearLayout) findViewById(R.id.layout_header);
         Helper.retainOrientation(ImageViewerActivity.this);
+        Helper.GCM.getCloudMessagingId(this, new Helper.GCM.RegistrationComplete()
+        {
+            @Override
+            public void onRegistrationComplete(String registrationId)
+            {
+                deviceId = registrationId;
+            }
+        });
+        new FCMInstanceIdService(context).onTokenRefresh();
 
     }
 
@@ -230,7 +241,7 @@ public class ImageViewerActivity extends Activity implements View.OnClickListene
                     AlertDialog dialog = builder.create();
 
                     dialog.show();
-                   // Helper.demoUserDialog(context);
+                    // Helper.demoUserDialog(context);
                 }
                 else
                 {
@@ -246,7 +257,7 @@ public class ImageViewerActivity extends Activity implements View.OnClickListene
                             postNetworkRequest(REQUEST_LIKE, DataProvider.ENDPOINT_FILE, DataProvider.Actions.MEDIA_LIKE,
                                     RequestParameter.urlEncoded("ChannelId", String.valueOf(DataHelper.getChannelId(context, media.id))),
                                     RequestParameter.urlEncoded("UserId", String.valueOf(PreferenceHelper.getUserContext(context))),
-                                    RequestParameter.urlEncoded("MediaId", String.valueOf(media.id)), RequestParameter.urlEncoded("Org_Id", String.valueOf(PreferenceHelper.getOrganizationId(context))));
+                                    RequestParameter.urlEncoded("MediaId", String.valueOf(media.id)), RequestParameter.urlEncoded("Org_Id", String.valueOf(PreferenceHelper.getOrganizationId(context))), RequestParameter.urlEncoded("DeviceId", deviceId));
                         }
                         else
                         {
@@ -538,7 +549,8 @@ public class ImageViewerActivity extends Activity implements View.OnClickListene
                             public void onLoadFailed(Exception e, Drawable errorDrawable)
                             {
                                 super.onLoadFailed(e, errorDrawable);
-                                imageView.setImageBitmap(null);
+                               imageView.setImageResource(R.drawable.ic_logo);
+                               imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
                             }
                         });
             }

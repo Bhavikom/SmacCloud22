@@ -1,9 +1,15 @@
-package de.smac.smaccloud.activity;
+    package de.smac.smaccloud.activity;
 
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.content.res.ResourcesCompat;
+import android.support.v4.graphics.drawable.DrawableCompat;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -28,8 +34,8 @@ public class DemoActivity extends Activity implements View.OnClickListener
     TextView textViewTitle, textViewSmacSoftwareLink;
     Activity activity;
     PreferenceHelper preManager;
+    MenuInflater inflater;
     private ImageView languageChange;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -97,16 +103,8 @@ public class DemoActivity extends Activity implements View.OnClickListener
         switch (view.getId())
         {
             case R.id.btn_login:
-                if (preManager.isFirstTimeConfigureServerLanuch())
-                {
-                    Intent i = new Intent(getApplicationContext(), LoginActivity.class);
-                    startActivity(i);
-                }
-                else
-                {
-                    Intent i = new Intent(getApplicationContext(), OrganizationActivity.class);
-                    startActivity(i);
-                }
+                Intent i = new Intent(getApplicationContext(), LoginActivity.class);
+                startActivity(i);
                 break;
 
             case R.id.btn_sign_up:
@@ -120,9 +118,9 @@ public class DemoActivity extends Activity implements View.OnClickListener
 
             case R.id.txt_smac_link:
                 String url = "https://www.smacsoftwares.com";
-                Intent i = new Intent(Intent.ACTION_VIEW);
-                i.setData(Uri.parse(url));
-                startActivity(i);
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setData(Uri.parse(url));
+                startActivity(intent);
                 break;
         }
     }
@@ -180,5 +178,38 @@ public class DemoActivity extends Activity implements View.OnClickListener
         super.onConfigurationChanged(newConfig);
         updateLanguage();
     }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        switch (item.getItemId())
+        {
+            case R.id.action_information:
+                String url = "https://www.smaccloud.com/help/";
+                Intent i = new Intent(Intent.ACTION_VIEW);
+                i.setData(Uri.parse(url));
+                startActivity(i);
+                break;
+
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu)
+    {
+        inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_activity_information, menu);
+        applyThemeColor();
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    public void applyThemeColor()
+    {
+        Drawable drawable = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_info, null);
+        drawable = DrawableCompat.wrap(drawable);
+        DrawableCompat.setTint(drawable, getResources().getColor(R.color.orange_color));
+    }
+
 
 }

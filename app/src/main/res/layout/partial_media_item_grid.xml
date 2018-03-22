@@ -26,10 +26,19 @@
                 android:layout_height="wrap_content">
 
                 <ProgressBar
+                    android:visibility="gone"
                     android:id="@+id/progressTemp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"/>
+                    android:layout_gravity="center"
+                    android:layout_centerVertical="true"
+                    android:layout_centerHorizontal="true" />
+
+                <!--<ProgressBar
+
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"/>-->
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -169,6 +178,7 @@
                     android:layout_gravity="center">
 
                     <ProgressBar
+                        android:visibility="gone"
                         android:id="@+id/downloadProgressBar"
                         style="?android:attr/progressBarStyleHorizontal"
                         android:layout_width="100dp"
@@ -181,7 +191,14 @@
                         android:progressDrawable="@drawable/circular"
                         android:secondaryProgress="100"/>
                 </RelativeLayout>
-
+                <ProgressBar
+                    android:visibility="gone"
+                    android:id="@+id/progress_fulldownload"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_centerVertical="true"
+                    android:layout_centerHorizontal="true" />
                 <!--<ProgressBar
                     android:id="@+id/downloadProgressBar"
                     android:layout_width="wrap_content"

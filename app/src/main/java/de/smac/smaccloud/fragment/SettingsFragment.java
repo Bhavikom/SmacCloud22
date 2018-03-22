@@ -8,10 +8,12 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.BatteryManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -27,12 +29,16 @@ import android.widget.Toast;
 import com.michael.easydialog.EasyDialog;
 import com.suke.widget.SwitchButton;
 
+import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.TimeZone;
 
 import de.smac.smaccloud.R;
 import de.smac.smaccloud.activity.AboutUsActivity;
@@ -40,8 +46,8 @@ import de.smac.smaccloud.activity.BccAddressChipLayoutActivity;
 import de.smac.smaccloud.activity.CcAddressChipLayoutActivity;
 import de.smac.smaccloud.activity.ChangePasswordActivity;
 import de.smac.smaccloud.activity.DashboardActivity;
-import de.smac.smaccloud.activity.DemoActivity;
 import de.smac.smaccloud.activity.EmailBodyActivity;
+import de.smac.smaccloud.activity.IntroScreenActivity;
 import de.smac.smaccloud.activity.OpenSourceLibrariesActivity;
 import de.smac.smaccloud.activity.PrivacyPolicyActivity;
 import de.smac.smaccloud.activity.SetSignatureActivity;
@@ -52,6 +58,9 @@ import de.smac.smaccloud.adapter.LanguageListViewAdapter;
 import de.smac.smaccloud.base.Activity;
 import de.smac.smaccloud.base.Fragment;
 import de.smac.smaccloud.base.Helper;
+import de.smac.smaccloud.base.NetworkRequest;
+import de.smac.smaccloud.base.NetworkResponse;
+import de.smac.smaccloud.base.NetworkService;
 import de.smac.smaccloud.base.RequestParameter;
 import de.smac.smaccloud.data.DataHelper;
 import de.smac.smaccloud.helper.DataProvider;
@@ -69,16 +78,17 @@ import de.smac.smaccloud.model.UserPreference;
 import de.smac.smaccloud.service.DownloadService;
 import de.smac.smaccloud.service.FCMInstanceIdService;
 import de.smac.smaccloud.service.FCMMessagingService;
+import de.smac.smaccloud.service.MultiDownloadService;
 
 import static de.smac.smaccloud.activity.SetSignatureActivity.PERMISSION_REQUEST_CODE;
 import static de.smac.smaccloud.base.Helper.LOCALIZATION_TYPE_ERROR_CODE;
+import static de.smac.smaccloud.base.NetworkService.KEY_AUTHORIZATION;
 
 /**
  * Show settings
  */
 public class SettingsFragment extends Fragment implements FCMMessagingService.ThemeChangeNotificationListener
 {
-
     public static final int REQUEST_CODE_SAVE_SIGNATURE = 101;
     public static final int REQUEST_SYNC = 4302;
     public static final int REQUEST_LOGOUT = 102;
@@ -86,6 +96,8 @@ public class SettingsFragment extends Fragment implements FCMMessagingService.Th
     public LinearLayout parentLayout;
     public boolean isFullDownload = false;
     public int batteryStatus = 20;
+    public String deviceId = "00000-00000-00000-00000-00000";
+    int mediaPosition;
     int id = 1;
     String selectedLang = "en";
     SettingsFragment.InterfacechangeLanguage interfacechangeLanguage;
@@ -202,37 +214,64 @@ public class SettingsFragment extends Fragment implements FCMMessagingService.Th
         textViewSignOut = (TextView) findViewById(R.id.txt_sign_out);
         textViewSynchronizeNow = (TextView) findViewById(R.id.txt_synchronize_now);
         toggleButtonAutoDownload = (SwitchButton) findViewById(R.id.toggleAutoDownload);
-        applyThemeColor();
 
-        if (prefManager.isFullDownloadMedia())
+
+        new FCMInstanceIdService(context).onTokenRefresh();
+        applyThemeColor();
+        if (Helper.isNetworkAvailable(context))
         {
-            toggleButtonAutoDownload.setChecked(true);
+            if (prefManager.isFullDownloadMedia())
+            {
+                toggleButtonAutoDownload.setChecked(true);
+            }
         }
         else
         {
             toggleButtonAutoDownload.setChecked(false);
         }
+
         toggleButtonAutoDownload.setOnCheckedChangeListener(new SwitchButton.OnCheckedChangeListener()
         {
             @Override
             public void onCheckedChanged(SwitchButton switchButton, boolean isChecked)
             {
+
                 if (isChecked)
                 {
-                    if (mediaSize > Helper.availableBlocks(context))
+                    if (Helper.isNetworkAvailable(context))
                     {
-                        showNoFreeSpaceAvailableDialog();
+                        if (mediaSize > Helper.availableBlocks(context))
+                        {
+                            showNoFreeSpaceAvailableDialog();
 
-                    }
-                    else if (getBatteryLevel() <= batteryStatus)
-                    {
-                        showLowBatteryStatusDialog();
+                        }
+                        else if (getBatteryLevel() <= batteryStatus)
+                        {
+                            showLowBatteryStatusDialog();
+                        }
+                        else
+                        {
+                            fullDownloadMedia();
+                        }
                     }
                     else
                     {
-                        fullDownloadMedia();
+                        AlertDialog alertDialog = new AlertDialog.Builder(context).create();
+                        alertDialog.setTitle(context.getString(R.string.app_title));
+                        alertDialog.setMessage(context.getString(R.string.msg_please_check_your_connection));
+                        alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, context.getString(R.string.ok),
+                                new DialogInterface.OnClickListener()
+                                {
+                                    public void onClick(DialogInterface dialog, int which)
+                                    {
+                                        toggleButtonAutoDownload.setChecked(false);
+                                        dialog.dismiss();
+
+                                    }
+                                });
+                        alertDialog.show();
+
                     }
-                    //fullDownloadMedia();
                 }
                 else
                 {
@@ -259,6 +298,7 @@ public class SettingsFragment extends Fragment implements FCMMessagingService.Th
                 prefManager.saveFullDownloadMedia(isChecked);
             }
 
+
         });
         btnAutoDownload.setOnClickListener(new View.OnClickListener()
         {
@@ -273,6 +313,14 @@ public class SettingsFragment extends Fragment implements FCMMessagingService.Th
                 {
                     toggleButtonAutoDownload.setChecked(true);
                 }
+            }
+        });
+        Helper.GCM.getCloudMessagingId(activity, new Helper.GCM.RegistrationComplete()
+        {
+            @Override
+            public void onRegistrationComplete(String registrationId)
+            {
+                deviceId = registrationId;
             }
         });
         FCMMessagingService.themeChangeNotificationListener = new FCMMessagingService.ThemeChangeNotificationListener()
@@ -445,13 +493,24 @@ public class SettingsFragment extends Fragment implements FCMMessagingService.Th
 
 
                     case R.id.button_help:
-                        Helper.preventTwoClick(buttonHelp);
-                        Intent intent = new Intent(Intent.ACTION_SEND);
-                        intent.setType("plain/text");
-                        intent.putExtra(Intent.EXTRA_EMAIL, new String[]{"support@smacsoftwares.de"});
-                        intent.putExtra(Intent.EXTRA_SUBJECT, "");
-                        intent.putExtra(Intent.EXTRA_TEXT, "");
-                        startActivity(Intent.createChooser(intent, ""));
+                        String filePath = "";
+                        Uri URI = Uri.parse("file://" + filePath);
+                        final Intent emailIntent = new Intent(Intent.ACTION_VIEW);
+                        emailIntent.setData(Uri.parse("mailto:"));
+                        emailIntent.putExtra(android.content.Intent.EXTRA_EMAIL, new String[]{"support@smacsoftwares.de"});
+                        if (URI != null)
+                        {
+                            emailIntent.putExtra(Intent.EXTRA_STREAM, URI);
+                        }
+                        try
+                        {
+                            startActivity(emailIntent);
+                        }
+                        catch (Exception e)
+                        {
+                            Snackbar.make(parentLayout, "Gmail App is not installed", Snackbar.LENGTH_LONG).show();
+                            e.printStackTrace();
+                        }
                         break;
 
                     case R.id.btn_synchronize_now:
@@ -497,7 +556,7 @@ public class SettingsFragment extends Fragment implements FCMMessagingService.Th
                                             postNetworkRequest(REQUEST_SYNC, DataProvider.ENDPOINT_SYNC, DataProvider.Actions.SYNC,
                                                     /*RequestParameter.urlEncoded("Org_Id", String.valueOf()),*/
                                                     RequestParameter.jsonArray("UserLikes", jsonArrayUserLikes), RequestParameter.jsonArray("UserComments", jsonArrayUserComments),
-                                                    RequestParameter.urlEncoded("UserId", String.valueOf(userPreference.userId)), RequestParameter.urlEncoded("LastSyncDate", lastSyncDate), RequestParameter.urlEncoded("Org_Id", String.valueOf(PreferenceHelper.getOrganizationId(context))));
+                                                    RequestParameter.urlEncoded("UserId", String.valueOf(userPreference.userId)), RequestParameter.urlEncoded("LastSyncDate", lastSyncDate), RequestParameter.urlEncoded("Org_Id", String.valueOf(PreferenceHelper.getOrganizationId(context))), RequestParameter.urlEncoded("DeviceId", deviceId));
 
 
                                         }
@@ -540,9 +599,7 @@ public class SettingsFragment extends Fragment implements FCMMessagingService.Th
                                             dialog.dismiss();
                                         }
                                     });
-
                             AlertDialog dialog1 = builder1.create();
-
                             dialog1.show();
                         }
                         else
@@ -618,7 +675,8 @@ public class SettingsFragment extends Fragment implements FCMMessagingService.Th
                 if (Helper.isNetworkAvailable(context))
                 {
                     DELETE_USER_PREFERENCE = false;
-                    postNetworkRequest(REQUEST_LOGOUT, DataProvider.ENDPOINT_LOGOUT, DataProvider.Actions.LOGOUT);
+                    postNetworkRequest(REQUEST_LOGOUT, DataProvider.ENDPOINT_LOGOUT, DataProvider.Actions.LOGOUT,
+                            RequestParameter.urlEncoded("DeviceToken", PreferenceHelper.getFCMTokenId(context)), RequestParameter.urlEncoded("Platform", "Android"), RequestParameter.urlEncoded("Org_Id", PreferenceHelper.getOrganizationId(context)));
 
                 }
                 else
@@ -639,7 +697,8 @@ public class SettingsFragment extends Fragment implements FCMMessagingService.Th
                 if (Helper.isNetworkAvailable(context))
                 {
                     DELETE_USER_PREFERENCE = true;
-                    postNetworkRequest(REQUEST_LOGOUT, DataProvider.ENDPOINT_LOGOUT, DataProvider.Actions.LOGOUT);
+                    postNetworkRequest(REQUEST_LOGOUT, DataProvider.ENDPOINT_LOGOUT, DataProvider.Actions.LOGOUT,
+                            RequestParameter.urlEncoded("DeviceToken", PreferenceHelper.getFCMTokenId(context)), RequestParameter.urlEncoded("Platform", "Android"), RequestParameter.urlEncoded("Org_Id", PreferenceHelper.getOrganizationId(context)));
 
                 }
                 else
@@ -783,8 +842,6 @@ public class SettingsFragment extends Fragment implements FCMMessagingService.Th
                     else
                     {
 
-                        /*notifySimple(getString(R.string.msg_data_sync));*/
-
                         syncJson = syncJson.optJSONObject("Payload");
                         Log.e("Setting Sync Payload>>", syncJson.toString());
 
@@ -802,12 +859,12 @@ public class SettingsFragment extends Fragment implements FCMMessagingService.Th
                                 userComment.removeOffline(context);
                             }
                         }
-                        ArrayList<Channel> arraylistChannels = new ArrayList<>();
+                        ArrayList<Channel> arrayListChannels = new ArrayList<>();
                         JSONArray channelJsonArray = syncJson.optJSONArray("Channels");
                         try
                         {
-                            Channel.parseListFromJson(channelJsonArray, arraylistChannels);
-                            for (Channel channel : arraylistChannels)
+                            Channel.parseListFromJson(channelJsonArray, arrayListChannels);
+                            for (Channel channel : arrayListChannels)
                             {
                                 switch (channel.syncType)
                                 {
@@ -829,9 +886,9 @@ public class SettingsFragment extends Fragment implements FCMMessagingService.Th
                             if (syncJson.has("Media") && !syncJson.isNull("Media"))
                             {
                                 JSONArray mediaJsonArray = syncJson.optJSONArray("Media");
-                                ArrayList<Media> arraylistMediallist = new ArrayList<>();
-                                Media.parseListFromJson(mediaJsonArray, arraylistMediallist);
-                                for (Media media : arraylistMediallist)
+                                ArrayList<Media> arrayListMediaList = new ArrayList<>();
+                                Media.parseListFromJson(mediaJsonArray, arrayListMediaList);
+                                for (Media media : arrayListMediaList)
                                 {
                                     switch (media.syncType)
                                     {
@@ -865,9 +922,9 @@ public class SettingsFragment extends Fragment implements FCMMessagingService.Th
                             if (syncJson.has("ChannelFiles") && !syncJson.isNull("ChannelFiles"))
                             {
                                 JSONArray channelFilesJsonArray = syncJson.optJSONArray("ChannelFiles");
-                                ArrayList<ChannelFiles> arraylistChhannelFiles = new ArrayList<>();
-                                ChannelFiles.parseListFromJson(channelFilesJsonArray, arraylistChhannelFiles);
-                                for (ChannelFiles channelFile : arraylistChhannelFiles)
+                                ArrayList<ChannelFiles> arrayListChannelFiles = new ArrayList<>();
+                                ChannelFiles.parseListFromJson(channelFilesJsonArray, arrayListChannelFiles);
+                                for (ChannelFiles channelFile : arrayListChannelFiles)
                                 {
                                     switch (channelFile.syncType)
                                     {
@@ -1027,7 +1084,7 @@ public class SettingsFragment extends Fragment implements FCMMessagingService.Th
                         }
 
                         PreferenceHelper.removeUserContext(context);
-                        Intent loginActivity = new Intent(getActivity(), DemoActivity.class);
+                        Intent loginActivity = new Intent(getActivity(), IntroScreenActivity.class);
                         loginActivity.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         new FCMInstanceIdService(context).deleteInstanceId();
                         PreferenceHelper.removeUserThemePreferences(context);
@@ -1155,6 +1212,83 @@ public class SettingsFragment extends Fragment implements FCMMessagingService.Th
     public void onThemeChangeNotificationReceived()
     {
         applyThemeColor();
+    }
+
+    private void onNetworkReady(final Media media1) throws ParseException, JSONException, UnsupportedEncodingException
+    {
+
+        NetworkRequest request;
+        ArrayList<RequestParameter> parameters = new ArrayList<>();
+        JSONObject payloadJson = new JSONObject();
+
+        payloadJson.put("ChannelId", String.valueOf(DataHelper.getChannelId(context, media1.id)));
+        payloadJson.put("UserId", String.valueOf(PreferenceHelper.getUserContext(context)));
+        payloadJson.put("MediaId", String.valueOf(media1.id));
+        payloadJson.put("VersionId", String.valueOf(media1.currentVersionId));
+
+        NetworkService.RequestCompleteCallback callback;
+        JSONObject requestJson = new JSONObject();
+        requestJson.put("Action", DataProvider.Actions.GET_CHANNEL_MEDIA_CONTENT);
+        requestJson.put("Payload", payloadJson);
+        Log.e("JSON", requestJson.toString());
+        request = new NetworkRequest(context);
+        request.setBodyType(NetworkRequest.REQUEST_BODY_MULTIPART);
+        request.setRequestType(NetworkRequest.REQUEST_TYPE_NORMAL);
+
+        request.setRequestListener(new NetworkRequest.RequestListener()
+        {
+            @Override
+            public void onRequestComplete(NetworkResponse networkResponse) throws JSONException
+            {
+                if (networkResponse.getStatusCode() == 200)
+                {
+                    JSONObject response = new JSONObject(networkResponse.getResponse().toString());
+
+                    if (response.optInt("Status") > 0)
+                    {
+                        Toast.makeText(context, response.optString("Message"), Toast.LENGTH_LONG).show();
+                    }
+                    else
+                    {
+                        //dialog.setMessage(context.getString(R.string.menu_download_option_download));
+                        //dialog.show();
+                        media1.isDownloading = 1;
+
+                        Intent intent = new Intent(activity, MultiDownloadService.class);
+                        intent.setAction(Helper.START_DOWNLOAD);
+                        intent.putExtra("media_object", media1);
+                        intent.putExtra("position", String.valueOf(mediaPosition));
+                        intent.putExtra("url", response.optString("Payload"));
+                        activity.startService(intent);
+
+                        /*DownloadFileFromURL downloadContent = new DownloadFileFromURL(context, media1,"", interfaceResponse);
+                        downloadContent.execute(response.optString("Payload"));*/
+
+                    }
+                }
+            }
+        });
+        request.setProgressMode(NetworkRequest.PROGRESS_MODE_NONE);
+        request.setProgressMessage(getString(R.string.msg_please_wait));
+
+        request.setRequestUrl(DataProvider.ENDPOINT_FILE);
+        parameters = new ArrayList<>();
+        parameters.add(RequestParameter.multiPart("Request", requestJson.toString()));
+        request.setParameters(parameters);
+        int userId = PreferenceHelper.getUserContext(context);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+        String token = PreferenceHelper.getToken(context) + String.valueOf(userId).length() + userId + Helper.getEpochTime();
+        if (token != null && !token.isEmpty())
+        {
+            ArrayList<BasicNameValuePair> headerNameValuePairs = new ArrayList<>();
+            headerNameValuePairs.add(new BasicNameValuePair(KEY_AUTHORIZATION, token));
+            request.setHeaders(headerNameValuePairs);
+
+        }
+
+        request.execute();
     }
 
     public interface InterfacechangeLanguage

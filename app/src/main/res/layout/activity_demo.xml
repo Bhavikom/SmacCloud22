@@ -5,12 +5,37 @@
               android:background="@drawable/intro_background"
               android:orientation="vertical">
 
-    <include layout="@layout/partial_toolbar"/>
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/ivorya3">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/forty_five_dp">
+
+            <ImageView
+                android:id="@+id/language_english"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="@dimen/padding_extra_large"
+                android:src="@drawable/ic_flag_english"/>
+
+
+            <ImageView
+                android:id="@+id/img_info"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_margin="@dimen/forty_five_dp"
+                android:src="@drawable/ic_info"
+                android:tint="@color/orange"/>
+
+        </RelativeLayout>
 
 
         <LinearLayout
@@ -23,11 +48,6 @@
             android:orientation="vertical"
             android:padding="@dimen/padding_large">
 
-            <ImageView
-                android:id="@+id/language_english"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_flag_english"/>
 
             <ImageView
                 android:layout_width="@dimen/hundred_twenty_dp"
@@ -80,12 +100,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
-            android:visibility="gone"
             android:layout_marginBottom="@dimen/padding_extra_large"
             android:gravity="bottom|center_horizontal"
             android:text="@string/smac_link"
             android:textColor="@color/button_orange_color"
-            android:textSize="@dimen/title_medium"/>
+            android:textSize="@dimen/title_medium"
+            android:visibility="gone"/>
 
         <TextView
             android:id="@+id/txt_smac_link"

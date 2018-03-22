@@ -144,7 +144,6 @@ public class ChannelsFragment extends Fragment
             public void onItemClick(int position, View view)
             {
                 Channel channel = arraylistChannels.get(position);
-                //  Bundle arguments = new Bundle();
                 Intent mediaIntent = new Intent(getActivity(), MediaActivity.class);
                 mediaIntent.putExtra(MediaActivity.EXTRA_CHANNEL, channel);
                 mediaIntent.putExtra(MediaActivity.EXTRA_VIEW, isGrid);

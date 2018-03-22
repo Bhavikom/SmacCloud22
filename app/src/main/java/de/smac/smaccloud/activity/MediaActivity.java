@@ -13,7 +13,6 @@ import de.smac.smaccloud.R;
 import de.smac.smaccloud.base.Activity;
 import de.smac.smaccloud.base.Helper;
 import de.smac.smaccloud.fragment.MediaFragment;
-import de.smac.smaccloud.fragment.ShowdownloadProcessFragment;
 import de.smac.smaccloud.helper.InterfaceStopDownload;
 import de.smac.smaccloud.helper.PreferenceHelper;
 import de.smac.smaccloud.model.Channel;
@@ -22,7 +21,7 @@ import de.smac.smaccloud.service.FCMMessagingService;
 /**
  * Media activity for show media
  */
-public class MediaActivity extends Activity implements ShowdownloadProcessFragment.interfaceAsyncResponseDownloadProcess
+public class MediaActivity extends Activity
 {
 
     public static final String EXTRA_CHANNEL = "extra_channel";
@@ -121,13 +120,6 @@ public class MediaActivity extends Activity implements ShowdownloadProcessFragme
         }
 
     }
-
-    @Override
-    public void processFinish(String output)
-    {
-
-    }
-
     /*@Override
     public void onThemeChangeNotificationReceived()
     {

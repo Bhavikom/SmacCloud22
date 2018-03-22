@@ -17,36 +17,3 @@
 #}
 
 # Basic proguard rules
--optimizations !code/simplification/arithmetic
--keepattributes Annotation
--keepattributes InnerClasses
--keepattributes EnclosingMethod
--keep class *.R$
--keep class com.squareup.okhttp.** { *; }
-
--dontskipnonpubliclibraryclasses
--forceprocessing
--optimizationpasses 5
--overloadaggressively
-
-# Removing logging code
--assumenosideeffects class android.util.Log {
-public static *** d(...);
-public static *** v(...);
-public static *** i(...);
-public static *** w(...);
-public static *** e(...);
-}
-
-# The -dontwarn option tells ProGuard not to complain about some artefacts in the Scala runtime
-
--dontwarn android.support.**
--dontwarn android.app.Notification
--dontwarn org.apache.**
--dontwarn com.google.common.**
--dontwarn org.w3c.dom.**
--dontwarn com.squareup.picasso.**
--dontwarn com.android.**
-
--keep public class com.google.android.gms.**
--dontwarn com.google.android.gms.**

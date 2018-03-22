@@ -77,7 +77,7 @@ public class DownloadService extends IntentService {
         if (mediaAllDownloads != null && mediaAllDownloads.size() > 0) {
             try {
                 isDownloading = true;
-                downloadMedia(0);
+                getUrlService(0);
                 mNotifyManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
                 build = new NotificationCompat.Builder(context);
                 build.setContentTitle(getString(R.string.download))
@@ -95,7 +95,7 @@ public class DownloadService extends IntentService {
         }
     }
 
-    protected void downloadMedia(int position) throws JSONException, UnsupportedEncodingException {
+    protected void getUrlService(int position) throws JSONException, UnsupportedEncodingException {
         downloadPosition = position;
         NetworkRequest request;
         ArrayList<RequestParameter> parameters = new ArrayList<>();
@@ -130,15 +130,15 @@ public class DownloadService extends IntentService {
                             protected void onPreExecute() {
                                 super.onPreExecute();
                             }
-
                             @Override
                             protected Void doInBackground(String... params) {
                                 if(isDownloading)
                                 {
                                     try {
-                                        downloadFile(response.optString("Payload"));
+                                        downloadFromUrl(response.optString("Payload"));
                                     }
                                     catch (Exception e){
+                                        Log.e(" download is stopped 2222  "," download status : "+e.toString());
                                         e.printStackTrace();
                                     }
 
@@ -170,6 +170,8 @@ public class DownloadService extends IntentService {
                             protected void onPostExecute(Void aVoid) {
                                 super.onPostExecute(aVoid);
                                 try {
+                                    Log.e(" on post execute "," download done in download service class id : "+mediaAllDownloads.get(downloadPosition).mediaId
+                                    +" download position : "+downloadPosition);
                                     Media tempMedia = new Media();
                                     tempMedia.id = mediaAllDownloads.get(downloadPosition).mediaId;
                                     DataHelper.getMedia(context, tempMedia);
@@ -188,7 +190,7 @@ public class DownloadService extends IntentService {
                                 {
                                     try
                                     {
-                                        downloadMedia(downloadPosition + 1);
+                                        getUrlService(downloadPosition + 1);
                                     } catch (JSONException e)
                                     {
                                         e.printStackTrace();
@@ -235,7 +237,7 @@ public class DownloadService extends IntentService {
 
     }
 
-    protected void downloadFile(String urlToDownload) {
+    protected void downloadFromUrl(String urlToDownload) {
         int count;
         try {
             media.id = mediaAllDownloads.get(downloadPosition).mediaId;
@@ -265,6 +267,7 @@ public class DownloadService extends IntentService {
                 totalBytes += count;
                 output.write(data, 0, count);
             }
+            Log.e(" download is running "," download status : "+String.valueOf(totalBytes));
             if (totalBytes == media.size) {
                 media.isDownloading = 0;
                 media.isDownloaded = 1;
@@ -278,6 +281,7 @@ public class DownloadService extends IntentService {
             input.close();
 
         } catch (Exception e) {
+            Log.e(" download is stopped 111  "," download status : "+e.toString());
             e.printStackTrace();
             media.isDownloading = 0;
             if(e instanceof SocketException){

@@ -67,7 +67,6 @@ import de.smac.smaccloud.base.NetworkService;
 import de.smac.smaccloud.base.RequestParameter;
 import de.smac.smaccloud.data.DataHelper;
 import de.smac.smaccloud.fragment.MediaFragment;
-import de.smac.smaccloud.fragment.ShowdownloadProcessFragment;
 import de.smac.smaccloud.helper.DataProvider;
 import de.smac.smaccloud.helper.InterfaceStopDownload;
 import de.smac.smaccloud.helper.PreferenceHelper;
@@ -84,7 +83,7 @@ import static de.smac.smaccloud.base.NetworkService.KEY_AUTHORIZATION;
 import static de.smac.smaccloud.fragment.MediaFragment.EXTRA_CHANNEL;
 import static de.smac.smaccloud.fragment.MediaFragment.EXTRA_PARENT;
 
-public class MediaSearchActivity extends Activity implements View.OnClickListener, ShowdownloadProcessFragment.interfaceAsyncResponseDownloadProcess
+public class MediaSearchActivity extends Activity implements View.OnClickListener
 {
     public static String lightBgColor;
     static MediaSearchAdapter searchAdapter;
@@ -472,149 +471,6 @@ public class MediaSearchActivity extends Activity implements View.OnClickListene
         }
         super.onBackPressed();
     }
-
-    private void downloadMediaFromURL(final Media selectedMedia) throws ParseException, JSONException, UnsupportedEncodingException
-    {
-        NetworkRequest request;
-        ArrayList<RequestParameter> parameters = new ArrayList<>();
-        JSONObject payloadJson = new JSONObject();
-
-        payloadJson.put("ChannelId", String.valueOf(DataHelper.getChannelId(this, selectedMedia.id)));
-        payloadJson.put("UserId", String.valueOf(PreferenceHelper.getUserContext(this)));
-        payloadJson.put("MediaId", String.valueOf(selectedMedia.id));
-        payloadJson.put("VersionId", String.valueOf(selectedMedia.currentVersionId));
-
-        NetworkService.RequestCompleteCallback callback;
-        JSONObject requestJson = new JSONObject();
-        requestJson.put("Action", DataProvider.Actions.GET_CHANNEL_MEDIA_CONTENT);
-        requestJson.put("Payload", payloadJson);
-        Log.e("JSON", requestJson.toString());
-        request = new NetworkRequest(this);
-        request.setBodyType(NetworkRequest.REQUEST_BODY_MULTIPART);
-        request.setRequestType(NetworkRequest.REQUEST_TYPE_NORMAL);
-
-        request.setRequestListener(new NetworkRequest.RequestListener()
-        {
-            @Override
-            public void onRequestComplete(NetworkResponse networkResponse) throws JSONException
-            {
-                if (networkResponse.getStatusCode() == 200)
-                {
-                    JSONObject response = new JSONObject(networkResponse.getResponse());
-
-                    if (response.optInt("Status") > 0)
-                    {
-                        if (response.optInt("Status") == 2113) // Status = 2113 means "USER_TOKEN_NOT_VALID"
-                        {
-                            NetworkRequest requestTokenNotValid = new NetworkRequest(MediaSearchActivity.this);
-                            requestTokenNotValid.setBodyType(NetworkRequest.REQUEST_BODY_MULTIPART);
-                            requestTokenNotValid.setRequestType(NetworkRequest.REQUEST_TYPE_NORMAL);
-                            requestTokenNotValid.setRequestUrl(DataProvider.ENDPOINT_UPDATE_TOKEN);
-                            //headerNameValuePairs.add(new BasicNameValuePair(KEY_LANGUAGE_HEADER_PARAM, Locale.getDefault().getLanguage()));
-                            try
-                            {
-                                if (PreferenceHelper.getUserContext(MediaSearchActivity.this) != -1)
-                                {
-                                    int userId = PreferenceHelper.getUserContext(MediaSearchActivity.this);
-                                    String token = PreferenceHelper.getToken(MediaSearchActivity.this) + String.valueOf(userId).length() + userId + Helper.getEpochTime();
-                                    ArrayList<BasicNameValuePair> headerNameValuePairs1 = new ArrayList<>();
-                                    if (token != null && !token.isEmpty())
-                                    {
-                                        headerNameValuePairs1.add(new BasicNameValuePair(KEY_AUTHORIZATION, token));
-                                        requestTokenNotValid.setHeaders(headerNameValuePairs1);
-                                    }
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                ex.printStackTrace();
-                            }
-                            requestTokenNotValid.execute();
-                            requestTokenNotValid.setRequestListener(new NetworkRequest.RequestListener()
-                            {
-                                @Override
-                                public void onRequestComplete(NetworkResponse networkResponse)
-                                {
-                                    try
-                                    {
-                                        JSONObject objUpdateTokenResponse = new JSONObject(networkResponse.getResponse().toString());
-                                        if (objUpdateTokenResponse.optInt("Status") > 0)
-                                        {
-                                            Toast.makeText(MediaSearchActivity.this, objUpdateTokenResponse.optString("Message"), Toast.LENGTH_SHORT).show();
-                                        }
-                                        else
-                                        {
-                                            if (objUpdateTokenResponse.has("Payload"))
-                                            {
-                                                JSONObject objUpdateTokenPayload = objUpdateTokenResponse.getJSONObject("Payload");
-                                                if (objUpdateTokenPayload.has("AccessToken") && !objUpdateTokenPayload.isNull("AccessToken"))
-                                                {
-                                                    PreferenceHelper.storeToken(MediaSearchActivity.this, objUpdateTokenPayload.optString("AccessToken"));
-                                                    downloadMediaFromURL(selectedMedia);
-                                                }
-                                            }
-                                        }
-                                    }
-                                    catch (Exception e)
-                                    {
-                                        e.printStackTrace();
-                                    }
-                                }
-                            });
-                        }
-                    }
-                    else
-                    {
-                        /* open new screen to show download process and then go to forward*/
-
-                        ShowdownloadProcessFragment fragment = new ShowdownloadProcessFragment();
-                        FragmentTransaction transaction = MediaSearchActivity.this.getSupportFragmentManager().beginTransaction();
-                        Bundle arguments = new Bundle();
-                        arguments.putString("url", response.optString("Payload"));
-                        arguments.putParcelable(MediaFragment.EXTRA_MEDIA, selectedMedia);
-                        Gson gson = new Gson();
-                        String strMediaList = gson.toJson(Arrays.asList(selectedMedia));
-                        arguments.putString("media_list", strMediaList);
-                        fragment.setArguments(arguments);
-                        transaction.replace(R.id.layoutDynamicFrame, fragment, fragment.getClass().getSimpleName());
-                        transaction.addToBackStack(fragment.getClass().getSimpleName());
-                        transaction.commit();
-                        layoutDynamicFrame.setVisibility(View.VISIBLE);
-                    }
-                }
-            }
-        });
-        request.setProgressMode(NetworkRequest.PROGRESS_MODE_DIALOG_SPINNER);
-        request.setProgressMessage(getString(R.string.msg_please_wait));
-        request.setRequestUrl(DataProvider.ENDPOINT_FILE);
-        parameters = new ArrayList<>();
-        parameters.add(RequestParameter.multiPart("Request", requestJson.toString()));
-        request.setParameters(parameters);
-        int userId = PreferenceHelper.getUserContext(MediaSearchActivity.this);
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
-
-        String token = PreferenceHelper.getToken(MediaSearchActivity.this) + String.valueOf(userId).length() + userId + Helper.getEpochTime();
-        if (token != null && !token.isEmpty())
-        {
-            ArrayList<BasicNameValuePair> headerNameValuePairs = new ArrayList<>();
-            headerNameValuePairs.add(new BasicNameValuePair(KEY_AUTHORIZATION, token));
-            request.setHeaders(headerNameValuePairs);
-        }
-        request.execute();
-
-        if (interfaceStopDownload != null)
-        {
-            interfaceStopDownload.stopDownload();
-        }
-    }
-
-    @Override
-    public void processFinish(String output)
-    {
-        layoutDynamicFrame.setVisibility(View.GONE);
-    }
-
     public void applyThemeColor()
     {
         updateParentThemeColor();

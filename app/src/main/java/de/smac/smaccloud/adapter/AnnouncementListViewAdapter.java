@@ -138,66 +138,74 @@ public class AnnouncementListViewAdapter extends BaseAdapter
             @Override
             public void onClick(View v)
             {
-                if (currentAnnouncement.type.equals(FCMMessagingService.PUSH_TYPE_ADD_LIKE))
+                if (currentAnnouncement.type != null)
                 {
-                    if (currentMedia.isDownloaded == 1)
+                    if (currentAnnouncement.type.equals(FCMMessagingService.PUSH_TYPE_ADD_LIKE))
                     {
-                        Intent userLikeIntent = new Intent(activity, UserLikeViewActivity.class);
-                        userLikeIntent.putExtra(MediaFragment.EXTRA_MEDIA, currentMedia);
-                        userLikeIntent.putExtra(MediaFragment.EXTRA_CHANNEL, new Channel());
-                        activity.startActivity(userLikeIntent);
+                        if (currentMedia.isDownloaded == 1)
+                        {
+                            Intent userLikeIntent = new Intent(activity, UserLikeViewActivity.class);
+                            userLikeIntent.putExtra(MediaFragment.EXTRA_MEDIA, currentMedia);
+                            userLikeIntent.putExtra(MediaFragment.EXTRA_CHANNEL, new Channel());
+                            activity.startActivity(userLikeIntent);
+                            currentAnnouncement.isRead = true;
+                            DataHelper.updateAnnouncement(activity, currentAnnouncement);
+                        }
+                        else
+                        {
+                            Helper.showSimpleDialog(activity, activity.getString(R.string.label_download_first_dialog));
+                        }
+                    }
+                    else if (currentAnnouncement.type.equals(FCMMessagingService.PUSH_TYPE_ADD_COMMENT))
+                    {
+                        if (currentMedia.isDownloaded == 1)
+                        {
+                            Intent userCommentIntent = new Intent(activity, UserCommentViewActivity.class);
+                            userCommentIntent.putExtra(MediaFragment.EXTRA_MEDIA, currentMedia);
+                            userCommentIntent.putExtra(MediaFragment.EXTRA_CHANNEL, new Channel());
+                            activity.startActivityForResult(userCommentIntent, COMMENT_ACTIVITY_REQUEST_CODE);
+                            currentAnnouncement.isRead = true;
+                            DataHelper.updateAnnouncement(activity, currentAnnouncement);
+                        }
+                        else
+                        {
+                            Helper.showSimpleDialog(activity, activity.getString(R.string.label_download_first_dialog));
+                        }
+                    }
+                    else if (currentAnnouncement.type.equals(FCMMessagingService.PUSH_TYPE_FORCE_SYNC))
+                    {
+                        currentAnnouncement.isRead = true;
+                        DataHelper.updateAnnouncement(activity, currentAnnouncement);
+                    }
+                    else if (currentAnnouncement.type.equals(FCMMessagingService.PUSH_TYPE_SYNC))
+                    {
+                        activity.askForSync();
+                    }
+                    else if (currentAnnouncement.type.equals(FCMMessagingService.PUSH_TYPE_THEME_CHANGE))
+                    {
                         currentAnnouncement.isRead = true;
                         DataHelper.updateAnnouncement(activity, currentAnnouncement);
                     }
                     else
                     {
-                        Helper.showSimpleDialog(activity, activity.getString(R.string.label_download_first_dialog));
-                    }
-                }
-                else if (currentAnnouncement.type.equals(FCMMessagingService.PUSH_TYPE_ADD_COMMENT))
-                {
-                    if (currentMedia.isDownloaded == 1)
-                    {
-                        Intent userCommentIntent = new Intent(activity, UserCommentViewActivity.class);
-                        userCommentIntent.putExtra(MediaFragment.EXTRA_MEDIA, currentMedia);
-                        userCommentIntent.putExtra(MediaFragment.EXTRA_CHANNEL, new Channel());
-                        activity.startActivityForResult(userCommentIntent, COMMENT_ACTIVITY_REQUEST_CODE);
                         currentAnnouncement.isRead = true;
                         DataHelper.updateAnnouncement(activity, currentAnnouncement);
                     }
-                    else
-                    {
-                        Helper.showSimpleDialog(activity, activity.getString(R.string.label_download_first_dialog));
-                    }
-                }
-                else if (currentAnnouncement.type.equals(FCMMessagingService.PUSH_TYPE_FORCE_SYNC))
-                {
-                    currentAnnouncement.isRead = true;
-                    DataHelper.updateAnnouncement(activity, currentAnnouncement);
-                }
-                else if (currentAnnouncement.type.equals(FCMMessagingService.PUSH_TYPE_SYNC))
-                {
-                    activity.askForSync();
-                }
-                else if (currentAnnouncement.type.equals(FCMMessagingService.PUSH_TYPE_THEME_CHANGE))
-                {
-                    currentAnnouncement.isRead = true;
-                    DataHelper.updateAnnouncement(activity, currentAnnouncement);
-                }
 
-                // Dismiss announcements list dialog from dashboard activity
-                if (activity instanceof DashboardActivity)
-                {
-                    if (((DashboardActivity) activity).notificationDialog != null && ((DashboardActivity) activity).notificationDialog.getDialog() != null && ((DashboardActivity) activity).notificationDialog.getDialog().isShowing())
+                    // Dismiss announcements list dialog from dashboard activity
+                    if (activity instanceof DashboardActivity)
                     {
-                        ((DashboardActivity) activity).notificationDialog.dismiss();
+                        if (((DashboardActivity) activity).notificationDialog != null && ((DashboardActivity) activity).notificationDialog.getDialog() != null && ((DashboardActivity) activity).notificationDialog.getDialog().isShowing())
+                        {
+                            ((DashboardActivity) activity).notificationDialog.dismiss();
 
-                    }
+                        }
 
-                    de.smac.smaccloud.base.Fragment dashFragment = (ChannelsFragment) activity.getSupportFragmentManager().findFragmentById(R.id.layoutFrame);
-                    if (dashFragment != null && dashFragment instanceof ChannelsFragment)
-                    {
-                        ((ChannelsFragment) dashFragment).applyThemeColor();
+                        de.smac.smaccloud.base.Fragment dashFragment = (ChannelsFragment) activity.getSupportFragmentManager().findFragmentById(R.id.layoutFrame);
+                        if (dashFragment != null && dashFragment instanceof ChannelsFragment)
+                        {
+                            ((ChannelsFragment) dashFragment).applyThemeColor();
+                        }
                     }
                 }
             }

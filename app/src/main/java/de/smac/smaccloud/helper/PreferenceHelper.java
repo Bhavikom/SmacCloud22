@@ -398,7 +398,13 @@ public class PreferenceHelper
         editor.putBoolean(IS_FIRST_TIME_LAUNCH, isFirstTime);
         editor.commit();
     }
-
+    public void saveUpdatedVersionNo(int versionNo){
+        editor.putInt("version_no",versionNo);
+        editor.commit();
+    }
+    public int getUpdatedVersionNo(){
+        return pref.getInt("version_no",0);
+    }
 
     public boolean isFirstTimeConfigureServerLanuch()
     {

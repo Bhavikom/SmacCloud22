@@ -101,6 +101,7 @@ public class MostVisitedItemRecyclerAdapter extends RecyclerView.Adapter<Recycle
                             public void onResourceReady(Bitmap bitmap, GlideAnimation<? super Bitmap> glideAnimation)
                             {
                                 mostVisitedItemHolder.imgIcon.setImageBitmap(bitmap);
+                                mostVisitedItemHolder.imgIcon.setScaleType(ImageView.ScaleType.FIT_XY);
                             }
 
                             @Override
@@ -118,12 +119,15 @@ public class MostVisitedItemRecyclerAdapter extends RecyclerView.Adapter<Recycle
                                             public void onResourceReady(Bitmap bitmap, GlideAnimation<? super Bitmap> glideAnimation)
                                             {
                                                 mostVisitedItemHolder.imgIcon.setImageBitmap(bitmap);
+                                                mostVisitedItemHolder.imgIcon.setScaleType(ImageView.ScaleType.FIT_XY);
                                             }
 
                                             @Override
                                             public void onLoadFailed(Exception e, Drawable errorDrawable)
                                             {
                                                 super.onLoadFailed(e, errorDrawable);
+                                                mostVisitedItemHolder.imgIcon.setImageResource(R.drawable.ic_logo);
+                                                mostVisitedItemHolder.imgIcon.setScaleType(ImageView.ScaleType.FIT_CENTER);
                                                 if (e != null && e.getMessage() != null)
                                                     Log.e("Glide", e.getMessage());
                                             }

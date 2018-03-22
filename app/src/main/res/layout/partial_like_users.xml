@@ -30,10 +30,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginLeft="@dimen/padding_very_small"
+            android:layout_marginLeft="@dimen/padding_extra_large"
             android:ellipsize="middle"
             android:gravity="center_vertical"
             android:singleLine="true"
+            android:text="no likes availble"
             android:textSize="@dimen/title_very_small"
             android:textStyle="bold"
             />

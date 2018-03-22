@@ -51,6 +51,7 @@ import de.smac.smaccloud.model.Channel;
 import de.smac.smaccloud.model.Media;
 import de.smac.smaccloud.model.User;
 import de.smac.smaccloud.model.UserComment;
+import de.smac.smaccloud.service.FCMInstanceIdService;
 import de.smac.smaccloud.service.FCMMessagingService;
 
 import static de.smac.smaccloud.activity.MediaActivity.REQUEST_COMMENT;
@@ -65,6 +66,7 @@ public class UserCommentViewActivity extends Activity
 
     public LinearLayout linearCommentBar;
     public RelativeLayout parentLayout;
+    public String deviceId = "00000-00000-00000-00000-00000";
     PreferenceHelper prefManager;
     ScrollView scrollComment;
     LinearLayout commentLinearLayout;
@@ -139,6 +141,15 @@ public class UserCommentViewActivity extends Activity
                 updateCommentList();
             }
         };
+        Helper.GCM.getCloudMessagingId(UserCommentViewActivity.this, new Helper.GCM.RegistrationComplete()
+        {
+            @Override
+            public void onRegistrationComplete(String registrationId)
+            {
+                deviceId = registrationId;
+            }
+        });
+        new FCMInstanceIdService(context).onTokenRefresh();
         clearFileCommentNotification();
     }
 
@@ -260,7 +271,7 @@ public class UserCommentViewActivity extends Activity
                                         RequestParameter.urlEncoded("UserId", String.valueOf(PreferenceHelper.getUserContext(context))),
                                         RequestParameter.urlEncoded("MediaId", String.valueOf(media.id)),
                                         RequestParameter.urlEncoded("Org_Id", String.valueOf(PreferenceHelper.getOrganizationId(context))),
-                                        RequestParameter.urlEncoded("Comment", comment));
+                                        RequestParameter.urlEncoded("Comment", comment), RequestParameter.urlEncoded("DeviceId", deviceId));
 
                             }
                             else
@@ -275,7 +286,6 @@ public class UserCommentViewActivity extends Activity
                             notifySimple(getString(R.string.msg_please_enter_comment));
                             edtMediaComment.setFocusable(true);
                             notifySimple(getString(R.string.msg_please_enter_comment));
-                            //edtMediaComment.setError(getString(R.string.msg_please_enter_comment));
                         }
                     }
                 }
@@ -492,11 +502,6 @@ public class UserCommentViewActivity extends Activity
                 commentHolder.divider_view.setVisibility(View.GONE);
             else
                 commentHolder.divider_view.setVisibility(View.VISIBLE);
-
-        /*    commentHolder.labelUserName.setTypeface(Helper.robotoBoldTypeface);
-            commentHolder.labelComment.setTypeface(Helper.robotoRegularTypeface);
-            commentHolder.labelInsertDate.setTypeface(Helper.robotoLightTypeface);*/
-
 
             boolean isMyMessage = false; // flag to decide that its my messege or not
             if (String.valueOf(PreferenceHelper.getUserContext(this)).equalsIgnoreCase(String.valueOf(userComment.userId)))

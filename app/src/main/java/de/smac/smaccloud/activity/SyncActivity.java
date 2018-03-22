@@ -48,6 +48,7 @@ import de.smac.smaccloud.model.UserComment;
 import de.smac.smaccloud.model.UserLike;
 import de.smac.smaccloud.model.UserPreference;
 import de.smac.smaccloud.service.DownloadService;
+import de.smac.smaccloud.service.FCMInstanceIdService;
 
 /**
  * User to sync data with server
@@ -66,6 +67,7 @@ public class SyncActivity extends Activity
     public ImageView imageViewSync, imageViewDownloadDemand, imageViewAutoDownload;
     public FrameLayout frameLayoutMiddle;
     public TextView textViewAutoDownload, textViewAutoDownloadTitle, textViewAutoDownloadInfo, textViewDownloadOnDemandTitle, textViewDownloadOnDemandInfo;
+    public String deviceId = "00000-00000-00000-00000-00000";
     ProgressDialog progressDialog;
     long mediaSize = 0;
     SwitchButton toggleButtonDownload;
@@ -115,6 +117,17 @@ public class SyncActivity extends Activity
         toggleButtonDownload = (SwitchButton) findViewById(R.id.toggleAutoDownload);
         buttonDownload = (Button) findViewById(R.id.btnDownload);
         mediaSize = PreferenceHelper.getMediaSize(context);
+
+        Helper.GCM.getCloudMessagingId(SyncActivity.this, new Helper.GCM.RegistrationComplete()
+        {
+            @Override
+            public void onRegistrationComplete(String registrationId)
+            {
+                deviceId = registrationId;
+            }
+        });
+
+        new FCMInstanceIdService(context).onTokenRefresh();
         textViewDownloadFileContain.setText(getString(R.string.label_auto_download).concat(" ").concat(Helper.bytesConvertsToMb(mediaSize, context)));
 
         intentfilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
@@ -141,7 +154,7 @@ public class SyncActivity extends Activity
 
                     postNetworkRequest(REQUEST_SYNC, DataProvider.ENDPOINT_SYNC, DataProvider.Actions.SYNC,
                             RequestParameter.jsonArray("UserLikes", jsonArrayUserLikes), RequestParameter.jsonArray("UserComments", jsonArrayUserComments),
-                            RequestParameter.urlEncoded("UserId", String.valueOf(userPreference.userId)), RequestParameter.urlEncoded("Org_Id", PreferenceHelper.getOrganizationId(context)), RequestParameter.urlEncoded("LastSyncDate", lastSyncDate));
+                            RequestParameter.urlEncoded("UserId", String.valueOf(userPreference.userId)), RequestParameter.urlEncoded("Org_Id", PreferenceHelper.getOrganizationId(context)), RequestParameter.urlEncoded("LastSyncDate", lastSyncDate), RequestParameter.urlEncoded("DeviceId", deviceId));
 
                 }
                 else
@@ -253,7 +266,6 @@ public class SyncActivity extends Activity
         });
 
         Helper.setupTypeface(findViewById(R.id.parentLayout), Helper.robotoLightTypeface);
-
 
 
     }

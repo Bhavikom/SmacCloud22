@@ -61,6 +61,7 @@ import de.smac.smaccloud.model.User;
 import de.smac.smaccloud.model.UserComment;
 import de.smac.smaccloud.model.UserLike;
 import de.smac.smaccloud.service.DownloadFileFromURL;
+import de.smac.smaccloud.service.FCMInstanceIdService;
 import de.smac.smaccloud.service.FCMMessagingService;
 import de.smac.smaccloud.service.SMACCloudApplication;
 import de.smac.smaccloud.widgets.UserCommentDialog;
@@ -74,7 +75,7 @@ import static de.smac.smaccloud.base.Helper.LOCALIZATION_TYPE_ERROR_CODE;
 /**
  * Show arrayListMedia data
  */
-public class MediaFragment extends Fragment implements DownloadFileFromURL.interfaceAsyncResponse, MediaAdapter.OnItemClickOfAdapter, ShowdownloadProcessFragment.interfaceAsyncResponseDownloadProcess
+public class MediaFragment extends Fragment implements DownloadFileFromURL.interfaceAsyncResponse, MediaAdapter.OnItemClickOfAdapter
 {
 
     public static final String EXTRA_CHANNEL = "extra_channel";
@@ -94,6 +95,7 @@ public class MediaFragment extends Fragment implements DownloadFileFromURL.inter
     private static final int REQ_GET_MEDIA_CONTENT = 4303;
     public static int COMMENT_ACTIVITY_REQUEST_CODE = 1001;
     public PreferenceHelper prefManager;
+    public String deviceId = "00000-00000-00000-00000-00000";
     public EasyDialog dialog;
     public boolean chklike;
     int mScrollState;
@@ -370,7 +372,7 @@ public class MediaFragment extends Fragment implements DownloadFileFromURL.inter
                                             postNetworkRequest(REQUEST_LIKE, DataProvider.ENDPOINT_FILE, DataProvider.Actions.MEDIA_LIKE,
                                                     RequestParameter.urlEncoded("ChannelId", String.valueOf(channel.id)),
                                                     RequestParameter.urlEncoded("UserId", String.valueOf(PreferenceHelper.getUserContext(context))),
-                                                    RequestParameter.urlEncoded("MediaId", String.valueOf(media1.id)), RequestParameter.urlEncoded("Org_Id", String.valueOf(PreferenceHelper.getOrganizationId(context))));
+                                                    RequestParameter.urlEncoded("MediaId", String.valueOf(media1.id)), RequestParameter.urlEncoded("Org_Id", String.valueOf(PreferenceHelper.getOrganizationId(context))), RequestParameter.urlEncoded("DeviceId", deviceId));
                                         }
                                         else
                                         {
@@ -505,6 +507,15 @@ public class MediaFragment extends Fragment implements DownloadFileFromURL.inter
         user = new User();
         user.id = PreferenceHelper.getUserContext(context);
         applyThemeColor();
+        Helper.GCM.getCloudMessagingId(activity, new Helper.GCM.RegistrationComplete()
+        {
+            @Override
+            public void onRegistrationComplete(String registrationId)
+            {
+                deviceId = registrationId;
+            }
+        });
+        new FCMInstanceIdService(context).onTokenRefresh();
 
         FCMMessagingService.themeChangeNotificationListener = new FCMMessagingService.ThemeChangeNotificationListener()
         {
@@ -517,24 +528,38 @@ public class MediaFragment extends Fragment implements DownloadFileFromURL.inter
     }
 
 
-
     public void applyThemeColor()
     {
-        activity.updateParentThemeColor();
-        if (activity.getSupportActionBar() != null)
+
+        try
         {
-            activity.getSupportActionBar().setTitle(channel.name);
-            activity.getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(PreferenceHelper.getAppBackColor(context))));
-            final Drawable upArrow = getResources().getDrawable(R.drawable.ic_back_material_vector);
-            upArrow.setColorFilter(Color.parseColor(PreferenceHelper.getAppColor(context)), PorterDuff.Mode.SRC_ATOP);
-            activity.getSupportActionBar().setHomeAsUpIndicator(upArrow);
-            if (toolbar != null)
+            activity.updateParentThemeColor();
+            if (activity.getSupportActionBar() != null)
             {
-                toolbar.setTitleTextColor(Color.parseColor(PreferenceHelper.getAppColor(context)));
+
+                activity.getSupportActionBar().setTitle(channel.name);
+                activity.getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(PreferenceHelper.getAppBackColor(context))));
+
+                final Drawable upArrow = getResources().getDrawable(R.drawable.ic_back_material_vector);
+                if (upArrow != null)
+                {
+                    upArrow.setColorFilter(Color.parseColor(PreferenceHelper.getAppColor(context)), PorterDuff.Mode.SRC_ATOP);
+                    activity.getSupportActionBar().setHomeAsUpIndicator(upArrow);
+                }
+                if (toolbar != null)
+                {
+                    toolbar.setTitleTextColor(Color.parseColor(PreferenceHelper.getAppColor(context)));
+                }
             }
+            recyclerView.getAdapter().notifyDataSetChanged();
         }
-        recyclerView.getAdapter().notifyDataSetChanged();
+        catch (Exception ex)
+        {
+            ex.getMessage();
+        }
+
     }
+
 
     @Override
     public void onConfigurationChanged(Configuration newConfig)
@@ -631,16 +656,6 @@ public class MediaFragment extends Fragment implements DownloadFileFromURL.inter
         applyThemeColor();
     }
 
-
-
-    @Override
-    public void processFinish(String output)
-    {
-        if (mediaAdapter.dialog != null && mediaAdapter.dialog.isShowing())
-            mediaAdapter.dialog.dismiss();
-        mediaAdapter.notifyDataSetChanged();
-    }
-
     public void callCommentService(String commentText)
     {
         postNetworkRequest(REQUEST_COMMENT, DataProvider.ENDPOINT_FILE, DataProvider.Actions.MEDIA_COMMENT,
@@ -649,6 +664,7 @@ public class MediaFragment extends Fragment implements DownloadFileFromURL.inter
                 RequestParameter.urlEncoded("MediaId", String.valueOf(media1.id)),
                 RequestParameter.urlEncoded("Comment", commentText), RequestParameter.urlEncoded("Org_Id", String.valueOf(PreferenceHelper.getOrganizationId(context))));
     }
+
     @Override
     protected void onNetworkResponse(int requestCode, boolean status, String response)
     {
@@ -832,7 +848,7 @@ public class MediaFragment extends Fragment implements DownloadFileFromURL.inter
                         postNetworkRequest(REQUEST_LIKE, DataProvider.ENDPOINT_FILE, DataProvider.Actions.MEDIA_LIKE,
                                 RequestParameter.urlEncoded("ChannelId", String.valueOf(channel.id)),
                                 RequestParameter.urlEncoded("UserId", String.valueOf(PreferenceHelper.getUserContext(context))),
-                                RequestParameter.urlEncoded("MediaId", String.valueOf(media1.id)), RequestParameter.urlEncoded("Org_Id", String.valueOf(PreferenceHelper.getOrganizationId(context))));
+                                RequestParameter.urlEncoded("MediaId", String.valueOf(media1.id)), RequestParameter.urlEncoded("Org_Id", String.valueOf(PreferenceHelper.getOrganizationId(context))), RequestParameter.urlEncoded("DeviceId", deviceId));
                     }
                     else
                     {
@@ -887,5 +903,19 @@ public class MediaFragment extends Fragment implements DownloadFileFromURL.inter
 
     }
 
+
+    @Override
+    public void processFinish(String output, Media media, int pos)
+    {
+        if (mediaAdapter.dialog != null && mediaAdapter.dialog.isShowing())
+            mediaAdapter.dialog.dismiss();
+        mediaAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void statusOfDownload(Media media, int pos)
+    {
+
+    }
 
 }

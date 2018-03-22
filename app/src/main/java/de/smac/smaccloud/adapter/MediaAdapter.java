@@ -2,9 +2,11 @@ package de.smac.smaccloud.adapter;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -16,7 +18,9 @@ import android.support.annotation.RequiresApi;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -64,6 +68,8 @@ import de.smac.smaccloud.helper.PreferenceHelper;
 import de.smac.smaccloud.model.Media;
 import de.smac.smaccloud.model.ThreadModel;
 import de.smac.smaccloud.service.DownloadFileFromURL;
+import de.smac.smaccloud.service.DownloadService;
+import de.smac.smaccloud.service.MultiDownloadService;
 import de.smac.smaccloud.service.SMACCloudApplication;
 import de.smac.smaccloud.widgets.UserCommentDialog;
 
@@ -74,6 +80,9 @@ import static de.smac.smaccloud.base.NetworkService.KEY_AUTHORIZATION;
  */
 public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.MediaHolder> implements DownloadFileFromURL.interfaceAsyncResponse, View.OnClickListener
 {
+    public static final String MESSAGE_PROGRESS = "message_progress";
+    public static final String MESSAGE_FAIL = "message_fail";
+
     public final static String DOWNLOAD_ACTION = "com.samb.download";
     private static final String FILETYPE_VIDEO = "video";
     private static final String FILETYPE_VIDEO_MP4 = "video/mp4";
@@ -96,6 +105,10 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.MediaHolder>
     boolean isCanceled = false;
     MediaHolder holder;
     long lastUpdate = 0;
+    String positionGeted = "";
+    ProgressBar progressBar;
+    ImageView imageViewCancel;
+    ImageView imageDownload;
     private LocalBroadcastManager broadcastManager;
     private Intent intent;
     private Activity activity;
@@ -103,6 +116,55 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.MediaHolder>
     private ArrayList<Media> arrayListMedia;
     private boolean isGrid;
     private OnClickListener clickListener;
+    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver()
+    {
+        @Override
+        public void onReceive(Context context, Intent intent)
+        {
+
+            if (intent.getAction().equals(MESSAGE_PROGRESS))
+            {
+                Media mediaReceived = intent.getParcelableExtra("media_from_service");
+                for (Media object : arrayListMedia)
+                {
+                    if (object.id == mediaReceived.id)
+                    {
+                        positionGeted = String.valueOf(arrayListMedia.indexOf(object));
+                        arrayListMedia.set(arrayListMedia.indexOf(object), mediaReceived);
+
+                        Log.e(" in adapter screen ", " position and id of media : " + positionGeted + " : " + mediaReceived.id);
+                        if (!TextUtils.isEmpty(positionGeted))
+                        {
+                            onProgressUpdate(Integer.parseInt(positionGeted), mediaReceived.progress, mediaReceived);
+                        }
+
+                        break;
+                    }
+                }
+            }
+            else if (intent.getAction().equals(MESSAGE_FAIL))
+            {
+                Media mediaReceived = intent.getParcelableExtra("media_from_service");
+
+                for (Media object : arrayListMedia)
+                {
+                    if (object.id == mediaReceived.id)
+                    {
+                        positionGeted = String.valueOf(arrayListMedia.indexOf(object));
+                        arrayListMedia.set(arrayListMedia.indexOf(object), mediaReceived);
+                        break;
+                    }
+                }
+
+                //positionGeted = intent.getStringExtra("position");
+                Log.e(" 6666666 ", " download is canceled : " + positionGeted);
+                if (!TextUtils.isEmpty(positionGeted))
+                {
+                    onProgressUpdate(Integer.parseInt(positionGeted), mediaReceived.progress, mediaReceived);
+                }
+            }
+        }
+    };
 
     public MediaAdapter(Activity activity, ArrayList<Media> mediaList, OnItemClickOfAdapter interfaceAdapter, RecyclerView recyclerView)
     {
@@ -117,6 +179,7 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.MediaHolder>
         this.recyclerView = recyclerView;
         transaction = ((FragmentActivity) activity).getSupportFragmentManager().beginTransaction();
         broadcastManager = LocalBroadcastManager.getInstance(activity);
+        registerReceiver();
     }
 
     public void updateData(ArrayList<Media> mediaList)
@@ -300,30 +363,6 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.MediaHolder>
         }
         if (!media.type.equals(FILETYPE_FOLDER))
         {
-
-            if (media.isDownloading == 1)
-            {
-                holder.downloadProgressBar.setVisibility(View.VISIBLE);
-                holder.imgDownload.setVisibility(View.GONE);
-                holder.downloadProgressBar.setProgress(media.progress);
-                holder.downloadProgressBar.setProgress(media.progress);
-                holder.imgCancelDownload.setVisibility(View.VISIBLE);
-                holder.imgComment.setImageResource(R.drawable.ic_comment_grey);
-                holder.imgRate.setImageResource(R.drawable.ic_like_grey);
-                holder.imgShare.setImageResource(R.drawable.ic_share_grey);
-
-            }
-            else if (media.isDownloading == 0)
-            {
-                holder.downloadProgressBar.setVisibility(View.GONE);
-                holder.downloadProgressBar.setProgress(media.progress);
-                holder.imgCancelDownload.setVisibility(View.GONE);
-                holder.imgDownload.setVisibility(View.VISIBLE);
-                holder.imgComment.setImageResource(R.drawable.ic_comment_grey);
-                holder.imgRate.setImageResource(R.drawable.ic_like_grey);
-                holder.imgShare.setImageResource(R.drawable.ic_share_grey);
-            }
-
             if (media.isDownloaded == 1)
             {
                 holder.downloadProgressBar.setVisibility(View.GONE);
@@ -332,6 +371,54 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.MediaHolder>
                 holder.imgComment.setImageResource(R.drawable.ic_comment);
                 holder.imgRate.setImageResource(R.drawable.ic_unlike);
                 holder.imgShare.setImageResource(R.drawable.ic_share);
+                holder.progressBarFullDownload.setVisibility(View.GONE);
+            }
+            else
+            {
+                if (!DownloadService.isDownloading)
+                {
+                    holder.progressBarFullDownload.setVisibility(View.GONE);
+                    if (media.isDownloading == 1)
+                    {
+                        holder.downloadProgressBar.setVisibility(View.VISIBLE);
+                        holder.imgDownload.setVisibility(View.GONE);
+                        holder.downloadProgressBar.setProgress(media.progress);
+                        holder.downloadProgressBar.setProgress(media.progress);
+                        holder.imgCancelDownload.setVisibility(View.VISIBLE);
+                        holder.imgComment.setImageResource(R.drawable.ic_comment_grey);
+                        holder.imgRate.setImageResource(R.drawable.ic_like_grey);
+                        holder.imgShare.setImageResource(R.drawable.ic_share_grey);
+
+                    }
+                    else if (media.isDownloading == 0)
+                    {
+                        holder.downloadProgressBar.setVisibility(View.GONE);
+                        holder.downloadProgressBar.setProgress(media.progress);
+                        holder.imgCancelDownload.setVisibility(View.GONE);
+                        holder.imgDownload.setVisibility(View.VISIBLE);
+                        holder.imgComment.setImageResource(R.drawable.ic_comment_grey);
+                        holder.imgRate.setImageResource(R.drawable.ic_like_grey);
+                        holder.imgShare.setImageResource(R.drawable.ic_share_grey);
+                    }
+
+                    if (media.isDownloaded == 1)
+                    {
+                        holder.downloadProgressBar.setVisibility(View.GONE);
+                        holder.imgDownload.setVisibility(View.GONE);
+                        holder.imgCancelDownload.setVisibility(View.GONE);
+                        holder.imgComment.setImageResource(R.drawable.ic_comment);
+                        holder.imgRate.setImageResource(R.drawable.ic_unlike);
+                        holder.imgShare.setImageResource(R.drawable.ic_share);
+                    }
+                }
+                else
+                {
+                    holder.downloadProgressBar.setVisibility(View.GONE);
+                    holder.imgDownload.setVisibility(View.GONE);
+                    holder.imgCancelDownload.setVisibility(View.GONE);
+                    holder.progressBarFullDownload.setVisibility(View.VISIBLE);
+                }
+
             }
 
         }
@@ -513,17 +600,15 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.MediaHolder>
                 Glide.with(activity)
                         .load(imageUri)
                         .asBitmap()
-                        // .placeholder(R.drawable.ic_loding)
                         .diskCacheStrategy(DiskCacheStrategy.ALL)
                         .into(new SimpleTarget<Bitmap>()
                         {
                             @Override
                             public void onResourceReady(Bitmap bitmap, GlideAnimation<? super Bitmap> glideAnimation)
                             {
-
+                                holder.imageIcon.setScaleType(ImageView.ScaleType.FIT_XY);
                                 holder.imageIcon.setImageBitmap(bitmap);
                                 holder.progressBarTemp.setVisibility(View.GONE);
-                                //  holder.imageIcon.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
                             }
 
@@ -532,7 +617,8 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.MediaHolder>
                             {
                                 super.onLoadFailed(e, errorDrawable);
                                 holder.progressBarTemp.setVisibility(View.GONE);
-                                holder.imageIcon.setImageBitmap(null);
+                                holder.imageIcon.setImageResource(R.drawable.ic_logo);
+                                holder.imageIcon.setScaleType(ImageView.ScaleType.FIT_CENTER);
                             }
                         });
             }
@@ -559,8 +645,6 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.MediaHolder>
                     public void onClick(DialogInterface dialog, int which)
                     {
                         dialog.dismiss();
-
-
                     }
                 });
         alertDialog.show();
@@ -660,9 +744,17 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.MediaHolder>
                     }
                     else
                     {
-
                         media1.isDownloading = 1;
-                        startDownloadThread(position, response.optString("Payload"), media1, view, prg);
+
+                        DataHelper.updateMedia(activity, media1);
+
+                        Intent intent = new Intent(activity, MultiDownloadService.class);
+                        intent.setAction(Helper.START_DOWNLOAD);
+                        intent.putExtra("media_object", media1);
+                        intent.putExtra("position", String.valueOf(position));
+                        intent.putExtra("url", response.optString("Payload"));
+                        activity.startService(intent);
+                        //startDownloadThread(position, response.optString("Payload"), media1, view, prg);
                     }
                 }
                 else
@@ -703,15 +795,6 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.MediaHolder>
     public int getItemCount()
     {
         return arrayListMedia.size();
-    }
-
-    @Override
-    public void processFinish(String output)
-    {
-        if (dialog != null && dialog.isShowing())
-            dialog.dismiss();
-        notifyDataSetChanged();
-
     }
 
     @Override
@@ -958,7 +1041,7 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.MediaHolder>
 
     public void stopDownloadOnCancelClicked(final int pos, final Media media, final View view)
     {
-        if (((SMACCloudApplication) activity.getApplication()).arrayListThread.size() > 0)
+        /*if (((SMACCloudApplication) activity.getApplication()).arrayListThread.size() > 0)
         {
             for (int i = 0; i < ((SMACCloudApplication) activity.getApplication()).arrayListThread.size(); i++)
             {
@@ -971,11 +1054,13 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.MediaHolder>
                     break;
                 }
             }
-        }
-        media.isDownloading = 0;
+        }*/
+
+
+        /*media.isDownloading = 0;
         media.isDownloaded = 0;
         media.progress = 0;
-        DataHelper.updateMedia(activity, media);
+        //DataHelper.updateMedia(activity, media);
         activity.runOnUiThread(new Runnable()
         {
             @Override
@@ -990,21 +1075,34 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.MediaHolder>
 
                 ImageView imgDownload = (ImageView) view.findViewById(R.id.img_download);
                 imgDownload.setVisibility(View.VISIBLE);
-
-                notifyItemChanged(pos, media);
             }
         });
+
+        for (Media object : arrayListMedia)
+        {
+            if (object.id == media.id)
+            {
+                arrayListMedia.set(pos,media);
+                notifyDataSetChanged();
+                break;
+            }
+        }*/
+
+        Log.e(" 111111 ", " download is canceled : " + pos);
+        media.isDownloading = 0;
+        DataHelper.updateMedia(activity, media);
+
+        Intent intent = new Intent(activity, MultiDownloadService.class);
+        intent.setAction(Helper.STOP_DOWNLOAD);
+        intent.putExtra("media_object", media);
+        intent.putExtra("position", String.valueOf(pos));
+        activity.startService(intent);
     }
 
     public void onPauseIsCalled()
     {
         Helper.isPaused = true;
         ((SMACCloudApplication) activity.getApplication()).arrayListMediaTemp.clear();
-        /*for (int i = 0; i <= arrayListMedia.size()-1;i++){
-            if(arrayListMedia.get(i).isDownloading == 1){
-                ((SMACCloudApplication) activity.getApplication()).arrayListMediaTemp.add(arrayListMedia.get(i));
-            }
-        }*/
         for (Media object : arrayListMedia)
         {
             if (object.isDownloading == 1)
@@ -1013,6 +1111,112 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.MediaHolder>
             }
         }
 
+    }
+
+    @Override
+    public void processFinish(String output, Media media, int pos)
+    {
+    }
+
+    @Override
+    public void statusOfDownload(Media media, int pos)
+    {
+    }
+
+    private void registerReceiver()
+    {
+        LocalBroadcastManager bManager = LocalBroadcastManager.getInstance(activity);
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(MESSAGE_PROGRESS);
+        intentFilter.addAction(MESSAGE_FAIL);
+        bManager.registerReceiver(broadcastReceiver, intentFilter);
+    }
+
+    protected void onProgressUpdate(int position, int progress, Media mediaReceived)
+    {
+
+        int first = ((LinearLayoutManager) recyclerView.getLayoutManager()).findFirstVisibleItemPosition();
+        int last = ((LinearLayoutManager) recyclerView.getLayoutManager()).findLastVisibleItemPosition();
+        if (position < first || position > last)
+        {
+            // just update your data set, UI will be updated automatically in next
+            // getView() call
+        }
+        else
+        {
+            View convertView = recyclerView.getChildAt(position - first);
+            Log.e(" while update progress ", " position of progress : " + position);
+            // this is the convertView that you previously returned in getView
+            // just fix it (for example:)
+            if (recyclerView != null)
+            {
+                try
+                {
+                    updateRow(recyclerView.findViewHolderForAdapterPosition(position).getAdapterPosition(), convertView, progress, mediaReceived);
+                }
+                catch (Exception e)
+                {
+                    Log.e(" media adapter ", " exception while update ui :" + e.toString());
+                }
+            }
+        }
+    }
+
+    private void updateRow(int pos, View v, int progress, Media mediaReceived)
+    {
+        progressBar = (ProgressBar) v.findViewById(R.id.downloadProgressBar);
+        imageViewCancel = (ImageView) v.findViewById(R.id.img_cancel_download);
+        imageDownload = (ImageView) v.findViewById(R.id.img_download);
+        if (mediaReceived.isDownloading == 1)
+        {
+
+            if (!DownloadService.isDownloading)
+            {
+                if (progressBar.getVisibility() == View.INVISIBLE || progressBar.getVisibility() == View.GONE)
+                {
+                    progressBar.setVisibility(View.VISIBLE);
+                    imageViewCancel.setVisibility(View.VISIBLE);
+                    imageDownload.setVisibility(View.GONE);
+                }
+            }
+            progressBar.setProgress(progress);
+        }
+        else if (mediaReceived.isDownloaded == 1 && mediaReceived.isDownloading == 0)
+        {
+            progressBar.setVisibility(View.GONE);
+            for (Media object : arrayListMedia)
+            {
+                if (object.id == mediaReceived.id)
+                {
+                    arrayListMedia.set(arrayListMedia.indexOf(object), mediaReceived);
+                    DataHelper.updateMedia(activity, mediaReceived);
+                    notifyDataSetChanged();
+                    imageViewCancel.setVisibility(View.GONE);
+                    imageDownload.setVisibility(View.GONE);
+                    break;
+                }
+            }
+        }
+        else if (mediaReceived.isDownloading == 0 && mediaReceived.isDownloaded == 0)
+        {
+            progressBar.setProgress(0);
+            progressBar.setVisibility(View.GONE);
+            imageDownload.setVisibility(View.VISIBLE);
+            imageViewCancel.setVisibility(View.GONE);
+
+            DataHelper.updateMedia(activity, mediaReceived);
+            for (Media object : arrayListMedia)
+            {
+                if (object.id == mediaReceived.id)
+                {
+                    arrayListMedia.set(arrayListMedia.indexOf(object), mediaReceived);
+                    notifyItemChanged(pos);
+                    break;
+                }
+            }
+
+
+        }
     }
 
     public interface InterfaceClickMedial
@@ -1042,13 +1246,13 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.MediaHolder>
         TextView labelName;
         ImageView imgDownload;
         ProgressBar progressBarTemp;
+        ProgressBar progressBarFullDownload;
         ProgressBar downloadProgressBar;
         ImageView compoundButtonDetail;
         LinearLayout relativeOption, linearMediaCount;
         ImageView imgRate, imgComment, imgShare, imgInfo, imgCancelDownload;
         FrameLayout parentLayout;
 
-        //@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
         public MediaHolder(View itemView)
         {
             super(itemView);
@@ -1058,9 +1262,7 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.MediaHolder>
             linearPopup = (LinearLayout) itemView.findViewById(R.id.linearpopup);
             imageIcon = (ImageView) itemView.findViewById(R.id.imageIcon);
             parentLayout = (FrameLayout) itemView.findViewById(R.id.parentLayout);
-
             imageFolder = (ImageView) itemView.findViewById(R.id.ic_folder);
-
             textFileSize = (TextView) itemView.findViewById(R.id.textFileSize);
             relativeOption = (LinearLayout) itemView.findViewById(R.id.relative_option);
             linearMediaCount = (LinearLayout) itemView.findViewById(R.id.linear_mediacount);
@@ -1072,6 +1274,7 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.MediaHolder>
             compoundButtonDetail = (ImageView) itemView.findViewById(R.id.compoundButtonDetail);
             txtMediaCount = (TextView) itemView.findViewById(R.id.textview_mediaCount);
             progressBarTemp = (ProgressBar) itemView.findViewById(R.id.progressTemp);
+            progressBarFullDownload = (ProgressBar) itemView.findViewById(R.id.progress_fulldownload);
 
             imgRate = (ImageView) itemView.findViewById(R.id.img_rate);
             imgComment = (ImageView) itemView.findViewById(R.id.img_comment);

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout android:id="@+id/parentLayout"
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -23,13 +23,22 @@
             <FrameLayout
                 android:id="@+id/framelayout_media_thumbnail"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                >
+                android:layout_height="wrap_content">
+
                 <ProgressBar
+                    android:visibility="gone"
                     android:id="@+id/progressTemp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"/>
+                    android:layout_gravity="center"
+                    android:layout_centerVertical="true"
+                    android:layout_centerHorizontal="true" />
+
+                <!--<ProgressBar
+
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"/>-->
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -37,10 +46,11 @@
                     android:gravity="center_vertical|center_horizontal|center"
                     android:orientation="vertical">
 
+
                     <ImageView
                         android:id="@+id/imageIcon"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="@dimen/two_hundred"
                         android:layout_gravity="center"
                         android:scaleType="fitXY"
                         android:transitionName="@string/text_transition_animation_media_image"/>
@@ -91,7 +101,7 @@
                         android:ellipsize="end"
                         android:maxLength="15"
                         android:textColor="@color/white"
-                        android:textSize="@dimen/title_very_small"
+                        android:textSize="@dimen/title_ultra_small"
                         android:visibility="gone"/>
                 </RelativeLayout>
 
@@ -160,24 +170,41 @@
                     android:layout_gravity="center"
                     android:src="@drawable/ic_download_icon"
                     android:visibility="gone"/>
+
+
                 <RelativeLayout
-                    android:layout_gravity="center"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center">
+
                     <ProgressBar
-                        android:layout_centerInParent="true"
+                        android:visibility="gone"
                         android:id="@+id/downloadProgressBar"
                         style="?android:attr/progressBarStyleHorizontal"
-                        android:layout_width="150dp"
-                        android:layout_height="150dp"
+                        android:layout_width="@dimen/hundred_fifty_dp"
+                        android:layout_height="@dimen/hundred_fifty_dp"
                         android:layout_centerHorizontal="true"
+                        android:layout_centerInParent="true"
                         android:layout_centerVertical="true"
                         android:indeterminate="false"
                         android:max="100"
                         android:progressDrawable="@drawable/circular"
-                        android:secondaryProgress="100" />
+                        android:secondaryProgress="100"/>
                 </RelativeLayout>
-
+                <ProgressBar
+                    android:visibility="gone"
+                    android:id="@+id/progress_fulldownload"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_centerVertical="true"
+                    android:layout_centerHorizontal="true" />
+                <!--<ProgressBar
+                    android:id="@+id/downloadProgressBar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:visibility="gone"/>-->
 
                 <ImageView
                     android:id="@+id/image_media_download_status"
@@ -186,14 +213,20 @@
                     android:layout_gravity="bottom"
                     android:src="@drawable/ic_quick_download"
                     android:visibility="gone"/>
+
+
                 <ImageView
                     android:id="@+id/img_cancel_download"
-                    android:layout_gravity="center"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:layout_gravity="center"
+                    android:padding="20dp"
+                    android:scaleType="center"
                     android:src="@drawable/ic_cancel"/>
 
             </FrameLayout>
+
 
             <LinearLayout
                 android:id="@+id/linearpopup"
@@ -239,4 +272,5 @@
             </LinearLayout>
         </LinearLayout>
     </FrameLayout>
-</LinearLayout>
+
+</FrameLayout>

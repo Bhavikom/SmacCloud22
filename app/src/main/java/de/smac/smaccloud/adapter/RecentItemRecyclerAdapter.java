@@ -100,6 +100,7 @@ public class RecentItemRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
                             public void onResourceReady(Bitmap bitmap, GlideAnimation<? super Bitmap> glideAnimation)
                             {
                                 recentItemHolder.imgIcon.setImageBitmap(bitmap);
+
                             }
 
                             @Override
@@ -117,6 +118,8 @@ public class RecentItemRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
                                             public void onResourceReady(Bitmap bitmap, GlideAnimation<? super Bitmap> glideAnimation)
                                             {
                                                 recentItemHolder.imgIcon.setImageBitmap(bitmap);
+                                                recentItemHolder.imgIcon.setScaleType(ImageView.ScaleType.FIT_XY);
+
                                             }
 
                                             @Override
@@ -125,6 +128,8 @@ public class RecentItemRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
                                                 super.onLoadFailed(e, errorDrawable);
                                                 if (e.getMessage() != null)
                                                     Log.e("Glide", e.getMessage());
+                                                recentItemHolder.imgIcon.setImageResource(R.drawable.ic_logo);
+                                                recentItemHolder.imgIcon.setScaleType(ImageView.ScaleType.FIT_CENTER);
                                             }
                                         });
                             }

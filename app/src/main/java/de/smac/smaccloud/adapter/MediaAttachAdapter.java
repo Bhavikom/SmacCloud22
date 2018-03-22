@@ -180,6 +180,8 @@ public class MediaAttachAdapter extends RecyclerView.Adapter<MediaAttachAdapter.
                                             public void onLoadFailed(Exception e, Drawable errorDrawable)
                                             {
                                                 super.onLoadFailed(e, errorDrawable);
+                                                holder.imageIcon.setImageResource(R.drawable.ic_logo);
+                                                holder.imageIcon.setScaleType(ImageView.ScaleType.FIT_CENTER);
                                                 if (e != null && e.getMessage() != null)
                                                     Log.e("Glide", e.getMessage());
                                             }
@@ -249,6 +251,8 @@ public class MediaAttachAdapter extends RecyclerView.Adapter<MediaAttachAdapter.
                                                     public void onLoadFailed(Exception e, Drawable errorDrawable)
                                                     {
                                                         super.onLoadFailed(e, errorDrawable);
+                                                        holder.imageIcon.setImageResource(R.drawable.ic_logo);
+                                                        holder.imageIcon.setScaleType(ImageView.ScaleType.FIT_CENTER);
                                                         if (e.getMessage() != null)
                                                             Log.e("Glide", e.getMessage());
                                                     }
@@ -549,7 +553,7 @@ public class MediaAttachAdapter extends RecyclerView.Adapter<MediaAttachAdapter.
                         dialog.setMessage(activity.getString(R.string.menu_download_option_download));
                         //dialog.show();
                         media1.isDownloading = 1;
-                        DownloadFileFromURL downloadContent = new DownloadFileFromURL(activity, media1, interfaceResponse);
+                        DownloadFileFromURL downloadContent = new DownloadFileFromURL(activity, media1,"", interfaceResponse);
                         downloadContent.execute(response.optString("Payload"));
 
                     }
@@ -578,14 +582,15 @@ public class MediaAttachAdapter extends RecyclerView.Adapter<MediaAttachAdapter.
 
 
     }
+    @Override
+    public void processFinish(String output, Media media, int pos)
+    {
+
+    }
 
     @Override
-    public void processFinish(String output)
+    public void statusOfDownload(Media media, int pos)
     {
-        if (dialog != null && dialog.isShowing())
-            dialog.dismiss();
-        notifyDataSetChanged();
-
 
     }
 

@@ -83,14 +83,41 @@
                     android:textSize="@dimen/title_ultra_small"/>
             </LinearLayout>
 
-            <LinearLayout
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:layout_gravity="center">
 
                 <LinearLayout
-                    android:id="@+id/btn_open"
+                    android:id="@+id/linear_seekbar"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_margin="@dimen/padding_very_small"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <SeekBar
+                        android:id="@+id/seekbar"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                       />
+
+                    <ImageView
+                        android:id="@+id/img_cancel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:layout_centerVertical="true"
+                        android:src="@drawable/ic_cancel"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/linear_download"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
                     android:layout_margin="@dimen/padding_very_small"
                     android:background="@drawable/orange_border_background"
                     android:gravity="center"
@@ -102,20 +129,19 @@
                         android:layout_height="wrap_content"
                         android:drawablePadding="@dimen/padding_3dp"
                         android:gravity="center"
-                        android:textStyle="bold"
                         android:textColor="@color/white"
-                        android:textSize="@dimen/title_ultra_small"/>
+                        android:textSize="@dimen/title_ultra_small"
+                        android:textStyle="bold"/>
 
                     <ProgressBar
                         android:id="@+id/progressBar"
                         style="@android:style/Widget.Holo.Light.ProgressBar.Horizontal"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:visibility="gone"
-                        />
+                        android:visibility="gone"/>
                 </LinearLayout>
 
-            </LinearLayout>
+            </FrameLayout>
 
             <View
                 android:layout_width="match_parent"
@@ -432,11 +458,11 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/padding_very_small"
                 android:layout_marginBottom="@dimen/padding_small"
-                android:textStyle="bold"
                 android:background="@drawable/rounded_red_bg"
                 android:text="@string/delete"
                 android:textColor="@color/white"
-                android:textSize="@dimen/title_ultra_small"/>
+                android:textSize="@dimen/title_ultra_small"
+                android:textStyle="bold"/>
         </LinearLayout>
     </android.support.v4.widget.NestedScrollView>
 </android.support.design.widget.CoordinatorLayout>

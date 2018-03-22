@@ -66,8 +66,6 @@ public class UserLikeViewActivity extends Activity
         likeAdapter = new LikeAdapter(context, userLikes);
         userLikeList.setAdapter(likeAdapter);
         likeAdapter.notifyDataSetChanged();
-
-        // Clear notification related to this file
         try
         {
             ArrayList<Announcement> announcements = new ArrayList<>();

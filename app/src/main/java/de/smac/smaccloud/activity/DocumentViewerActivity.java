@@ -38,6 +38,7 @@ import de.smac.smaccloud.model.Channel;
 import de.smac.smaccloud.model.Media;
 import de.smac.smaccloud.model.UserComment;
 import de.smac.smaccloud.model.UserLike;
+import de.smac.smaccloud.service.FCMInstanceIdService;
 import de.smac.smaccloud.widgets.UserCommentDialog;
 
 import static de.smac.smaccloud.activity.MediaActivity.REQUEST_COMMENT;
@@ -74,6 +75,7 @@ public class DocumentViewerActivity extends Activity implements View.OnClickList
     Channel channel;
     UserCommentDialog commentDialog;
     LinearLayout linearLayout;
+    public String deviceId = "00000-00000-00000-00000-00000";
 
 
     @Override
@@ -87,6 +89,15 @@ public class DocumentViewerActivity extends Activity implements View.OnClickList
         {
             getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(PreferenceHelper.getAppBackColor(context))));
         }
+        Helper.GCM.getCloudMessagingId(this, new Helper.GCM.RegistrationComplete()
+        {
+            @Override
+            public void onRegistrationComplete(String registrationId)
+            {
+                deviceId = registrationId;
+            }
+        });
+        new FCMInstanceIdService(context).onTokenRefresh();
 
     }
 
@@ -230,7 +241,7 @@ public class DocumentViewerActivity extends Activity implements View.OnClickList
                             postNetworkRequest(REQUEST_LIKE, DataProvider.ENDPOINT_FILE, DataProvider.Actions.MEDIA_LIKE,
                                     RequestParameter.urlEncoded("ChannelId", String.valueOf(DataHelper.getChannelId(context, media.id))),
                                     RequestParameter.urlEncoded("UserId", String.valueOf(PreferenceHelper.getUserContext(context))),
-                                    RequestParameter.urlEncoded("MediaId", String.valueOf(media.id)), RequestParameter.urlEncoded("Org_Id", String.valueOf(PreferenceHelper.getOrganizationId(context))));
+                                    RequestParameter.urlEncoded("MediaId", String.valueOf(media.id)), RequestParameter.urlEncoded("Org_Id", String.valueOf(PreferenceHelper.getOrganizationId(context))), RequestParameter.urlEncoded("DeviceId", deviceId));
                         }
                         else
                         {

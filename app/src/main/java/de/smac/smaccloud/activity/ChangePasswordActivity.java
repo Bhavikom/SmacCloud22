@@ -1,6 +1,8 @@
 package de.smac.smaccloud.activity;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -8,8 +10,10 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputLayout;
 import android.text.InputType;
+import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
@@ -47,8 +51,8 @@ public class ChangePasswordActivity extends Activity implements View.OnClickList
     TextInputLayout textInputCurrentPassword, textInputNewPassword, textInputConfirmPassword;
     String lightbgColor;
     String value = "33";
+    String password;
     private LinearLayout parentLayout;
-
     private String deviceId = "00000-00000-00000-00000-00000";
 
 
@@ -138,9 +142,9 @@ public class ChangePasswordActivity extends Activity implements View.OnClickList
                 switch (view.getId())
                 {
                     case R.id.btn_change_password:
-                        String currentPassword = editCurrentPassword.getText().toString();
-                        String newPassword = editNewPassword.getText().toString();
-                        String confirmPassword = editConfirmPassword.getText().toString();
+                        String currentPassword = editCurrentPassword.getText().toString().trim();
+                        String newPassword = editNewPassword.getText().toString().trim();
+                        String confirmPassword = editConfirmPassword.getText().toString().trim();
                         if (currentPassword.isEmpty())
                         {
                             notifySimple(getString(R.string.current_password_validation_message));
@@ -151,13 +155,14 @@ public class ChangePasswordActivity extends Activity implements View.OnClickList
                         }
                         else if (confirmPassword.isEmpty())
                         {
-                            //editConfirmPassword.setError(getString(R.string.confirm_password_validation_message));
                             notifySimple(getString(R.string.confirm_password_validation_message));
-
+                        }
+                        else if (TextUtils.isEmpty(newPassword) || newPassword.length() < 8 || !Helper.validatePassword(newPassword))
+                        {
+                            Snackbar.make(parentLayout, getString(R.string.password_spacial_character_validation), Snackbar.LENGTH_LONG).show();
                         }
                         else if (!newPassword.equals(confirmPassword))
                         {
-
                             notifySimple(getString(R.string.password_mismatch_validation_message));
                         }
                         else
@@ -245,7 +250,21 @@ public class ChangePasswordActivity extends Activity implements View.OnClickList
                     }
                     else
                     {
-                        notifySimple(getString(R.string.change_password));
+                        AlertDialog alertDialog = new AlertDialog.Builder(context).create();
+                        alertDialog.setTitle(context.getString(R.string.app_title));
+                        alertDialog.setMessage(context.getString(R.string.change_password));
+                        alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, context.getString(R.string.ok),
+                                new DialogInterface.OnClickListener()
+                                {
+                                    public void onClick(DialogInterface dialog, int which)
+                                    {
+                                        onBackPressed();
+                                        dialog.dismiss();
+
+
+                                    }
+                                });
+                        alertDialog.show();
                     }
                 }
                 catch (JSONException e)
@@ -290,7 +309,18 @@ public class ChangePasswordActivity extends Activity implements View.OnClickList
     {
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.
                 INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+        try
+        {
+            if (getCurrentFocus().getWindowToken() != null)
+            {
+                imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+            }
+        }
+        catch (Exception ex)
+        {
+            ex.getStackTrace();
+        }
+
         return true;
     }
 

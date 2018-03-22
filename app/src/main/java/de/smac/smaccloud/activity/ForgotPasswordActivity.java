@@ -1,8 +1,10 @@
 package de.smac.smaccloud.activity;
 
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -36,6 +38,7 @@ public class ForgotPasswordActivity extends Activity
     private static final String KEY_TEXT_VALUE = "textValue";
     TextView textViewForgotPassword, textViewForgotTitle;
     ProgressDialog progressDialog;
+    String email;
     private EditText editEmail;
     private LinearLayout parentLayout;
     private Button btnSubmit;
@@ -79,7 +82,7 @@ public class ForgotPasswordActivity extends Activity
             @Override
             public void onClick(View v)
             {
-                String email = editEmail.getText().toString();
+                email = editEmail.getText().toString();
 
                 if (email.isEmpty())
                 {
@@ -152,8 +155,21 @@ public class ForgotPasswordActivity extends Activity
                     }
                     else
                     {
-                        editEmail.setText("");
-                        notifySimple(getString(R.string.msg_please_check_your_email));
+                        AlertDialog alertDialog = new AlertDialog.Builder(context).create();
+                        alertDialog.setTitle(context.getString(R.string.app_title));
+                        alertDialog.setMessage(context.getString(R.string.forgot_password_success_message1) + " " + email + " " + getString(R.string.forgot_password_success_message2));
+                        alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, context.getString(R.string.ok),
+                                new DialogInterface.OnClickListener()
+                                {
+                                    public void onClick(DialogInterface dialog, int which)
+                                    {
+                                        dialog.dismiss();
+                                        onBackPressed();
+
+                                    }
+                                });
+                        alertDialog.show();
+
                     }
                     if (progressDialog != null)
                     {
@@ -187,7 +203,7 @@ public class ForgotPasswordActivity extends Activity
                 progressDialog.dismiss();
 
             }
-            notifySimple(getString(R.string.msg_cannot_complete_request));
+            notifySimple(getString(R.string.msg_please_check_your_connection));
         }
     }
 

@@ -1,6 +1,7 @@
 package de.smac.smaccloud.base;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -19,6 +20,7 @@ import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -46,6 +48,7 @@ import de.smac.smaccloud.service.FCMMessagingService;
 import static de.smac.smaccloud.service.FCMMessagingService.ACTION_TYPE_CHANNEL_ASSIGNED;
 import static de.smac.smaccloud.service.FCMMessagingService.ACTION_TYPE_CHANNEL_REMOVED;
 import static de.smac.smaccloud.service.FCMMessagingService.ACTION_TYPE_CONTENT_UPDATED;
+import static de.smac.smaccloud.service.FCMMessagingService.ACTION_TYPE_SIMPLE_MESSAGE;
 import static de.smac.smaccloud.service.FCMMessagingService.CHANNEL_UN_ASSIGNED;
 import static de.smac.smaccloud.service.FCMMessagingService.KEY_DATA_ACTION_TYPE;
 
@@ -175,7 +178,17 @@ public class Activity extends AppCompatActivity
             @Override
             public void onFCMPushReceived(String title, String body, Map<String, String> arrayMapData)
             {
-                if (!isFinishing())
+                boolean isForeground = false;
+                try
+                {
+                    isForeground = new Helper.ForegroundCheckTask().execute(context).get();
+                }
+                catch (Exception ex)
+                {
+                    ex.printStackTrace();
+                }
+
+                if (isForeground)
                 {
                     if (arrayMapData != null)
                     {
@@ -185,12 +198,21 @@ public class Activity extends AppCompatActivity
                             switch (type)
                             {
                                 case ACTION_TYPE_CHANNEL_ASSIGNED:
+                                    notificationDialog();
+                                    //askForSync();
+                                    // syncServiceCall();
                                 case CHANNEL_UN_ASSIGNED:
+                                    notificationDialog();
+                                    //askForSync();
+                                    //syncServiceCall();
                                 case ACTION_TYPE_CHANNEL_REMOVED:
                                     syncServiceCall();
                                     break;
                                 case ACTION_TYPE_CONTENT_UPDATED:
                                     askForSync();
+                                    break;
+                                case ACTION_TYPE_SIMPLE_MESSAGE:
+                                    Helper.showSimpleDialog(context, body);
                                     break;
                             }
 
@@ -229,11 +251,6 @@ public class Activity extends AppCompatActivity
             networkBinder.postWrappedJSONRequest(this, requestCode, url, action, networkCallback, requestParameters);
         }
     }
-
-    /*protected void navigateToFragment(int containerId, Fragment fragment)
-    {
-        navigateToFragment(containerId, fragment, true);
-    }*/
 
     protected void navigateToFragment(int containerId, Fragment fragment, boolean addToBackStack)
     {
@@ -304,9 +321,6 @@ public class Activity extends AppCompatActivity
                     int requestStatus = syncJson.optInt("Status");
                     if (requestStatus == 0)
                     {
-
-                        /*notifySimple(getString(R.string.msg_data_sync));*/
-
                         syncJson = syncJson.optJSONObject("Payload");
                         Log.e("TEST>>", syncJson.toString());
 
@@ -359,7 +373,6 @@ public class Activity extends AppCompatActivity
                                     {
                                         case 1:
                                             media.add(context);
-
                                             break;
                                         case 2:
                                             Media oldMedia = new Media();
@@ -491,8 +504,7 @@ public class Activity extends AppCompatActivity
                             {
                                 notificationIconValueChangeListener.onNotificationIconValueChanged();
                             }
-
-                            Helper.showSimpleDialog(this, getString(R.string.sync_data_update_sucessfully));
+                            //Helper.showSimpleDialog(this, getString(R.string.sync_data_update_sucessfully));
                         }
                         catch (JSONException | ParseException e)
                         {
@@ -513,35 +525,62 @@ public class Activity extends AppCompatActivity
         }
     }
 
+    public void notificationDialog()
+    {
+        final Dialog dialog = new Dialog(context);
+        dialog.setContentView(R.layout.notification_custom_dialog);
+
+        TextView textNotificationTitle = (TextView) dialog.findViewById(R.id.txt_notification_title);
+        TextView textNotificationBody = (TextView) dialog.findViewById(R.id.txt_notification_body);
+        TextView buttonSyncNow = (TextView) dialog.findViewById(R.id.btn_sync_now);
+
+        // if button is clicked, close the custom dialog
+        buttonSyncNow.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                dialog.dismiss();
+            }
+        });
+
+        dialog.show();
+    }
+
     public void askForSync()
     {
-        AlertDialog dialog = new AlertDialog.Builder(context).create();
-        dialog.setTitle(context.getString(R.string.app_title));
-        dialog.setMessage(context.getString(R.string.sync_update_dialog));
-        dialog.setButton(AlertDialog.BUTTON_POSITIVE, context.getString(R.string.ok),
-                new DialogInterface.OnClickListener()
-                {
-                    public void onClick(DialogInterface dialog, int which)
+        if (!((Activity) context).isFinishing())
+        {
+
+            AlertDialog dialog = new AlertDialog.Builder(context).create();
+            dialog.setTitle(context.getString(R.string.app_title));
+            dialog.setMessage(context.getString(R.string.sync_update_dialog));
+            dialog.setButton(AlertDialog.BUTTON_POSITIVE, context.getString(R.string.ok),
+                    new DialogInterface.OnClickListener()
                     {
-                        syncServiceCall();
-                    }
-                });
-        dialog.setButton(AlertDialog.BUTTON_NEGATIVE, context.getString(R.string.label_cancel),
-                new DialogInterface.OnClickListener()
-                {
-                    public void onClick(DialogInterface dialog, int which)
-                    {
-                        DataHelper.updateSyncAnnouncementReadStatus(Activity.this, false);
-                        if (notificationIconValueChangeListener != null)
+                        public void onClick(DialogInterface dialog, int which)
                         {
-                            notificationIconValueChangeListener.onNotificationIconValueChanged();
+                            syncServiceCall();
+                            //DataHelper.updateSyncAnnouncementReadStatus(Activity.this, false);
                         }
-                        dialog.cancel();
-                    }
-                });
-        dialog.setCancelable(false);
-        dialog.setCanceledOnTouchOutside(false);
-        dialog.show();
+                    });
+            dialog.setButton(AlertDialog.BUTTON_NEGATIVE, context.getString(R.string.label_cancel),
+                    new DialogInterface.OnClickListener()
+                    {
+                        public void onClick(DialogInterface dialog, int which)
+                        {
+                            DataHelper.updateSyncAnnouncementReadStatus(Activity.this, false);
+                            if (notificationIconValueChangeListener != null)
+                            {
+                                notificationIconValueChangeListener.onNotificationIconValueChanged();
+                            }
+                            dialog.cancel();
+                        }
+                    });
+            dialog.setCancelable(false);
+            dialog.setCanceledOnTouchOutside(false);
+            dialog.show();
+        }
     }
 
     public void syncServiceCall()

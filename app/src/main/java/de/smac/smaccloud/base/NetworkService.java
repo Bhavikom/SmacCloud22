@@ -189,74 +189,12 @@ public class NetworkService extends Service
                             {
                                 callback.onRequestComplete(requestCode, false, String.valueOf(networkResponse.getStatusCode()));
                             }
-                            //--------------------------------------------------------------------------------
-                            /*if (networkResponse.getStatusCode() == 200)
-                            {
-                                if (networkResponse.getResponse() != null)
-                                {
-                                    try
-                                    {
-                                        JSONObject objResponse = new JSONObject(networkResponse.getResponse().toString());
-                                        if (objResponse.has("Status") && objResponse.optInt("Status") == 2113) // Status = 2113 means "USER_TOKEN_NOT_VALID"
-                                        {
-                                            NetworkRequest requestTokenNotValid = new NetworkRequest(activity);
-                                            requestTokenNotValid.setBodyType(NetworkRequest.REQUEST_BODY_MULTIPART);
-                                            requestTokenNotValid.setRequestType(NetworkRequest.REQUEST_TYPE_NORMAL);
-                                            requestTokenNotValid.setRequestUrl(DataProvider.ENDPOINT_UPDATE_TOKEN);
-                                            //headerNameValuePairs.add(new BasicNameValuePair(KEY_LANGUAGE_HEADER_PARAM, Locale.getDefault().getLanguage()));
-                                            try
-                                            {
-                                                if (PreferenceHelper.getUserContext(activity) != -1)
-                                                {
-                                                    int userId = PreferenceHelper.getUserContext(activity);
-                                                    String token = PreferenceHelper.getToken(activity) + String.valueOf(userId).length() + userId + Helper.getEpochTime();
-                                                    ArrayList<BasicNameValuePair> headerNameValuePairs1 = new ArrayList<>();
-                                                    if (token != null && !token.isEmpty())
-                                                    {
-                                                        headerNameValuePairs1.add(new BasicNameValuePair(KEY_AUTHORIZATION, token));
-                                                        request.setHeaders(headerNameValuePairs1);
-                                                    }
-                                                }
-                                            }
-                                            catch (Exception ex)
-                                            {
-                                                ex.printStackTrace();
-                                            }
-                                            requestTokenNotValid.execute();
-                                            requestTokenNotValid.setRequestListener(new NetworkRequest.RequestListener()
-                                            {
-                                                @Override
-                                                public void onRequestComplete(NetworkResponse networkResponse)
-                                                {
-                                                    Toast.makeText(NetworkService.this, networkResponse.getResponse(), Toast.LENGTH_SHORT).show();
-                                                    if positive
-                                                    callback.onRequestComplete(requestCode, true, networkResponse.getResponse());
-                                                }
-                                            });
-                                        }
-                                    }
-                                    catch (Exception e)
-                                    {
-                                        e.printStackTrace();
-                                    }
-                                }
-                                else
-                                {
-                                    callback.onRequestComplete(requestCode, true, networkResponse.getResponse());
-                                }
-                            }
-                            else
-                            {
-                                callback.onRequestComplete(requestCode, false, String.valueOf(networkResponse.getStatusCode()));
-                            }*/
-                            //request = null;
+
                         }
                     });
-                    //request.setProgressMode(NetworkRequest.PROGRESS_MODE_DIALOG_SPINNER);
-                    //request.setProgressMessage(getString(R.string.msg_please_wait));
 
                     request.setRequestUrl(url);
-                    //headerNameValuePairs.add(new BasicNameValuePair(KEY_LANGUAGE_HEADER_PARAM, Locale.getDefault().getLanguage()));
+
                     try
                     {
                         if (PreferenceHelper.getUserContext(activity) != -1)

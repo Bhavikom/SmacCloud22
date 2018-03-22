@@ -47,6 +47,7 @@ import de.smac.smaccloud.model.Channel;
 import de.smac.smaccloud.model.Media;
 import de.smac.smaccloud.model.UserComment;
 import de.smac.smaccloud.model.UserLike;
+import de.smac.smaccloud.service.FCMInstanceIdService;
 import de.smac.smaccloud.widgets.UserCommentDialog;
 
 import static de.smac.smaccloud.activity.MediaActivity.REQUEST_COMMENT;
@@ -67,6 +68,7 @@ public class VideoViewerActivity extends Activity implements View.OnClickListene
     public static int COMMENT_ACTIVITY_REQUEST_CODE = 1001;
     public Boolean checkLike;
     public PreferenceHelper prefManager;
+    public String deviceId = "00000-00000-00000-00000-00000";
     Display currentDisplay;
     SurfaceHolder surfaceHolder;
     MediaPlayer mediaPlayer;
@@ -109,6 +111,15 @@ public class VideoViewerActivity extends Activity implements View.OnClickListene
         {
             getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(PreferenceHelper.getAppBackColor(context))));
         }
+        Helper.GCM.getCloudMessagingId(this, new Helper.GCM.RegistrationComplete()
+        {
+            @Override
+            public void onRegistrationComplete(String registrationId)
+            {
+                deviceId = registrationId;
+            }
+        });
+        new FCMInstanceIdService(context).onTokenRefresh();
 
     }
 
@@ -488,7 +499,7 @@ public class VideoViewerActivity extends Activity implements View.OnClickListene
                             postNetworkRequest(REQUEST_LIKE, DataProvider.ENDPOINT_FILE, DataProvider.Actions.MEDIA_LIKE,
                                     RequestParameter.urlEncoded("ChannelId", String.valueOf(DataHelper.getChannelId(context, media.id))),
                                     RequestParameter.urlEncoded("UserId", String.valueOf(PreferenceHelper.getUserContext(context))),
-                                    RequestParameter.urlEncoded("MediaId", String.valueOf(media.id)), RequestParameter.urlEncoded("Org_Id", String.valueOf(PreferenceHelper.getOrganizationId(context))));
+                                    RequestParameter.urlEncoded("MediaId", String.valueOf(media.id)), RequestParameter.urlEncoded("Org_Id", String.valueOf(PreferenceHelper.getOrganizationId(context))), RequestParameter.urlEncoded("DeviceId", deviceId));
                         }
                         else
                         {
@@ -772,14 +783,20 @@ public class VideoViewerActivity extends Activity implements View.OnClickListene
         mediaController.setMediaPlayer(this);
         mediaController.setAnchorView(findViewById(R.id.mainview));
 
-        handler.post(new Runnable()
+        try
         {
-            public void run()
+            handler.post(new Runnable()
             {
-                mediaController.setEnabled(true);
-                mediaController.show();
-            }
-        });
+                public void run()
+                {
+                    mediaController.setEnabled(true);
+                    mediaController.show();
+                }
+            });
+        }catch (Exception ex){
+            ex.getMessage();
+        }
+
     }
 
     @Override

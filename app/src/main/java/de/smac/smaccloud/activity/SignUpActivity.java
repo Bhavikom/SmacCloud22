@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.res.ResourcesCompat;
@@ -89,6 +90,7 @@ public class SignUpActivity extends Activity implements View.OnClickListener
         Helper.setupUI(SignUpActivity.this, linearParentLayout, linearParentLayout);
 
 
+
         buttonSignUp.setOnClickListener(this);
         if (getSupportActionBar() != null)
         {
@@ -129,7 +131,7 @@ public class SignUpActivity extends Activity implements View.OnClickListener
                 {
                     Snackbar.make(linearParentLayout, getString(R.string.mobileno_validation), Snackbar.LENGTH_LONG).show();
                 }
-                else if (!strMobileNo.matches(MobilePattern) || strMobileNo.length() >= 15)
+                else if (!strMobileNo.matches(MobilePattern) || strMobileNo.length() > 15)
                 {
                     Snackbar.make(linearParentLayout, getString(R.string.invalidMobileNo_validation), Snackbar.LENGTH_LONG).show();
                 }
@@ -271,7 +273,7 @@ public class SignUpActivity extends Activity implements View.OnClickListener
                     {
                         postNetworkRequest(REQUEST_LOGIN, DataProvider.ENDPOINT_USER, DataProvider.Actions.AUTHENTICATE_USER,
                                 RequestParameter.urlEncoded("Email", strEmailId), RequestParameter.urlEncoded("Password", strPassword),
-                                RequestParameter.urlEncoded("Platform", "Android"), RequestParameter.urlEncoded("DeviceId", PreferenceHelper.getFCMTokenId(context)));
+                                RequestParameter.urlEncoded("Platform", "Android"), RequestParameter.urlEncoded("DeviceId", PreferenceHelper.getFCMTokenId(context)), RequestParameter.urlEncoded("OrganizationName", strOrganization));
                     }
                 }
                 else
@@ -283,7 +285,7 @@ public class SignUpActivity extends Activity implements View.OnClickListener
         });
         request.setProgressMode(NetworkRequest.PROGRESS_MODE_NONE);
         request.setProgressMessage(getString(R.string.msg_please_wait));
-        request.setRequestUrl(DataProvider.SIGNUP_SERVICE_URL);
+        request.setRequestUrl(DataProvider.ENDPOINT_SIGNUP_URL);
 
         request.setParameters(parameters);
         int userId = PreferenceHelper.getUserContext(this);
@@ -419,7 +421,6 @@ public class SignUpActivity extends Activity implements View.OnClickListener
                             DataHelper.updateUser(context, user);
                             userPreference.userId = user.id;
                             userPreference.populateUsingUserId(context);
-                            //startSyncActivity();
                             ArrayList<Channel> channels = new ArrayList<>();
                             DataHelper.getChannels(context, channels);
                             if (PreferenceHelper.getSyncStatus(SignUpActivity.this) || !channels.isEmpty())
@@ -471,9 +472,6 @@ public class SignUpActivity extends Activity implements View.OnClickListener
                         hidProgressDialog();
                         startSyncActivity();
 
-                        // DON'T CALL THIS SERVICE HERE NO NEEDED
-                        /*postNetworkRequest(REQUEST_GET_SETTINGS, DataProvider.ENDPOINT_USER, DataProvider.Actions.GET_SETTINGS,
-                                RequestParameter.urlEncoded("Org_Id", PreferenceHelper.getOrganizationId(context)));*/
                     }
                 }
                 catch (JSONException e)
@@ -547,7 +545,7 @@ public class SignUpActivity extends Activity implements View.OnClickListener
     {
         inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_activity_help, menu);
-        applayThemeColor();
+        applyThemeColor();
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -560,20 +558,37 @@ public class SignUpActivity extends Activity implements View.OnClickListener
                 onBackPressed();
                 return true;
             case R.id.action_help:
-                //Helper.downloadAllFiles(SignUpActivity.this, true);
-                Intent intent = new Intent(Intent.ACTION_SEND);
+               /* Intent intent = new Intent(Intent.ACTION_SEND);
                 intent.setType("plain/text");
                 intent.putExtra(Intent.EXTRA_EMAIL, new String[]{"support@smacsoftwares.de"});
                 intent.putExtra(Intent.EXTRA_SUBJECT, "");
                 intent.putExtra(Intent.EXTRA_TEXT, "");
-                startActivity(Intent.createChooser(intent, ""));
+                startActivity(Intent.createChooser(intent, ""));*/
+                shareViaMail();
+
                 break;
 
         }
         return super.onOptionsItemSelected(item);
     }
+    public void shareViaMail() {
+        String filePath="";
+        Uri URI = Uri.parse("file://" + filePath);
+        final Intent emailIntent = new Intent(Intent.ACTION_VIEW);
+        emailIntent.setData(Uri.parse("mailto:"));
+        emailIntent.putExtra(android.content.Intent.EXTRA_EMAIL, new String[]{"support@smacsoftwares.de"});
+        if (URI != null) {
+            emailIntent.putExtra(Intent.EXTRA_STREAM, URI);
+        }
+        try {
+           startActivity(emailIntent);
+        } catch (Exception e) {
+            Snackbar.make(parentLayout,"Gmail App is not installed", Snackbar.LENGTH_LONG).show();
+            e.printStackTrace();
+        }
+    }
 
-    public void applayThemeColor()
+    public void applyThemeColor()
     {
         Drawable drawable = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_help, null);
         drawable = DrawableCompat.wrap(drawable);

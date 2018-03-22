@@ -35,6 +35,27 @@ public class MediaAttachmentActivity extends Activity
     private Channel channel;
     private int parentId = -1;
 
+    public static Drawable convertTextToDrawable(Context context, String text, int color)
+    {
+        TextView txtActionAdd = new TextView(context);
+        txtActionAdd.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        txtActionAdd.setText(text);
+        txtActionAdd.setTextColor(color);
+        txtActionAdd.setTextSize(TypedValue.COMPLEX_UNIT_PX, context.getResources().getDimension(R.dimen.title_small));
+
+        txtActionAdd.measure(
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+        txtActionAdd.layout(0, 0, txtActionAdd.getMeasuredWidth(), txtActionAdd.getMeasuredHeight());
+
+        txtActionAdd.setDrawingCacheEnabled(true);
+        txtActionAdd.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
+        Bitmap bitmap = Bitmap.createBitmap(txtActionAdd.getDrawingCache());
+        txtActionAdd.setDrawingCacheEnabled(false);
+
+        return new BitmapDrawable(context.getResources(), bitmap);
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
@@ -73,20 +94,7 @@ public class MediaAttachmentActivity extends Activity
     {
         inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_media_attachment_activity, menu);
-
         menu.findItem(R.id.action_add).setIcon(convertTextToDrawable(context, getString(R.string.label_add), Color.parseColor(PreferenceHelper.getAppColor(context))));
-
-        /*Spannable bodySpannableString = new SpannableString(getString(R.string.label_add));
-        bodySpannableString.setSpan(new ForegroundColorSpan(Color.BLUE), 0, bodySpannableString.toString().length(), 0);
-        menu.findItem(R.id.action_add).setTitle(bodySpannableString);*/
-
-        /*View view = findViewById(R.id.action_add);
-        if (view != null && view instanceof TextView)
-        {
-            ((TextView) view).setTextColor(Color.parseColor(PreferenceHelper.getAppColor(context))); // Make text colour blue
-            //((TextView) view).setTextSize(TypedValue.COMPLEX_UNIT_SP, 24); // Increase font size
-        }*/
-
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -114,27 +122,5 @@ public class MediaAttachmentActivity extends Activity
             finish();
         else
             super.onBackPressed();
-
-    }
-
-    public static Drawable convertTextToDrawable(Context context, String text, int color)
-    {
-        TextView txtActionAdd = new TextView(context);
-        txtActionAdd.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        txtActionAdd.setText(text);
-        txtActionAdd.setTextColor(color);
-        txtActionAdd.setTextSize(TypedValue.COMPLEX_UNIT_PX, context.getResources().getDimension(R.dimen.title_small));
-
-        txtActionAdd.measure(
-                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
-                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
-        txtActionAdd.layout(0, 0, txtActionAdd.getMeasuredWidth(), txtActionAdd.getMeasuredHeight());
-
-        txtActionAdd.setDrawingCacheEnabled(true);
-        txtActionAdd.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
-        Bitmap bitmap = Bitmap.createBitmap(txtActionAdd.getDrawingCache());
-        txtActionAdd.setDrawingCacheEnabled(false);
-
-        return new BitmapDrawable(context.getResources(), bitmap);
     }
 }

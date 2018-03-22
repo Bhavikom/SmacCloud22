@@ -43,6 +43,7 @@
                         android:drawableLeft="@drawable/ic_mandatory"
                         android:drawablePadding="@dimen/padding_1dp"
                         android:hint="@string/enter_name"
+                        android:maxLength="50"
                         android:inputType="text"
                         android:singleLine="true"
                         android:textColor="@color/black"
@@ -66,6 +67,7 @@
                         android:hint="@string/hint_email"
                         android:inputType="textEmailAddress"
                         android:singleLine="true"
+                        android:maxLength="50"
                         android:textColor="@color/black"
                         android:textSize="@dimen/title_ultra_small"/>
 
@@ -104,6 +106,7 @@
                         android:drawablePadding="@dimen/padding_1dp"
                         android:hint="@string/contact"
                         android:inputType="number"
+                        android:maxLength="15"
                         android:singleLine="true"
                         android:textColor="@color/black"
                         android:textSize="@dimen/title_ultra_small"/>
@@ -145,6 +148,7 @@
                         android:layout_height="wrap_content"
                         android:drawableLeft="@drawable/ic_mandatory"
                         android:drawablePadding="@dimen/padding_1dp"
+                        android:maxLength="50"
                         android:hint="@string/organization_name"
                         android:inputType="text"
                         android:singleLine="true"
@@ -168,6 +172,7 @@
                         android:drawablePadding="@dimen/padding_1dp"
                         android:hint="@string/hint_password"
                         android:inputType="textPassword"
+                        android:maxLength="50"
                         android:singleLine="true"
                         android:textColor="@color/black"
                         android:textSize="@dimen/title_ultra_small"/>
@@ -179,6 +184,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/padding_5dp"
+                    android:maxLength="50"
                     app:hintTextAppearance="@style/EditTextBlackHint">
 
                     <EditText
@@ -190,6 +196,7 @@
                         android:hint="@string/hint_confirm_password"
                         android:inputType="textPassword"
                         android:singleLine="true"
+                        android:maxLength="50"
                         android:textColor="@color/black"
                         android:textSize="@dimen/title_ultra_small"/>
 

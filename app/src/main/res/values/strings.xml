@@ -23,7 +23,9 @@
 
 
     <!-- Organization Screen String-->
-    <string name="organization_name">Organization</string>
+    <string name="organization_name">Organization Name or Url</string>
+    <string name="organization_url">Organization URL</string>
+    <string name="organization_url_info">Enter your organization URL from greeting email</string>
     <string name="invalid_organization">Invalid Organization</string>
     <string name="Continue">Continue</string>
     <string name="enter_Organization_name">Enter Organization Name</string>
@@ -75,6 +77,8 @@
     <string name="password_length_message">Please Enter at least 6 character in password</string>
     <string name="recognizing_and_sending_mail">Recognizing and sending mail…</string>
     <string name="authentication">Authentication</string>
+    <string name="forgot_password_success_message1">If a SMAC Cloud account exist for </string>
+    <string name="forgot_password_success_message2"> an e-mail will be sent with further instructions.</string>
 
     <!--syncActivity Screen-->
     <string name="sync">Synchronize your data </string>
@@ -184,9 +188,11 @@
     <string name="date">Date:</string>
     <string name="users">user(s)</string>
     <string name="label_delete_dialog">Warning</string>
-    <string name="label_download_first_dialog">Please download first...</string>
+    <string name="label_download_first_dialog">Please download first</string>
     <string name="label_done">Done</string>
     <string name="try_again_downloading">Please try again for downloading</string>
+    <string name="un_supported_file_format_msg">You can not open these media.</string>
+
 
     <!-- Share screen strings-->
     <string name="msg_re_login">Please re-login</string>
@@ -296,7 +302,8 @@
     <string name="label_sharing">Sharing</string>
     <string name="label_sharing1">SHARING</string>
     <string name="label_account">ACCOUNT</string>
-    <string name="label_login_setting">LOGIN</string>
+    <string name="label_login_setting">Login</string>
+    <string name="label_signup_setting">Sign Up</string>
     <string name="label_email_body">Email Body</string>
     <string name="label_cc_address">CC </string>
     <string name="label_bcc_address">BCC </string>
@@ -352,7 +359,10 @@ Name, address and other personal data will only be required if you provide them 
     <string name="alert">Alert</string>
     <string name="you_have_no_right">You do not have the proper rights</string>
     <string name="ok">OK</string>
-
+    <string name="remind_me_later">Remind Me Later</string>
+    <string name="version_updation_title">Version Updation</string>
+    <string name="version_force_update_message">This version is no longer available for access. Please, update a new version of the app from App Store.</string>
+    <string name="version_update_message">A new version is now available in App Store. Would you like to update?</string>
     <!--Terms&condition All String-->
 
     <!--<string name="description">http://www.justcloud.com/terms#eligibility\n\nSMAC Cloud Terms and Conditions and License Agreement\n\nThese are the terms you agree to when you use SMAC Cloud.\n\nThis is a legal contract between you and SMAC Cloud and it is important that you read it carefully. If there is anything you do not understand in this Agreement, please contact us.</string>-->
@@ -1340,22 +1350,39 @@ Name, address and other personal data will only be required if you provide them 
 
     <string name="slide_1_desc"> It is your private online storage drive, where you can upload, store, share, and access all your data.  Easily and securely share your files, photos and other data with anyone.</string>
 
-    <string name="slide_2_title">Global Access - Anytime, Anywhere</string>
-    <string name="slide_2_desc">Access your files from anywhere, on any device 24/7.</string>
+    <string name="slide_2_title">SMAC Cloud Sync</string>
+    <string name="slide_2_desc">"Sync all of your files, and all of your firm’s files, automatically to the cloud and across devices, so everyone has the most up-to-date information.</string>
 
-    <string name="slide_3_title"> File versioning</string>
-    <string name="slide_3_desc">Keep track of changes to files in your account and access older versions of files as needed.</string>
+    <string name="slide_3_title">Mobile apps</string>
+    <string name="slide_3_desc">Access, share, comment, like, request and view files on the go with SMAC Cloud apps for all iOS, Android and tablets.</string>
 
     <string name="slide_4_title">Safe  &#38; Sound</string>
     <string name="slide_4_desc"> Files are transferred securely using TLS (Transport Layer Security) and are stored in the cloud in an encrypted format using 256-bit AES.</string>
 
-    <string name="slide_5_title">Share - Anything with Anybody</string>
-    <string name="slide_5_desc">With SmacCloud you will be able to share any file of any size with anybody.</string>
+    <string name="slide_5_title">Global Access</string>
+    <string name="slide_5_desc">Access your files from anywhere, on any device 24/7 online or offline.</string>
 
-    <string name="slide_6_title">Share via Email</string>
-    <string name="slide_6_desc"> Share any files via email to anybody.</string>
+    <string name="slide_6_title">No complicated downloads</string>
+    <string name="slide_6_desc">Access SMAC Cloud from any web browser on any device and offer clients and others a simple way to access files with no software downloads, usernames or passwords required.</string>
+
+    <string name="slide_7_title">File versioning</string>
+    <string name="slide_7_desc">Keep track of changes to files in your account and access older versions of files as needed.</string>
+
+    <string name="slide_8_title">Offline access</string>
+    <string name="slide_8_desc">Securely download files to your device within your SMAC Cloud app for access to files even without an Internet connection.</string>
+
+    <string name="slide_9_title">Simple admin controls</string>
+    <string name="slide_9_desc">Know that security doesn’t have to be complicated — our robust security settings come in a user-friendly interface designed with you and your firm in mind.just login your admin console(see </string>
+
+    <string name="slide_10_title">Share - Anything with Anybody</string>
+    <string name="slide_10_desc">With SMAC Cloud you will be able to share any file of any size with anybody and share any files via email to anybody.</string>
 
     <array name="array_dot_active">
+        <item>@color/white</item>
+        <item>@color/white</item>
+        <item>@color/white</item>
+        <item>@color/white</item>
+        <item>@color/white</item>
         <item>@color/white</item>
         <item>@color/white</item>
         <item>@color/white</item>
@@ -1365,12 +1392,18 @@ Name, address and other personal data will only be required if you provide them 
     </array>
 
     <array name="array_dot_inactive">
-        <item>@color/grey</item>
-        <item>@color/grey</item>
-        <item>@color/grey</item>
-        <item>@color/grey</item>
-        <item>@color/grey</item>
-        <item>@color/grey</item>
+        <item>@color/GrayLight2</item>
+        <item>@color/GrayLight2</item>
+        <item>@color/GrayLight2</item>
+        <item>@color/GrayLight2</item>
+        <item>@color/GrayLight2</item>
+        <item>@color/GrayLight2</item>
+        <item>@color/GrayLight2</item>
+        <item>@color/GrayLight2</item>
+        <item>@color/GrayLight2</item>
+        <item>@color/GrayLight2</item>
+        <item>@color/GrayLight2</item>
+
     </array>
 
 </resources>

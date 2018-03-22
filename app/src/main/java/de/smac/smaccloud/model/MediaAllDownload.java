@@ -11,6 +11,7 @@ public class MediaAllDownload implements Parcelable
     public int mediaId;
     public int currentVersionId;
     public int channelId;
+    public int isDownloading;
 
     public MediaAllDownload()
     {
@@ -28,6 +29,7 @@ public class MediaAllDownload implements Parcelable
         out.writeInt(mediaId);
         out.writeInt(currentVersionId);
         out.writeInt(channelId);
+        out.writeInt(isDownloading);
     }
 
     public static final Parcelable.Creator<MediaAllDownload> CREATOR
@@ -49,6 +51,7 @@ public class MediaAllDownload implements Parcelable
         mediaId = in.readInt();
         currentVersionId = in.readInt();
         channelId = in.readInt();
+        isDownloading = in.readInt();
     }
 
 }

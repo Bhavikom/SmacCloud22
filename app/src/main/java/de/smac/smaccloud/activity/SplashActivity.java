@@ -1,6 +1,8 @@
 package de.smac.smaccloud.activity;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -33,8 +35,12 @@ import static de.smac.smaccloud.base.Helper.LOCALIZATION_TYPE_ERROR_CODE;
 
 public class SplashActivity extends de.smac.smaccloud.base.Activity
 {
-
+    String strLatestVersionCodeFromservice="";
+    private PreferenceHelper prefManager;
+    String strVersionName="";
+    String strVersionNo="";
     public static final int REQUEST_GETLOCALIZATION = 5001;
+    public static final int REQUEST_GET_VERSION = 5002;
     private static int SPLASH_TIME_OUT = 3000;
     ArrayList<LocalizationData> arrayListLocalization = new ArrayList<>();
     Activity activity;
@@ -49,6 +55,7 @@ public class SplashActivity extends de.smac.smaccloud.base.Activity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splace);
+        prefManager = new PreferenceHelper(context);
         Helper.retainOrientation(SplashActivity.this);
         activity = this;
         parentLayout = (LinearLayout) findViewById(R.id.parentLayout);
@@ -80,7 +87,7 @@ public class SplashActivity extends de.smac.smaccloud.base.Activity
         }
         else
         {
-            lang = "de";
+            lang = "en";
             Helper.changeLanguage(SplashActivity.this, lang);
         }
 
@@ -100,14 +107,18 @@ public class SplashActivity extends de.smac.smaccloud.base.Activity
         {
             try
             {
+                strVersionNo = String.valueOf(Helper.getVersionNo(context));
+                strVersionName = String.valueOf(Helper.getVersionName(context));
                 Helper.IS_DIALOG_SHOW = false;
-                postNetworkRequest(REQUEST_GETLOCALIZATION, DataProvider.ENDPOINT_GET_LOCALIZATION, DataProvider.Actions.ACTION_LOCALIZATION,
-                        RequestParameter.urlEncoded("LastSyncDate", PreferenceHelper.getLastSychDate(context)));
-            }
-            catch (Exception e)
-            {
+                postNetworkRequest(REQUEST_GET_VERSION, DataProvider.ENDPOINT_GET_VERSION,
+                        DataProvider.Actions.ACTION_GET_VERSION,
+                        RequestParameter.urlEncoded("VersionName", strVersionName),
+                        RequestParameter.urlEncoded("VersionCode", strVersionNo));
+            }catch (Exception e){
                 e.printStackTrace();
             }
+
+
         }
         else
         {
@@ -136,7 +147,75 @@ public class SplashActivity extends de.smac.smaccloud.base.Activity
         super.onNetworkResponse(requestCode, status, response);
         Log.e("TEST>>", response);
         Helper.IS_DIALOG_SHOW = true;
-        if (requestCode == REQUEST_GETLOCALIZATION)
+        if(requestCode == REQUEST_GET_VERSION){
+            if (status)
+            {
+                try
+                {
+                    JSONObject jsonObjectMain = new JSONObject(response);
+
+                    int requestStatus = jsonObjectMain.optInt("Status");
+                    if (requestStatus > 0)
+                    {
+                        notifySimple(DataHelper.getLocalizationMessageFromCode(context, String.valueOf(requestStatus), LOCALIZATION_TYPE_ERROR_CODE));
+                    }
+                    else
+                    {
+                        // parse response here
+                        JSONObject userJson = jsonObjectMain.optJSONObject("Payload");
+
+                        String strForceUpdate = userJson.getString("IsNeedForceUpdate");
+                        if(strForceUpdate.equals("false")){
+                            // no need force update
+                            strLatestVersionCodeFromservice = userJson.getString("VersionCode");
+                            if(Integer.parseInt(strLatestVersionCodeFromservice) > Integer.parseInt(strVersionNo)) {
+
+                                if(prefManager.getUpdatedVersionNo() == 0 || prefManager.getUpdatedVersionNo() < Integer.parseInt(strLatestVersionCodeFromservice)){
+
+                                    showAlertDialogToUpdateVersion();
+                                }else{
+                                    // user already has given remind me later for this version code so call getlocalization and navigate to next
+                                    try
+                                    {
+                                        Helper.IS_DIALOG_SHOW = false;
+                                        postNetworkRequest(REQUEST_GETLOCALIZATION, DataProvider.ENDPOINT_GET_LOCALIZATION, DataProvider.Actions.ACTION_LOCALIZATION,
+                                                RequestParameter.urlEncoded("LastSyncDate", PreferenceHelper.getLastSychDate(context)));
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        e.printStackTrace();
+                                    }
+                                }
+
+
+                            }
+                            else {
+                                try
+                                {
+                                    Helper.IS_DIALOG_SHOW = false;
+                                    postNetworkRequest(REQUEST_GETLOCALIZATION, DataProvider.ENDPOINT_GET_LOCALIZATION, DataProvider.Actions.ACTION_LOCALIZATION,
+                                    RequestParameter.urlEncoded("LastSyncDate", PreferenceHelper.getLastSychDate(context)));
+                                }
+                                catch (Exception e)
+                                {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }else {
+                            // force update is true that's why compulsory for user to update app-
+                                // show alert dialog to force update app and prohibit user to enter in application
+                            showAlertDialogForForceUpdate();
+                        }
+
+                    }
+                }
+                catch (Exception e)
+                {
+                    notifySimple(getString(R.string.msg_invalid_response_from_server));
+                }
+            }
+        }
+        else if (requestCode == REQUEST_GETLOCALIZATION)
         {
             if (status)
             {
@@ -245,5 +324,69 @@ public class SplashActivity extends de.smac.smaccloud.base.Activity
         dashboardIntent.putExtra(SyncActivity.IS_FROM_SETTING, false);
         startActivity(dashboardIntent);
         finish();
+    }
+    private void showAlertDialogToUpdateVersion(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setCancelable(false);
+        builder.setTitle(context.getString(R.string.version_updation_title));
+        builder.setMessage(context.getString(R.string.version_update_message));
+        builder.setPositiveButton(context.getString(R.string.ok),
+                new DialogInterface.OnClickListener()
+                {
+                    public void onClick(DialogInterface dialog, int id)
+                    {
+                        dialog.dismiss();
+                        final String appPackageName = getPackageName();
+                        Helper.openPlayStoreUrl(context,appPackageName);
+                        // redirect to play store url
+                    }
+                });
+        builder.setNeutralButton(context.getString(R.string.label_cancel),
+                new DialogInterface.OnClickListener()
+                {
+                    public void onClick(DialogInterface dialog, int id)
+                    {
+                        dialog.dismiss();
+                        // call get localization service and navigate to next screen
+                        Helper.IS_DIALOG_SHOW = false;
+                        postNetworkRequest(REQUEST_GETLOCALIZATION, DataProvider.ENDPOINT_GET_LOCALIZATION, DataProvider.Actions.ACTION_LOCALIZATION,
+                                RequestParameter.urlEncoded("LastSyncDate", PreferenceHelper.getLastSychDate(context)));
+                    }
+                });
+
+        builder.setNegativeButton(context.getString(R.string.remind_me_later),
+                new DialogInterface.OnClickListener()
+                {
+                    public void onClick(DialogInterface dialog, int id)
+                    {
+                        dialog.dismiss();
+                        // save latest version code to preferences and don't remind user to show dialog again for this version code
+                        prefManager.saveUpdatedVersionNo(Integer.parseInt(strLatestVersionCodeFromservice));
+                        // call localization service here
+                        Helper.IS_DIALOG_SHOW = false;
+                        postNetworkRequest(REQUEST_GETLOCALIZATION, DataProvider.ENDPOINT_GET_LOCALIZATION, DataProvider.Actions.ACTION_LOCALIZATION,
+                                RequestParameter.urlEncoded("LastSyncDate", PreferenceHelper.getLastSychDate(context)));
+                    }
+                });
+        builder.create().show();
+    }
+    private void showAlertDialogForForceUpdate(){
+        AlertDialog alertDialog = new AlertDialog.Builder(context).create();
+        alertDialog.setTitle(context.getString(R.string.version_updation_title));
+        alertDialog.setCancelable(false);
+        alertDialog.setMessage(context.getString(R.string.version_force_update_message));
+        alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, context.getString(R.string.ok),
+                new DialogInterface.OnClickListener()
+                {
+                    public void onClick(DialogInterface dialog, int which)
+                    {
+                        dialog.dismiss();
+                        // redirect to play store url
+                        final String appPackageName = getPackageName();
+                        Helper.openPlayStoreUrl(context,appPackageName);
+
+                    }
+                });
+        alertDialog.show();
     }
 }

@@ -45,6 +45,9 @@ public class LocalDatabase extends SQLiteOpenHelper
         } else if (!userPreference.databaseName.equalsIgnoreCase(_database.getDatabaseName())) {
             _database = LocalDatabase.newInstance(context);
         }
+        else{
+            //_database = null;
+        }
 
         /*if (forUserId != PreferenceHelper.getUserContext(context) || _database == null){
 

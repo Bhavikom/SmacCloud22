@@ -121,12 +121,15 @@ public class MediaAttachmentFragment extends Fragment implements DownloadFileFro
         super.onResume();
     }
 
-
     @Override
-    public void processFinish(String output)
+    public void processFinish(String output, Media media, int pos)
     {
-
         mediaAdapter.notifyDataSetChanged();
     }
 
+    @Override
+    public void statusOfDownload(Media media, int pos)
+    {
+
+    }
 }

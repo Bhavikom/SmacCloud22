@@ -120,20 +120,5 @@ public class MediaActivity extends Activity
         }
 
     }
-    /*@Override
-    public void onThemeChangeNotificationReceived()
-    {
-        applyThemeColor();
-    }
-*/
 
-    /*@Override
-    public void donwloadDone() {
-        Toast.makeText(this,"done ",Toast.LENGTH_SHORT).show();
-    }*/
-
-/*    @Override
-    public void download() {
-        Toast.makeText(this,"done ",Toast.LENGTH_SHORT).show();
-    }*/
 }

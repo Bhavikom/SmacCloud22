@@ -186,6 +186,17 @@ public class AnnouncementListViewAdapter extends BaseAdapter
                         currentAnnouncement.isRead = true;
                         DataHelper.updateAnnouncement(activity, currentAnnouncement);
                     }
+                    else if (currentAnnouncement.type.equals(FCMMessagingService.PUSH_TYPE_CHANNEL_ASSIGNED))
+                    {
+                        currentAnnouncement.isRead = true;
+                        DataHelper.updateAnnouncement(activity, currentAnnouncement);
+
+                    }
+                    else if (currentAnnouncement.type.equals(FCMMessagingService.PUSH_TYPE_CHANNEL_UN_ASSIGNED))
+                    {
+                        currentAnnouncement.isRead = true;
+                        DataHelper.updateAnnouncement(activity, currentAnnouncement);
+                    }
                     else
                     {
                         currentAnnouncement.isRead = true;
@@ -205,6 +216,7 @@ public class AnnouncementListViewAdapter extends BaseAdapter
                         if (dashFragment != null && dashFragment instanceof ChannelsFragment)
                         {
                             ((ChannelsFragment) dashFragment).applyThemeColor();
+
                         }
                     }
                 }

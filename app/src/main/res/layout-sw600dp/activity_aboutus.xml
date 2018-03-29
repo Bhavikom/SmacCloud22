@@ -27,6 +27,7 @@
 
         <ImageView
             android:layout_width="@dimen/two_hundred"
+            android:id="@+id/img_aboutUs_logo"
             android:layout_height="@dimen/two_hundred"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="@dimen/fifty_five_dp"

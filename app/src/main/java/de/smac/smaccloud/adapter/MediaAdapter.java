@@ -156,7 +156,6 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.MediaHolder>
                     }
                 }
 
-                //positionGeted = intent.getStringExtra("position");
                 Log.e(" 6666666 ", " download is canceled : " + positionGeted);
                 if (!TextUtils.isEmpty(positionGeted))
                 {
@@ -214,7 +213,6 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.MediaHolder>
     @Override
     public void onBindViewHolder(final MediaHolder holder2, final int position)
     {
-        //holder = holder2;
         final MediaHolder holder = holder2;
         final int finalPosition = position;
         final Media media = arrayListMedia.get(finalPosition);
@@ -256,10 +254,7 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.MediaHolder>
         holder.imageIcon.setLayoutParams(imageLayoutParams);
         holder.textFileSize.setText(String.valueOf(android.text.format.Formatter.formatFileSize(activity, media.size)));
         checkLike = DataHelper.checkLike(activity, media.id, PreferenceHelper.getUserContext(activity));
-
-
         int channelId = DataHelper.getChannelId(activity, media.id);
-
 
         if (media.type.equalsIgnoreCase(FILETYPE_FOLDER))
         {

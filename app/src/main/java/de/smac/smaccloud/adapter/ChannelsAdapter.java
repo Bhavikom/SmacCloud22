@@ -39,7 +39,6 @@ public class ChannelsAdapter extends RecyclerView.Adapter<ChannelsAdapter.Channe
     private Activity activity;
     private LayoutInflater inflater;
     private ArrayList<Channel> channels;
-    private LinearLayout parentLayout;
     private boolean isGrid;
     private OnClickListener clickListener;
 
@@ -120,14 +119,14 @@ public class ChannelsAdapter extends RecyclerView.Adapter<ChannelsAdapter.Channe
                                                 {
                                                     holder.imageIcon.setImageBitmap(bitmap);
                                                     holder.imageIcon.setScaleType(ImageView.ScaleType.FIT_XY);
-                                                    holder.progressBarTemp.setVisibility(View.GONE);
+                                                   // holder.progressBarTemp.setVisibility(View.GONE);
                                                 }
 
                                                 @Override
                                                 public void onLoadFailed(Exception e, Drawable errorDrawable)
                                                 {
                                                     super.onLoadFailed(e, errorDrawable);
-                                                    holder.progressBarTemp.setVisibility(View.GONE);
+                                                   // holder.progressBarTemp.setVisibility(View.GONE);
                                                     holder.imageIcon.setImageResource(R.drawable.ic_logo);
                                                     holder.imageIcon.setScaleType(ImageView.ScaleType.FIT_CENTER);
 

@@ -89,8 +89,7 @@
 
         <activity
             android:name="de.smac.smaccloud.activity.UserCommentViewActivity"
-            android:configChanges="orientation|screenSize"
-            android:windowSoftInputMode="adjustPan"/>
+            android:configChanges="orientation|screenSize"/>
 
         <activity
             android:name="de.smac.smaccloud.activity.ShareActivity"

@@ -5,23 +5,21 @@
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:layout_margin="4dp"
-              android:orientation="horizontal"
+              android:orientation="vertical"
               android:padding="2dp">
 
 
     <LinearLayout
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_marginLeft="4dp"
-        android:layout_weight="1"
-        android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingLeft="2dp"
         android:paddingRight="2dp">
 
         <ImageView
-            android:layout_width="wrap_content"
             android:id="@+id/img_user"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/ic_user"/>
 
@@ -39,19 +37,52 @@
             android:textStyle="bold"
             />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <TextView
-                android:id="@+id/labelInsertDate"
-                android:layout_width="0dp"
-                android:layout_height="fill_parent"
-                android:layout_weight="1"
-                android:ellipsize="middle"
-                android:singleLine="true"
-                android:textSize="@dimen/title_ultra_small"/>
-
-        </LinearLayout>
     </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="4dp"
+        android:orientation="horizontal"
+        android:paddingLeft="2dp"
+        android:paddingRight="2dp">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="invisible"
+            android:src="@drawable/ic_user"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:id="@+id/labelInsertDate"
+            android:layout_marginLeft="@dimen/padding_extra_large"
+            android:ellipsize="middle"
+            android:gravity="center_vertical"
+            android:text="@string/date"
+            android:singleLine="true"
+            android:textSize="@dimen/title_ultra_small"
+            android:textStyle="bold"
+            />
+
+    </LinearLayout>
+<!--
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:visibility="invisible"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/padding_very_small">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent"
+            android:ellipsize="middle"
+            android:singleLine="true"
+            android:text="@string/date"
+            android:textSize="@dimen/title_ultra_small"/>
+
+    </LinearLayout>-->
 </LinearLayout>
+

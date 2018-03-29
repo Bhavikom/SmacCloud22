@@ -26,6 +26,7 @@
             android:textStyle="bold"/>
 
         <ImageView
+            android:id="@+id/img_aboutUs_logo"
             android:layout_width="@dimen/hundred_fifty_dp"
             android:layout_height="@dimen/hundred_fifty_dp"
             android:layout_gravity="center_horizontal"

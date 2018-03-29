@@ -90,7 +90,6 @@ public class SignUpActivity extends Activity implements View.OnClickListener
         Helper.setupUI(SignUpActivity.this, linearParentLayout, linearParentLayout);
 
 
-
         buttonSignUp.setOnClickListener(this);
         if (getSupportActionBar() != null)
         {
@@ -191,6 +190,7 @@ public class SignUpActivity extends Activity implements View.OnClickListener
         parameters.add(RequestParameter.multiPart("Contact", strContactNo));
         parameters.add(RequestParameter.multiPart("Address", strAddress));
         parameters.add(RequestParameter.multiPart("UserLanguage", strUserLanguage));
+        parameters.add(RequestParameter.multiPart("device_id", PreferenceHelper.getFCMTokenId(context)));
 
         request = new NetworkRequest(this);
         request.setBodyType(NetworkRequest.REQUEST_BODY_MULTIPART);
@@ -316,7 +316,6 @@ public class SignUpActivity extends Activity implements View.OnClickListener
                 {
                     JSONObject responseJson = new JSONObject(response);
                     int requestStatus = responseJson.optInt("Status");
-                    //String message = responseJson.optString("Message");
                     if (requestStatus > 0)
                     {
                         if (DataHelper.getLocalizationMessageFromCode(context, String.valueOf(requestStatus), LOCALIZATION_TYPE_ERROR_CODE).isEmpty())
@@ -468,7 +467,6 @@ public class SignUpActivity extends Activity implements View.OnClickListener
                         Helper.bytesConvertsToMb(totalSizeInByte, context);
                         PreferenceHelper.storeMediaSize(context, totalSizeInByte);
 
-                        //navigate to synch screen
                         hidProgressDialog();
                         startSyncActivity();
 
@@ -558,32 +556,31 @@ public class SignUpActivity extends Activity implements View.OnClickListener
                 onBackPressed();
                 return true;
             case R.id.action_help:
-               /* Intent intent = new Intent(Intent.ACTION_SEND);
-                intent.setType("plain/text");
-                intent.putExtra(Intent.EXTRA_EMAIL, new String[]{"support@smacsoftwares.de"});
-                intent.putExtra(Intent.EXTRA_SUBJECT, "");
-                intent.putExtra(Intent.EXTRA_TEXT, "");
-                startActivity(Intent.createChooser(intent, ""));*/
                 shareViaMail();
-
                 break;
 
         }
         return super.onOptionsItemSelected(item);
     }
-    public void shareViaMail() {
-        String filePath="";
+
+    public void shareViaMail()
+    {
+        String filePath = "";
         Uri URI = Uri.parse("file://" + filePath);
         final Intent emailIntent = new Intent(Intent.ACTION_VIEW);
         emailIntent.setData(Uri.parse("mailto:"));
         emailIntent.putExtra(android.content.Intent.EXTRA_EMAIL, new String[]{"support@smacsoftwares.de"});
-        if (URI != null) {
+        if (URI != null)
+        {
             emailIntent.putExtra(Intent.EXTRA_STREAM, URI);
         }
-        try {
-           startActivity(emailIntent);
-        } catch (Exception e) {
-            Snackbar.make(parentLayout,"Gmail App is not installed", Snackbar.LENGTH_LONG).show();
+        try
+        {
+            startActivity(emailIntent);
+        }
+        catch (Exception e)
+        {
+            Snackbar.make(parentLayout, "Gmail App is not installed", Snackbar.LENGTH_LONG).show();
             e.printStackTrace();
         }
     }

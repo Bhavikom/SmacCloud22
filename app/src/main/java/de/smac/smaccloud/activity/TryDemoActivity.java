@@ -270,7 +270,7 @@ public class TryDemoActivity extends Activity implements View.OnClickListener
 
                             postNetworkRequest(REQUEST_SYNC, DataProvider.ENDPOINT_SYNC, DataProvider.Actions.SYNC,
                                     RequestParameter.jsonArray("UserLikes", jsonArrayUserLikes), RequestParameter.jsonArray("UserComments", jsonArrayUserComments),
-                                    RequestParameter.urlEncoded("UserId", String.valueOf(user.id)), RequestParameter.urlEncoded("LastSyncDate", lastSyncDate), RequestParameter.urlEncoded("Org_Id", PreferenceHelper.getOrganizationId(context)), RequestParameter.urlEncoded("DeviceId", deviceId));
+                                    RequestParameter.urlEncoded("UserId", String.valueOf(user.id)), RequestParameter.urlEncoded("LastSyncDate", lastSyncDate), RequestParameter.urlEncoded("Org_Id", PreferenceHelper.getOrganizationId(context)), RequestParameter.urlEncoded("DeviceId", PreferenceHelper.getFCMTokenId(context)));
 
                         }
                         else

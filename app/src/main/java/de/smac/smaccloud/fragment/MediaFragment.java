@@ -92,16 +92,13 @@ public class MediaFragment extends Fragment implements DownloadFileFromURL.inter
     public static final String FILETYPE_VIDEO = "video";
     public static final String FILETYPE_VIDEO_MP4 = "video/mp4";
     public static final String BROADCAST_MEDIA_DOWNLOAD_COMPLETE = "BROADCAST_MEDIA_DOWNLOAD_COMPLETE";
-    private static final int REQ_GET_MEDIA_CONTENT = 4303;
     public static int COMMENT_ACTIVITY_REQUEST_CODE = 1001;
     public PreferenceHelper prefManager;
     public String deviceId = "00000-00000-00000-00000-00000";
     public EasyDialog dialog;
-    public boolean chklike;
     int mScrollState;
     DownloadFileFromURL.interfaceAsyncResponse interfaceResponse = null;
     UserCommentDialog commentDialog;
-    boolean isTabletSize;
     Handler handler;
     private BroadcastReceiver broadcastReceiverToHandleDownload;
     private Media media1;
@@ -129,11 +126,11 @@ public class MediaFragment extends Fragment implements DownloadFileFromURL.inter
             @Override
             public void onReceive(Context context, final Intent intent)
             {
-                final Intent intentlocal = intent;
+                final Intent intentLocal = intent;
                 if (intent.getAction().equals(Helper.DOWNLOAD_ACTION))
                 {
-                    final Media mediaReceived = intentlocal.getParcelableExtra("media_object");
-                    final String position = intentlocal.getStringExtra("position");
+                    final Media mediaReceived = intentLocal.getParcelableExtra("media_object");
+                    final String position = intentLocal.getStringExtra("position");
                     handler.postDelayed(new Runnable()
                     {
                         @Override
@@ -217,7 +214,7 @@ public class MediaFragment extends Fragment implements DownloadFileFromURL.inter
     {
         super.onStop();
         LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(broadcastReceiverToHandleDownload);
-        //context.unregisterReceiver(receiver);
+
     }
 
     @Override
@@ -356,7 +353,7 @@ public class MediaFragment extends Fragment implements DownloadFileFromURL.inter
                                     AlertDialog dialog = builder.create();
 
                                     dialog.show();
-                                    // Helper.demoUserDialog(context);
+
                                 }
                                 else
                                 {
@@ -372,7 +369,7 @@ public class MediaFragment extends Fragment implements DownloadFileFromURL.inter
                                             postNetworkRequest(REQUEST_LIKE, DataProvider.ENDPOINT_FILE, DataProvider.Actions.MEDIA_LIKE,
                                                     RequestParameter.urlEncoded("ChannelId", String.valueOf(channel.id)),
                                                     RequestParameter.urlEncoded("UserId", String.valueOf(PreferenceHelper.getUserContext(context))),
-                                                    RequestParameter.urlEncoded("MediaId", String.valueOf(media1.id)), RequestParameter.urlEncoded("Org_Id", String.valueOf(PreferenceHelper.getOrganizationId(context))), RequestParameter.urlEncoded("DeviceId", deviceId));
+                                                    RequestParameter.urlEncoded("MediaId", String.valueOf(media1.id)), RequestParameter.urlEncoded("Org_Id", String.valueOf(PreferenceHelper.getOrganizationId(context))), RequestParameter.urlEncoded("DeviceId",  PreferenceHelper.getFCMTokenId(context)));
                                         }
                                         else
                                         {
@@ -665,6 +662,132 @@ public class MediaFragment extends Fragment implements DownloadFileFromURL.inter
                 RequestParameter.urlEncoded("Comment", commentText), RequestParameter.urlEncoded("Org_Id", String.valueOf(PreferenceHelper.getOrganizationId(context))));
     }
 
+
+    @Override
+    public void onItemClick(int pos, int itemPos)
+    {
+
+        media1 = arrayListMedia.get(itemPos);
+        if (pos == 1)
+        {
+            // info
+            Intent mediaDetails = new Intent(getActivity(), MediaDetailActivity.class);
+            mediaDetails.putExtra(EXTRA_CHANNEL, channel);
+            mediaDetails.putExtra(EXTRA_MEDIA, media1);
+            mediaDetails.putExtra(EXTRA_VIEW, isGrid);
+            mediaDetails.putExtra(EXTRA_PARENT, parentId);
+            // TODO: 10-Jan-17 Transmission Animation
+            Pair<View, String> pair1 = Pair.create(recyclerView.findViewHolderForLayoutPosition(itemPos).itemView.findViewById(R.id.imageIcon), getString(R.string.text_transition_animation_media_image));
+            Pair<View, String> pair2 = Pair.create(recyclerView.findViewHolderForLayoutPosition(itemPos).itemView.findViewById(R.id.labelName), getString(R.string.text_transition_animation_media_title));
+            ActivityOptionsCompat optionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(activity, pair1, pair2);
+            startActivityForResult(mediaDetails, REQ_IS_MEDIA_DELETED, optionsCompat.toBundle());
+        }
+        else if (pos == 2)
+        {
+            // share
+            user = new User();
+            user.id = PreferenceHelper.getUserContext(context);
+            Intent sharingDetails = new Intent(getActivity(), ShareActivity.class);
+            sharingDetails.putExtra(EXTRA_CHANNEL, channel);
+            sharingDetails.putExtra(EXTRA_MEDIA, media1);
+            sharingDetails.putExtra(EXTRA_VIEW, isGrid);
+            sharingDetails.putExtra(EXTRA_PARENT, parentId);
+            startActivity(sharingDetails);
+        }
+        else if (pos == 3)
+        {
+            startUserCommentViewActivity();
+        }
+        else if (pos == 4)
+        {
+            // rate
+            if (prefManager.isDemoLogin())
+            {
+                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                builder.setTitle(getString(R.string.disable_like_title));
+                builder.setMessage(getString(R.string.disable_like_message));
+                builder.setPositiveButton(getString(R.string.ok),
+                        new DialogInterface.OnClickListener()
+                        {
+                            public void onClick(DialogInterface dialog, int which)
+                            {
+                                dialog.dismiss();
+                            }
+                        });
+
+                AlertDialog dialog = builder.create();
+
+                dialog.show();
+
+            }
+            else
+            {
+                if (DataHelper.checkLike(activity, media1.id, user.id))
+                {
+                    notifySimple(getString(R.string.msg_it_already_like_by_you));
+                }
+                else
+                {
+                    if (Helper.isNetworkAvailable(context))
+                    {
+                        Helper.IS_DIALOG_SHOW = false;
+                        postNetworkRequest(REQUEST_LIKE, DataProvider.ENDPOINT_FILE, DataProvider.Actions.MEDIA_LIKE,
+                                RequestParameter.urlEncoded("ChannelId", String.valueOf(channel.id)),
+                                RequestParameter.urlEncoded("UserId", String.valueOf(PreferenceHelper.getUserContext(context))),
+                                RequestParameter.urlEncoded("MediaId", String.valueOf(media1.id)), RequestParameter.urlEncoded("Org_Id", String.valueOf(PreferenceHelper.getOrganizationId(context))), RequestParameter.urlEncoded("DeviceId",  PreferenceHelper.getFCMTokenId(context)));
+                    }
+                    else
+                    {
+                        Helper.storeLikeOffline(activity, media1);
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK)
+        {
+            //if (data != null && data.hasExtra(KEY_MEDIA_DETAIL_IS_DELETED) && data.getBooleanExtra(KEY_MEDIA_DETAIL_IS_DELETED, false)) {
+            updateMediaList();
+            mediaAdapter.notifyDataSetChanged();
+            //}
+        }
+    }
+
+    private void startUserCommentViewActivity()
+    {
+        Intent userCommentIntent = new Intent(context, UserCommentViewActivity.class);
+        userCommentIntent.putExtra(MediaFragment.EXTRA_MEDIA, media1);
+        userCommentIntent.putExtra(MediaFragment.EXTRA_CHANNEL, channel);
+        startActivityForResult(userCommentIntent, COMMENT_ACTIVITY_REQUEST_CODE);
+    }
+
+    public void refreshAdapter()
+    {
+        if (mediaAdapter != null)
+        {
+            mediaAdapter.notifyDataSetChanged();
+        }
+    }
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser)
+    {
+        super.setUserVisibleHint(isVisibleToUser);
+        if (isVisibleToUser)
+        {
+            if (mediaAdapter != null)
+            {
+                mediaAdapter.notifyDataSetChanged();
+            }
+        }
+
+
+    }
     @Override
     protected void onNetworkResponse(int requestCode, boolean status, String response)
     {
@@ -776,132 +899,6 @@ public class MediaFragment extends Fragment implements DownloadFileFromURL.inter
         Helper.IS_DIALOG_SHOW = true;
     }
 
-    @Override
-    public void onItemClick(int pos, int itemPos)
-    {
-
-        media1 = arrayListMedia.get(itemPos);
-        if (pos == 1)
-        {
-            // info
-            Intent mediaDetails = new Intent(getActivity(), MediaDetailActivity.class);
-            mediaDetails.putExtra(EXTRA_CHANNEL, channel);
-            mediaDetails.putExtra(EXTRA_MEDIA, media1);
-            mediaDetails.putExtra(EXTRA_VIEW, isGrid);
-            mediaDetails.putExtra(EXTRA_PARENT, parentId);
-            // TODO: 10-Jan-17 Transmission Animation
-            Pair<View, String> pair1 = Pair.create(recyclerView.findViewHolderForLayoutPosition(itemPos).itemView.findViewById(R.id.imageIcon), getString(R.string.text_transition_animation_media_image));
-            Pair<View, String> pair2 = Pair.create(recyclerView.findViewHolderForLayoutPosition(itemPos).itemView.findViewById(R.id.labelName), getString(R.string.text_transition_animation_media_title));
-            ActivityOptionsCompat optionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(activity, pair1, pair2);
-            startActivityForResult(mediaDetails, REQ_IS_MEDIA_DELETED, optionsCompat.toBundle());
-        }
-        else if (pos == 2)
-        {
-            // share
-            user = new User();
-            user.id = PreferenceHelper.getUserContext(context);
-            Intent sharingDetails = new Intent(getActivity(), ShareActivity.class);
-            sharingDetails.putExtra(EXTRA_CHANNEL, channel);
-            sharingDetails.putExtra(EXTRA_MEDIA, media1);
-            sharingDetails.putExtra(EXTRA_VIEW, isGrid);
-            sharingDetails.putExtra(EXTRA_PARENT, parentId);
-            startActivity(sharingDetails);
-        }
-        else if (pos == 3)
-        {
-            startUserCommentViewActivity();
-        }
-        else if (pos == 4)
-        {
-            // rate
-            if (prefManager.isDemoLogin())
-            {
-                AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                builder.setTitle(getString(R.string.disable_like_title));
-                builder.setMessage(getString(R.string.disable_like_message));
-                builder.setPositiveButton(getString(R.string.ok),
-                        new DialogInterface.OnClickListener()
-                        {
-                            public void onClick(DialogInterface dialog, int which)
-                            {
-                                dialog.dismiss();
-                            }
-                        });
-
-                AlertDialog dialog = builder.create();
-
-                dialog.show();
-
-                //Helper.demoUserDialog(context);
-            }
-            else
-            {
-                if (DataHelper.checkLike(activity, media1.id, user.id))
-                {
-                    notifySimple(getString(R.string.msg_it_already_like_by_you));
-                }
-                else
-                {
-                    if (Helper.isNetworkAvailable(context))
-                    {
-                        Helper.IS_DIALOG_SHOW = false;
-                        postNetworkRequest(REQUEST_LIKE, DataProvider.ENDPOINT_FILE, DataProvider.Actions.MEDIA_LIKE,
-                                RequestParameter.urlEncoded("ChannelId", String.valueOf(channel.id)),
-                                RequestParameter.urlEncoded("UserId", String.valueOf(PreferenceHelper.getUserContext(context))),
-                                RequestParameter.urlEncoded("MediaId", String.valueOf(media1.id)), RequestParameter.urlEncoded("Org_Id", String.valueOf(PreferenceHelper.getOrganizationId(context))), RequestParameter.urlEncoded("DeviceId", deviceId));
-                    }
-                    else
-                    {
-                        Helper.storeLikeOffline(activity, media1);
-                    }
-                }
-            }
-        }
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data)
-    {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK)
-        {
-            //if (data != null && data.hasExtra(KEY_MEDIA_DETAIL_IS_DELETED) && data.getBooleanExtra(KEY_MEDIA_DETAIL_IS_DELETED, false)) {
-            updateMediaList();
-            mediaAdapter.notifyDataSetChanged();
-            //}
-        }
-    }
-
-    private void startUserCommentViewActivity()
-    {
-        Intent userCommentIntent = new Intent(context, UserCommentViewActivity.class);
-        userCommentIntent.putExtra(MediaFragment.EXTRA_MEDIA, media1);
-        userCommentIntent.putExtra(MediaFragment.EXTRA_CHANNEL, channel);
-        startActivityForResult(userCommentIntent, COMMENT_ACTIVITY_REQUEST_CODE);
-    }
-
-    public void refreshAdapter()
-    {
-        if (mediaAdapter != null)
-        {
-            mediaAdapter.notifyDataSetChanged();
-        }
-    }
-
-    @Override
-    public void setUserVisibleHint(boolean isVisibleToUser)
-    {
-        super.setUserVisibleHint(isVisibleToUser);
-        if (isVisibleToUser)
-        {
-            if (mediaAdapter != null)
-            {
-                mediaAdapter.notifyDataSetChanged();
-            }
-        }
-
-
-    }
 
 
     @Override

@@ -556,7 +556,7 @@ public class SettingsFragment extends Fragment implements FCMMessagingService.Th
                                             postNetworkRequest(REQUEST_SYNC, DataProvider.ENDPOINT_SYNC, DataProvider.Actions.SYNC,
                                                     /*RequestParameter.urlEncoded("Org_Id", String.valueOf()),*/
                                                     RequestParameter.jsonArray("UserLikes", jsonArrayUserLikes), RequestParameter.jsonArray("UserComments", jsonArrayUserComments),
-                                                    RequestParameter.urlEncoded("UserId", String.valueOf(userPreference.userId)), RequestParameter.urlEncoded("LastSyncDate", lastSyncDate), RequestParameter.urlEncoded("Org_Id", String.valueOf(PreferenceHelper.getOrganizationId(context))), RequestParameter.urlEncoded("DeviceId", deviceId));
+                                                    RequestParameter.urlEncoded("UserId", String.valueOf(userPreference.userId)), RequestParameter.urlEncoded("LastSyncDate", lastSyncDate), RequestParameter.urlEncoded("Org_Id", String.valueOf(PreferenceHelper.getOrganizationId(context))), RequestParameter.urlEncoded("DeviceId", PreferenceHelper.getFCMTokenId(context)));
 
 
                                         }

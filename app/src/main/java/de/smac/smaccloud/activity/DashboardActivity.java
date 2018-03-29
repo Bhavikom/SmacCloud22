@@ -120,6 +120,7 @@ public class DashboardActivity extends Activity implements SettingsFragment.Inte
                     if (jsonNotificationData.has(FCMMessagingService.KEY_DATA_ACTION_TYPE) && jsonNotificationData.optString(FCMMessagingService.KEY_DATA_ACTION_TYPE).equals(String.valueOf(FCMMessagingService.ACTION_TYPE_CONTENT_UPDATED)))
                     {
                         askForSync();
+
                     }
                 }
                 catch (Exception ex)
@@ -460,8 +461,7 @@ public class DashboardActivity extends Activity implements SettingsFragment.Inte
         navigationDashboard.getMenu().removeGroup(R.id.menuDashboard);
         navigationDashboard.inflateMenu(R.menu.menu_activity_dashboard);
         navigationDashboard.getMenu().findItem(R.id.menuSettings).setCheckable(true).setChecked(true);
-        // Helper.setupTypeface((View) navigationDashboard.getMenu().findItem(R.id.menuChannels),Helper.robotoRegularTypeface);
-        //navigationDashboard.getMenu().findItem(R.id.menuSettings).setCheckable(true).setChecked(true);
+
     }
 
     public void applyTypefaceToNavigationDrawer()
@@ -497,13 +497,6 @@ public class DashboardActivity extends Activity implements SettingsFragment.Inte
         mNewTitle.setSpan(new CustomTypefaceSpan("", font), 0, mNewTitle.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
         mi.setTitle(mNewTitle);
     }
-    /*@Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        this.menu = menu;
-        //getMenuInflater().inflate(R.menu.menu_activity_dashboard, menu);
-        return false;
-    }*/
-
     public void changeLangaugeMenu(String lang)
     {
         Menu menu = navigationDashboard.getMenu();

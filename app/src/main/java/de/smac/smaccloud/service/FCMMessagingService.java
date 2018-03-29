@@ -55,11 +55,13 @@ public class FCMMessagingService extends FirebaseMessagingService
     public static final int ACTION_TYPE_SIMPLE_MESSAGE = 0;
 
     public static final String PUSH_TYPE_ADD_LIKE = "ADD_LIKE";
+    public static final String PUSH_TYPE_CHANNEL_ASSIGNED = "CHANNEL_ASSIGNED";
+    public static final String PUSH_TYPE_CHANNEL_UN_ASSIGNED = "CHANNEL_UN_ASSIGNED";
     public static final String PUSH_TYPE_SYNC = "SYNC";
     public static final String PUSH_TYPE_FORCE_SYNC = "FORCE_SYNC";
     public static final String PUSH_TYPE_ADD_COMMENT = "ADD_COMMENT";
     public static final String PUSH_TYPE_THEME_CHANGE = "THEME_CHANGE";
-    public static final String PUSH_TYPE_SIMPLE_MESSGAE = "SIMPLE_MESSAGE";
+    public static final String PUSH_TYPE_SIMPLE_MESSAGE = "SIMPLE_MESSAGE";
 
 
     public static final String KEY_NOTIFICATION_DATA = "NotificationData";
@@ -116,7 +118,7 @@ public class FCMMessagingService extends FirebaseMessagingService
                     switch (actionType)
                     {
                         case ACTION_TYPE_CHANNEL_ASSIGNED:
-                            announcement.type = PUSH_TYPE_FORCE_SYNC;
+                            announcement.type = PUSH_TYPE_CHANNEL_ASSIGNED;
                             announcement.userId = -1;
                             announcement.associatedId = -1;
                             if (fcmPushReceiveListener != null)
@@ -125,7 +127,7 @@ public class FCMMessagingService extends FirebaseMessagingService
                             }
                             break;
                         case CHANNEL_UN_ASSIGNED:
-                            announcement.type = PUSH_TYPE_FORCE_SYNC;
+                            announcement.type = PUSH_TYPE_CHANNEL_UN_ASSIGNED;
                             announcement.userId = -1;
                             announcement.associatedId = -1;
                             if (fcmPushReceiveListener != null)
@@ -134,14 +136,7 @@ public class FCMMessagingService extends FirebaseMessagingService
                             }
                             break;
                         case ACTION_TYPE_CHANNEL_REMOVED:
-                           /* announcement.type = PUSH_TYPE_FORCE_SYNC;
-                            announcement.userId = -1;
-                            announcement.associatedId = -1;
-                            if (fcmPushReceiveListener != null)
-                            {
-                                fcmPushReceiveListener.onFCMPushReceived(messageTitle, messageBody, remoteMessage.getData());
-                            }
-                            break;*/
+                            break;
                         case ACTION_TYPE_MEDIA_COMMENT:
                             if (remoteMessage.getData().containsKey(KEY_DATA_DATA_CONTENT))
                             {
@@ -284,9 +279,10 @@ public class FCMMessagingService extends FirebaseMessagingService
 
 
                         default:
-                            announcement.type = PUSH_TYPE_SIMPLE_MESSGAE;
+                            announcement.type = PUSH_TYPE_SIMPLE_MESSAGE;
                             announcement.userId = -1;
                             announcement.associatedId = -1;
+                            announcement.isRead = true;
 
                             if (fcmPushReceiveListener != null)
                             {

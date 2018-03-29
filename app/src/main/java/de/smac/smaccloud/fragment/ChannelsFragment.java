@@ -129,6 +129,7 @@ public class ChannelsFragment extends Fragment
             @Override
             public void onNotificationIconValueChanged()
             {
+
                 applyThemeColor();
             }
         };
@@ -227,7 +228,7 @@ public class ChannelsFragment extends Fragment
 
     public void applyThemeColor()
     {
-        activity.updateParentThemeColor();
+
         if (activity instanceof DashboardActivity)
         {
             ((DashboardActivity) activity).applyTheme();
@@ -262,8 +263,25 @@ public class ChannelsFragment extends Fragment
             }
             menuItemSearch.setIcon(icon);
         }
-
+        if (arraylistChannels != null)
+        {
+            arraylistChannels.clear();
+        }
+        else
+        {
+            arraylistChannels = new ArrayList<>();
+        }
+        try
+        {
+            DataHelper.getChannels(context, arraylistChannels);
+        }
+        catch (ParseException e)
+        {
+            e.printStackTrace();
+        }
+        adapterChannels = new ChannelsAdapter(activity, arraylistChannels);
         recyclerViewChannels.getAdapter().notifyDataSetChanged();
+
     }
 
     @Override

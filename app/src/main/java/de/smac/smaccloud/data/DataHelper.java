@@ -2380,18 +2380,43 @@ public class DataHelper
         return (updateAnnouncementCount > 0);
     }
 
-    public static boolean updateSyncAnnouncementReadStatus(Context context, boolean isRead)
+   /* public static boolean updateSyncAnnouncementReadStatus(Context context, boolean isRead)
     {
         SQLiteDatabase db = LocalDatabase.getWritable(context);
         ContentValues announcementValues = new ContentValues();
-
+        long updateAnnouncementCount = 0;
         announcementValues.put(ANNOUNCEMENT_IS_READ, isRead ? 1 : 0);
         String whereClause = ANNOUNCEMENT_TYPE + " = ?";
-        String[] whereArgs = new String[]{FCMMessagingService.PUSH_TYPE_SYNC};
-        long updateAnnouncementCount = db.update(TABLE_ANNOUNCEMENT, announcementValues, whereClause, whereArgs);
+        if (ANNOUNCEMENT_TYPE.equals(FCMMessagingService.PUSH_TYPE_SYNC))
+        {
+
+            String[] whereArgs = new String[]{FCMMessagingService.PUSH_TYPE_SYNC};
+            updateAnnouncementCount = db.update(TABLE_ANNOUNCEMENT, announcementValues, whereClause, whereArgs);
+        }
+        else if (ANNOUNCEMENT_TYPE.equals(FCMMessagingService.PUSH_TYPE_CHANNEL_ASSIGNED))
+        {
+            String[] whereArgs = new String[]{FCMMessagingService.PUSH_TYPE_CHANNEL_ASSIGNED};
+            updateAnnouncementCount = db.update(TABLE_ANNOUNCEMENT, announcementValues, whereClause, whereArgs);
+        }
+        else if (ANNOUNCEMENT_TYPE.equals(FCMMessagingService.PUSH_TYPE_CHANNEL_UN_ASSIGNED))
+        {
+            String[] whereArgs = new String[]{FCMMessagingService.PUSH_TYPE_CHANNEL_ASSIGNED};
+            updateAnnouncementCount = db.update(TABLE_ANNOUNCEMENT, announcementValues, whereClause, whereArgs);
+        }
         return (updateAnnouncementCount > 0);
     }
+*/
+   public static boolean updateSyncAnnouncementReadStatus(Context context, boolean isRead)
+   {
+       SQLiteDatabase db = LocalDatabase.getWritable(context);
+       ContentValues announcementValues = new ContentValues();
 
+       announcementValues.put(ANNOUNCEMENT_IS_READ, isRead ? 1 : 0);
+       String whereClause = ANNOUNCEMENT_TYPE + " = ? or " + ANNOUNCEMENT_TYPE + " = ? or " + ANNOUNCEMENT_TYPE + " = ?";
+       String[] whereArgs = new String[]{FCMMessagingService.PUSH_TYPE_SYNC, FCMMessagingService.PUSH_TYPE_CHANNEL_ASSIGNED, FCMMessagingService.PUSH_TYPE_CHANNEL_UN_ASSIGNED};
+       long updateAnnouncementCount = db.update(TABLE_ANNOUNCEMENT, announcementValues, whereClause, whereArgs);
+       return (updateAnnouncementCount > 0);
+   }
     public static boolean removeAnnouncement(Context context, Announcement announcement)
     {
         SQLiteDatabase db = LocalDatabase.getWritable(context);

@@ -154,7 +154,7 @@ public class SyncActivity extends Activity
 
                     postNetworkRequest(REQUEST_SYNC, DataProvider.ENDPOINT_SYNC, DataProvider.Actions.SYNC,
                             RequestParameter.jsonArray("UserLikes", jsonArrayUserLikes), RequestParameter.jsonArray("UserComments", jsonArrayUserComments),
-                            RequestParameter.urlEncoded("UserId", String.valueOf(userPreference.userId)), RequestParameter.urlEncoded("Org_Id", PreferenceHelper.getOrganizationId(context)), RequestParameter.urlEncoded("LastSyncDate", lastSyncDate), RequestParameter.urlEncoded("DeviceId", deviceId));
+                            RequestParameter.urlEncoded("UserId", String.valueOf(userPreference.userId)), RequestParameter.urlEncoded("Org_Id", PreferenceHelper.getOrganizationId(context)), RequestParameter.urlEncoded("LastSyncDate", lastSyncDate), RequestParameter.urlEncoded("DeviceId", PreferenceHelper.getFCMTokenId(context)));
 
                 }
                 else

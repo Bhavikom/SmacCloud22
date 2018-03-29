@@ -1,7 +1,6 @@
 package de.smac.smaccloud.base;
 
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -20,7 +19,6 @@ import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
-import android.widget.TextView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -135,15 +133,6 @@ public class Activity extends AppCompatActivity
         bindEvents();
         refreshLayoutTypeface();
         updateParentThemeColor();
-        /*FCMMessagingService.themeChangeNotificationListener = new FCMMessagingService.ThemeChangeNotificationListener()
-        {
-            @Override
-            public void onThemeChangeNotificationReceived()
-            {
-                updateParentThemeColor();
-            }
-        };*/
-
 
     }
 
@@ -198,19 +187,20 @@ public class Activity extends AppCompatActivity
                             switch (type)
                             {
                                 case ACTION_TYPE_CHANNEL_ASSIGNED:
-                                    notificationDialog();
-                                    //askForSync();
-                                    // syncServiceCall();
-                                case CHANNEL_UN_ASSIGNED:
-                                    notificationDialog();
-                                    //askForSync();
-                                    //syncServiceCall();
-                                case ACTION_TYPE_CHANNEL_REMOVED:
-                                    syncServiceCall();
+                                    notificationDialog(title, body);
                                     break;
+
+                                case CHANNEL_UN_ASSIGNED:
+                                    notificationDialog(title, body);
+                                    break;
+
+                                case ACTION_TYPE_CHANNEL_REMOVED:
+                                    break;
+
                                 case ACTION_TYPE_CONTENT_UPDATED:
                                     askForSync();
                                     break;
+
                                 case ACTION_TYPE_SIMPLE_MESSAGE:
                                     Helper.showSimpleDialog(context, body);
                                     break;
@@ -365,9 +355,9 @@ public class Activity extends AppCompatActivity
                             if (syncJson.has("Media") && !syncJson.isNull("Media"))
                             {
                                 JSONArray mediaJsonArray = syncJson.optJSONArray("Media");
-                                ArrayList<Media> arraylistMediallist = new ArrayList<>();
-                                Media.parseListFromJson(mediaJsonArray, arraylistMediallist);
-                                for (Media media : arraylistMediallist)
+                                ArrayList<Media> arrayMedialList = new ArrayList<>();
+                                Media.parseListFromJson(mediaJsonArray, arrayMedialList);
+                                for (Media media : arrayMedialList)
                                 {
                                     switch (media.syncType)
                                     {
@@ -399,9 +389,9 @@ public class Activity extends AppCompatActivity
                             if (syncJson.has("ChannelFiles") && !syncJson.isNull("ChannelFiles"))
                             {
                                 JSONArray channelFilesJsonArray = syncJson.optJSONArray("ChannelFiles");
-                                ArrayList<ChannelFiles> arraylistChhannelFiles = new ArrayList<>();
-                                ChannelFiles.parseListFromJson(channelFilesJsonArray, arraylistChhannelFiles);
-                                for (ChannelFiles channelFile : arraylistChhannelFiles)
+                                ArrayList<ChannelFiles> arrayListChannelFiles = new ArrayList<>();
+                                ChannelFiles.parseListFromJson(channelFilesJsonArray, arrayListChannelFiles);
+                                for (ChannelFiles channelFile : arrayListChannelFiles)
                                 {
                                     switch (channelFile.syncType)
                                     {
@@ -423,9 +413,9 @@ public class Activity extends AppCompatActivity
                             if (syncJson.has("ChannelUsers") && !syncJson.isNull("ChannelUsers"))
                             {
                                 JSONArray channelUsersJsonArray = syncJson.optJSONArray("ChannelUsers");
-                                ArrayList<ChannelUser> arraylistChannelUsers = new ArrayList<>();
-                                ChannelUser.parseListFromJson(channelUsersJsonArray, arraylistChannelUsers);
-                                for (ChannelUser channelUser : arraylistChannelUsers)
+                                ArrayList<ChannelUser> arrayListChannelUsers = new ArrayList<>();
+                                ChannelUser.parseListFromJson(channelUsersJsonArray, arrayListChannelUsers);
+                                for (ChannelUser channelUser : arrayListChannelUsers)
                                 {
                                     switch (channelUser.syncType)
                                     {
@@ -445,9 +435,9 @@ public class Activity extends AppCompatActivity
                             if (syncJson.has("UserComments") && !syncJson.isNull("UserComments"))
                             {
                                 JSONArray userCommentsJsonArray = syncJson.optJSONArray("UserComments");
-                                ArrayList<UserComment> arraylistuserComments = new ArrayList<>();
-                                UserComment.parseListFromJson(userCommentsJsonArray, arraylistuserComments);
-                                for (UserComment usercomment : arraylistuserComments)
+                                ArrayList<UserComment> arrayListUserComments = new ArrayList<>();
+                                UserComment.parseListFromJson(userCommentsJsonArray, arrayListUserComments);
+                                for (UserComment usercomment : arrayListUserComments)
                                 {
                                     switch (usercomment.syncType)
                                     {
@@ -503,8 +493,10 @@ public class Activity extends AppCompatActivity
                             if (notificationIconValueChangeListener != null)
                             {
                                 notificationIconValueChangeListener.onNotificationIconValueChanged();
+
                             }
-                            //Helper.showSimpleDialog(this, getString(R.string.sync_data_update_sucessfully));
+                            Helper.showSimpleDialog(this, getString(R.string.sync_data_update_sucessfully));
+
                         }
                         catch (JSONException | ParseException e)
                         {
@@ -525,26 +517,25 @@ public class Activity extends AppCompatActivity
         }
     }
 
-    public void notificationDialog()
+    public void notificationDialog(String title, String body)
     {
-        final Dialog dialog = new Dialog(context);
-        dialog.setContentView(R.layout.notification_custom_dialog);
-
-        TextView textNotificationTitle = (TextView) dialog.findViewById(R.id.txt_notification_title);
-        TextView textNotificationBody = (TextView) dialog.findViewById(R.id.txt_notification_body);
-        TextView buttonSyncNow = (TextView) dialog.findViewById(R.id.btn_sync_now);
-
-        // if button is clicked, close the custom dialog
-        buttonSyncNow.setOnClickListener(new View.OnClickListener()
+        if (!((Activity) Activity.this).isFinishing())
         {
-            @Override
-            public void onClick(View v)
-            {
-                dialog.dismiss();
-            }
-        });
+            final AlertDialog alertDialog = new AlertDialog.Builder(Activity.this).create();
+            alertDialog.setTitle(title);
+            alertDialog.setMessage(body);
+            alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Sync Now",
+                    new DialogInterface.OnClickListener()
+                    {
+                        public void onClick(DialogInterface dialog, int which)
+                        {
+                            syncServiceCall();
 
-        dialog.show();
+                        }
+                    });
+            alertDialog.setCancelable(false);
+            alertDialog.show();
+        }
     }
 
     public void askForSync()
@@ -552,7 +543,7 @@ public class Activity extends AppCompatActivity
         if (!((Activity) context).isFinishing())
         {
 
-            AlertDialog dialog = new AlertDialog.Builder(context).create();
+            AlertDialog dialog = new AlertDialog.Builder(Activity.this).create();
             dialog.setTitle(context.getString(R.string.app_title));
             dialog.setMessage(context.getString(R.string.sync_update_dialog));
             dialog.setButton(AlertDialog.BUTTON_POSITIVE, context.getString(R.string.ok),
@@ -561,7 +552,6 @@ public class Activity extends AppCompatActivity
                         public void onClick(DialogInterface dialog, int which)
                         {
                             syncServiceCall();
-                            //DataHelper.updateSyncAnnouncementReadStatus(Activity.this, false);
                         }
                     });
             dialog.setButton(AlertDialog.BUTTON_NEGATIVE, context.getString(R.string.label_cancel),

@@ -100,17 +100,16 @@ import static de.smac.smaccloud.fragment.MediaFragment.REQ_IS_MEDIA_DELETED;
 @SuppressWarnings("unused")
 public class Helper
 {
-    public static Media mediaToCancel = null;
     public static final String START_DOWNLOAD = "start_download";
     public static final String START_DOWNLOAD_FROM_DETAIL = "start_download_from_detail";
     public static final String STOP_DOWNLOAD = "stop_download";
-
     public static final int REQUEST_PLAY_RESOLUTION = -1001;
     public static final String PREFERENCE_GCM_ID = "gcm_reg_id";
     public static final String PREFERENCE_GCM_APP_ID = "gcm_app_id";
     public final static String DOWNLOAD_ACTION = "com.samb.download";
     public static final ArrayList<Integer> selectedMediaTypeList = new ArrayList<>();
     public static final ArrayList<String> selectedChannelsList = new ArrayList<>();
+    public static Media mediaToCancel = null;
     public static String PASSWORD_PATTERN =
             "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[$@$!%*#?&])[A-Za-z\\d$@$!%*#?&]{8,}$";
     public static Typeface globalFace;
@@ -473,6 +472,7 @@ public class Helper
 
     public static void demoUserDialog(Context context)
     {
+
         AlertDialog alertDialog = new AlertDialog.Builder(context).create();
         alertDialog.setTitle(context.getString(R.string.alert));
         alertDialog.setIcon(context.getResources().getDrawable(R.drawable.ic_alert));
@@ -488,19 +488,23 @@ public class Helper
         alertDialog.show();
     }
 
-    public static void showSimpleDialog(Context context, String message)
+    public static void showSimpleDialog(final Context context, String message)
     {
-        AlertDialog alertDialog = new AlertDialog.Builder(context).create();
-        alertDialog.setMessage(message);
-        alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, context.getString(R.string.ok),
-                new DialogInterface.OnClickListener()
-                {
-                    public void onClick(DialogInterface dialog, int which)
+        if (!((Activity) context).isFinishing())
+        {
+
+            AlertDialog alertDialog = new AlertDialog.Builder(context).create();
+            alertDialog.setMessage(message);
+            alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, context.getString(R.string.ok),
+                    new DialogInterface.OnClickListener()
                     {
-                        dialog.dismiss();
-                    }
-                });
-        alertDialog.show();
+                        public void onClick(DialogInterface dialog, int which)
+                        {
+                            dialog.dismiss();
+                        }
+                    });
+            alertDialog.show();
+        }
     }
 
     public static void downloadAllFiles(final Activity activity, final boolean isFromSetting)
@@ -516,8 +520,6 @@ public class Helper
             //item.setIcon(switchViews() ? R.drawable.ic_list : R.drawable.ic_grid);
             File path = Environment.getDataDirectory();
             StatFs stat = new StatFs(path.getPath());
-            /*long blockSize = stat.getBlockSizeLong();
-            long availableBlocks = stat.getAvailableBlocksLong();*/
             long blockSize = 0;
             long availableBlocks = 0;
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR2)
@@ -555,13 +557,6 @@ public class Helper
                                 arraylistDownloadList.get(i).channelId = channelId;
                             }
 
-                                /*try
-                                {*/
-                                   /* notifySimple("Your Downloading Started In Background");
-                                    AllMediaDownload allMediaDownload = new AllMediaDownload(context, arraylistDownloadList, arraylistDownloadList.get(0).mediaId);
-                                    boolean updateCount=DataHelper.updateAllMedia(context);
-                                    allMediaDownload.onNetworkReady(0);*/
-
                             for (int i = 0; i < arraylistDownloadList.size(); i++)
                             {
                                 try
@@ -585,19 +580,6 @@ public class Helper
                                 startDashboardActivity(activity);
 
 
-                               /* }
-                                catch (JSONException e)
-                                {
-                                    e.printStackTrace();
-                                }
-                                catch (UnsupportedEncodingException e)
-                                {
-                                    e.printStackTrace();
-                                }
-                                catch (ParseException e)
-                                {
-                                    e.printStackTrace();
-                                }*/
                         }
                     })
                     .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener()
@@ -1190,6 +1172,49 @@ public class Helper
 
     }
 
+    public static String getVersionName(Context context)
+    {
+        PackageInfo pinfo = null;
+        try
+        {
+            pinfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
+        }
+        catch (PackageManager.NameNotFoundException e)
+        {
+            e.printStackTrace();
+        }
+        String versionName = pinfo.versionName;
+
+        return versionName;
+    }
+
+    public static int getVersionNo(Context context)
+    {
+        PackageInfo pinfo = null;
+        try
+        {
+            pinfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
+        }
+        catch (PackageManager.NameNotFoundException e)
+        {
+            e.printStackTrace();
+        }
+        int versionNumber = pinfo.versionCode;
+        return versionNumber;
+    }
+
+    public static void openPlayStoreUrl(Context context, String appPackageName)
+    {
+        try
+        {
+            context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + appPackageName)));
+        }
+        catch (android.content.ActivityNotFoundException anfe)
+        {
+            context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + appPackageName)));
+        }
+    }
+
     /**
      * This class is used to perform Google Cloud Messaging(GCM) related operations
      */
@@ -1309,40 +1334,6 @@ public class Helper
                 }
             }
             return false;
-        }
-    }
-    public static String getVersionName(Context context){
-        PackageInfo pinfo = null;
-        try
-        {
-            pinfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
-        }
-        catch (PackageManager.NameNotFoundException e)
-        {
-            e.printStackTrace();
-        }
-        String versionName = pinfo.versionName;
-
-        return versionName;
-    }
-    public static int getVersionNo(Context context){
-        PackageInfo pinfo = null;
-        try
-        {
-            pinfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
-        }
-        catch (PackageManager.NameNotFoundException e)
-        {
-            e.printStackTrace();
-        }
-        int versionNumber = pinfo.versionCode;
-        return versionNumber;
-    }
-    public static void openPlayStoreUrl(Context context,String appPackageName){
-        try {
-            context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + appPackageName)));
-        } catch (android.content.ActivityNotFoundException anfe) {
-            context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + appPackageName)));
         }
     }
 }

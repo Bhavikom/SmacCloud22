@@ -193,7 +193,6 @@ public class ImageViewerActivity extends Activity implements View.OnClickListene
     protected void bindEvents()
     {
         super.bindEvents();
-        //Glide.with(context).load(mFolder).diskCacheStrategy(DiskCacheStrategy.ALL).into(imageToDisplayFullScreen);
     }
 
     @Override
@@ -239,9 +238,7 @@ public class ImageViewerActivity extends Activity implements View.OnClickListene
                             });
 
                     AlertDialog dialog = builder.create();
-
                     dialog.show();
-                    // Helper.demoUserDialog(context);
                 }
                 else
                 {
@@ -257,7 +254,7 @@ public class ImageViewerActivity extends Activity implements View.OnClickListene
                             postNetworkRequest(REQUEST_LIKE, DataProvider.ENDPOINT_FILE, DataProvider.Actions.MEDIA_LIKE,
                                     RequestParameter.urlEncoded("ChannelId", String.valueOf(DataHelper.getChannelId(context, media.id))),
                                     RequestParameter.urlEncoded("UserId", String.valueOf(PreferenceHelper.getUserContext(context))),
-                                    RequestParameter.urlEncoded("MediaId", String.valueOf(media.id)), RequestParameter.urlEncoded("Org_Id", String.valueOf(PreferenceHelper.getOrganizationId(context))), RequestParameter.urlEncoded("DeviceId", deviceId));
+                                    RequestParameter.urlEncoded("MediaId", String.valueOf(media.id)), RequestParameter.urlEncoded("Org_Id", String.valueOf(PreferenceHelper.getOrganizationId(context))), RequestParameter.urlEncoded("DeviceId",  PreferenceHelper.getFCMTokenId(context)));
                         }
                         else
                         {

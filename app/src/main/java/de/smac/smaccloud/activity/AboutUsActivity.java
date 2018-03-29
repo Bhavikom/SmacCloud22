@@ -6,8 +6,12 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -36,6 +40,7 @@ public class AboutUsActivity extends Activity
     public static String plan = "Plan";
     public static String appNameAndYear = "AppNameAndYear";
     public LinearLayout parentLayout;
+    ImageView imageViewAboutUsLogo;
     TextView textViewAppTitle, textViewReleaseNo, textViewReleaseNoValue, textViewLicence, textViewLicenceValue, textViewPlan, textViewPlanValue, textViewAppyear, textViewCopirights;
 
     @Override
@@ -46,6 +51,7 @@ public class AboutUsActivity extends Activity
         Helper.retainOrientation(AboutUsActivity.this);
         parentLayout = (LinearLayout) findViewById(R.id.parentLayout);
         textViewAppTitle = (TextView) findViewById(R.id.txt_app_title);
+        imageViewAboutUsLogo = (ImageView) findViewById(R.id.img_aboutUs_logo);
         textViewReleaseNo = (TextView) findViewById(R.id.txt_release_no);
         textViewReleaseNoValue = (TextView) findViewById(R.id.txt_release_no_value);
         textViewLicence = (TextView) findViewById(R.id.txt_licence);
@@ -79,6 +85,19 @@ public class AboutUsActivity extends Activity
                 applyThemeColor();
             }
         };
+        String iconPath = PreferenceHelper.getAppIcon(context);
+        if (iconPath.isEmpty())
+        {
+            imageViewAboutUsLogo.setImageResource(R.drawable.ic_logo);
+        }
+        else
+        {
+            Glide.with(context)
+                    .load(iconPath)
+                    .asBitmap()
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .into(imageViewAboutUsLogo);
+        }
 
     }
 

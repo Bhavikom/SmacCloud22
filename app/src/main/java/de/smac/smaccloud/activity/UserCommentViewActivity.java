@@ -184,7 +184,6 @@ public class UserCommentViewActivity extends Activity
         switch (item.getItemId())
         {
             case android.R.id.home:
-                // app icon in action bar clicked; goto parent activity.
                 onBackPressed();
                 return true;
             default:
@@ -265,13 +264,31 @@ public class UserCommentViewActivity extends Activity
                         {
                             if (Helper.isNetworkAvailable(context))
                             {
+
+                                try
+                                {
+                                    UserComment userCommentTemp = new UserComment();
+                                    userCommentTemp.userId = PreferenceHelper.getUserContext(context);
+                                    userCommentTemp.user = new User();
+                                    userCommentTemp.user.id = PreferenceHelper.getUserContext(context);
+                                    DataHelper.getUser(context, userCommentTemp.user);
+                                    userCommentTemp.comment = comment;
+                                    userCommentTemp.insertDate = Calendar.getInstance().getTime();
+                                    usersComments.add(userCommentTemp);
+                                    addUserCommentInLinearLayout(usersComments);
+                                    edtMediaComment.setText("");
+                                }
+                                catch (Exception ex)
+                                {
+                                    ex.printStackTrace();
+                                }
                                 Helper.IS_DIALOG_SHOW = false;
                                 postNetworkRequest(REQUEST_COMMENT, DataProvider.ENDPOINT_FILE, DataProvider.Actions.MEDIA_COMMENT,
                                         RequestParameter.urlEncoded("ChannelId", String.valueOf(DataHelper.getChannelId(context, media.id))),
                                         RequestParameter.urlEncoded("UserId", String.valueOf(PreferenceHelper.getUserContext(context))),
                                         RequestParameter.urlEncoded("MediaId", String.valueOf(media.id)),
                                         RequestParameter.urlEncoded("Org_Id", String.valueOf(PreferenceHelper.getOrganizationId(context))),
-                                        RequestParameter.urlEncoded("Comment", comment), RequestParameter.urlEncoded("DeviceId", deviceId));
+                                        RequestParameter.urlEncoded("Comment", comment), RequestParameter.urlEncoded("DeviceId", PreferenceHelper.getFCMTokenId(context)));
 
                             }
                             else
@@ -285,7 +302,7 @@ public class UserCommentViewActivity extends Activity
                         {
                             notifySimple(getString(R.string.msg_please_enter_comment));
                             edtMediaComment.setFocusable(true);
-                            notifySimple(getString(R.string.msg_please_enter_comment));
+
                         }
                     }
                 }
@@ -512,6 +529,7 @@ public class UserCommentViewActivity extends Activity
             {
                 isMyMessage = false;
             }
+
         /* custom function to set alignment of view based on message type */
             setAlignment(commentHolder, isMyMessage);
             commentLinearLayout.addView(layoutView);

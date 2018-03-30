@@ -60,7 +60,7 @@ import de.smac.smaccloud.service.FCMMessagingService;
 /**
  * Main activity class
  */
-public class DashboardActivity extends Activity implements SettingsFragment.InterfacechangeLanguage
+public class DashboardActivity extends Activity implements SettingsFragment.InterfaceChangeLanguage
 {
     private PreferenceHelper prefManager;
     private static ActionBarDrawerToggle drawerToggle;

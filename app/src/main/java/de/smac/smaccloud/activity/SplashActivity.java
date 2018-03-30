@@ -9,7 +9,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -20,12 +21,14 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import de.smac.smaccloud.R;
 import de.smac.smaccloud.base.Helper;
 import de.smac.smaccloud.base.RequestParameter;
 import de.smac.smaccloud.data.DataHelper;
+import de.smac.smaccloud.fragment.SettingsFragment;
 import de.smac.smaccloud.helper.DataProvider;
 import de.smac.smaccloud.helper.PreferenceHelper;
 import de.smac.smaccloud.model.LocalizationData;
@@ -35,20 +38,21 @@ import static de.smac.smaccloud.base.Helper.LOCALIZATION_TYPE_ERROR_CODE;
 
 public class SplashActivity extends de.smac.smaccloud.base.Activity
 {
-    String strLatestVersionCodeFromservice="";
-    private PreferenceHelper prefManager;
-    String strVersionName="";
-    String strVersionNo="";
     public static final int REQUEST_GETLOCALIZATION = 5001;
     public static final int REQUEST_GET_VERSION = 5002;
     private static int SPLASH_TIME_OUT = 3000;
+    String strLatestVersionCodeFromService = "";
+    String strVersionName = "";
+    String strVersionNo = "";
     ArrayList<LocalizationData> arrayListLocalization = new ArrayList<>();
     Activity activity;
     ImageView img_app_icon;
+    private PreferenceHelper prefManager;
     private Handler splashHandler;
     private Runnable splashRunnable;
-    private LinearLayout parentLayout;
+    private RelativeLayout parentLayout;
     private boolean flag;
+    private TextView txtCopyRight;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -58,13 +62,14 @@ public class SplashActivity extends de.smac.smaccloud.base.Activity
         prefManager = new PreferenceHelper(context);
         Helper.retainOrientation(SplashActivity.this);
         activity = this;
-        parentLayout = (LinearLayout) findViewById(R.id.parentLayout);
+        parentLayout = (RelativeLayout) findViewById(R.id.parentLayout);
 
         Helper.robotoRegularTypeface = Typeface.createFromAsset(this.getAssets(), Helper.fontPathRoboto);
 
         Helper.setupTypeface(parentLayout, Helper.robotoRegularTypeface);
 
         img_app_icon = (ImageView) findViewById(R.id.img_app_icon);
+        txtCopyRight = (TextView) findViewById(R.id.txt_copyRight_text);
 
         String iconPath = PreferenceHelper.getAppIcon(context);
         if (iconPath.isEmpty())
@@ -90,6 +95,9 @@ public class SplashActivity extends de.smac.smaccloud.base.Activity
             lang = "en";
             Helper.changeLanguage(SplashActivity.this, lang);
         }
+        Calendar calendar = Calendar.getInstance();
+        int year = calendar.get(Calendar.YEAR);
+        txtCopyRight.setText(getString(R.string.copyright).concat(" ").concat(String.valueOf(year).concat(" ").concat(getString(R.string.copyright1))));
 
     }
 
@@ -114,7 +122,9 @@ public class SplashActivity extends de.smac.smaccloud.base.Activity
                         DataProvider.Actions.ACTION_GET_VERSION,
                         RequestParameter.urlEncoded("VersionName", strVersionName),
                         RequestParameter.urlEncoded("VersionCode", strVersionNo));
-            }catch (Exception e){
+            }
+            catch (Exception e)
+            {
                 e.printStackTrace();
             }
 
@@ -147,7 +157,8 @@ public class SplashActivity extends de.smac.smaccloud.base.Activity
         super.onNetworkResponse(requestCode, status, response);
         Log.e("TEST>>", response);
         Helper.IS_DIALOG_SHOW = true;
-        if(requestCode == REQUEST_GET_VERSION){
+        if (requestCode == REQUEST_GET_VERSION)
+        {
             if (status)
             {
                 try
@@ -165,15 +176,20 @@ public class SplashActivity extends de.smac.smaccloud.base.Activity
                         JSONObject userJson = jsonObjectMain.optJSONObject("Payload");
 
                         String strForceUpdate = userJson.getString("IsNeedForceUpdate");
-                        if(strForceUpdate.equals("false")){
+                        if (strForceUpdate.equals("false"))
+                        {
                             // no need force update
-                            strLatestVersionCodeFromservice = userJson.getString("VersionCode");
-                            if(Integer.parseInt(strLatestVersionCodeFromservice) > Integer.parseInt(strVersionNo)) {
+                            strLatestVersionCodeFromService = userJson.getString("VersionCode");
+                            if (Integer.parseInt(strLatestVersionCodeFromService) > Integer.parseInt(strVersionNo))
+                            {
 
-                                if(prefManager.getUpdatedVersionNo() == 0 || prefManager.getUpdatedVersionNo() < Integer.parseInt(strLatestVersionCodeFromservice)){
+                                if (prefManager.getUpdatedVersionNo() == 0 || prefManager.getUpdatedVersionNo() < Integer.parseInt(strLatestVersionCodeFromService))
+                                {
 
                                     showAlertDialogToUpdateVersion();
-                                }else{
+                                }
+                                else
+                                {
                                     // user already has given remind me later for this version code so call getlocalization and navigate to next
                                     try
                                     {
@@ -189,21 +205,24 @@ public class SplashActivity extends de.smac.smaccloud.base.Activity
 
 
                             }
-                            else {
+                            else
+                            {
                                 try
                                 {
                                     Helper.IS_DIALOG_SHOW = false;
                                     postNetworkRequest(REQUEST_GETLOCALIZATION, DataProvider.ENDPOINT_GET_LOCALIZATION, DataProvider.Actions.ACTION_LOCALIZATION,
-                                    RequestParameter.urlEncoded("LastSyncDate", PreferenceHelper.getLastSychDate(context)));
+                                            RequestParameter.urlEncoded("LastSyncDate", PreferenceHelper.getLastSychDate(context)));
                                 }
                                 catch (Exception e)
                                 {
                                     e.printStackTrace();
                                 }
                             }
-                        }else {
+                        }
+                        else
+                        {
                             // force update is true that's why compulsory for user to update app-
-                                // show alert dialog to force update app and prohibit user to enter in application
+                            // show alert dialog to force update app and prohibit user to enter in application
                             showAlertDialogForForceUpdate();
                         }
 
@@ -325,7 +344,9 @@ public class SplashActivity extends de.smac.smaccloud.base.Activity
         startActivity(dashboardIntent);
         finish();
     }
-    private void showAlertDialogToUpdateVersion(){
+
+    private void showAlertDialogToUpdateVersion()
+    {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setCancelable(false);
         builder.setTitle(context.getString(R.string.version_updation_title));
@@ -337,7 +358,7 @@ public class SplashActivity extends de.smac.smaccloud.base.Activity
                     {
                         dialog.dismiss();
                         final String appPackageName = getPackageName();
-                        Helper.openPlayStoreUrl(context,appPackageName);
+                        Helper.openPlayStoreUrl(context, appPackageName);
                         // redirect to play store url
                     }
                 });
@@ -361,7 +382,7 @@ public class SplashActivity extends de.smac.smaccloud.base.Activity
                     {
                         dialog.dismiss();
                         // save latest version code to preferences and don't remind user to show dialog again for this version code
-                        prefManager.saveUpdatedVersionNo(Integer.parseInt(strLatestVersionCodeFromservice));
+                        prefManager.saveUpdatedVersionNo(Integer.parseInt(strLatestVersionCodeFromService));
                         // call localization service here
                         Helper.IS_DIALOG_SHOW = false;
                         postNetworkRequest(REQUEST_GETLOCALIZATION, DataProvider.ENDPOINT_GET_LOCALIZATION, DataProvider.Actions.ACTION_LOCALIZATION,
@@ -370,7 +391,9 @@ public class SplashActivity extends de.smac.smaccloud.base.Activity
                 });
         builder.create().show();
     }
-    private void showAlertDialogForForceUpdate(){
+
+    private void showAlertDialogForForceUpdate()
+    {
         AlertDialog alertDialog = new AlertDialog.Builder(context).create();
         alertDialog.setTitle(context.getString(R.string.version_updation_title));
         alertDialog.setCancelable(false);
@@ -383,7 +406,7 @@ public class SplashActivity extends de.smac.smaccloud.base.Activity
                         dialog.dismiss();
                         // redirect to play store url
                         final String appPackageName = getPackageName();
-                        Helper.openPlayStoreUrl(context,appPackageName);
+                        Helper.openPlayStoreUrl(context, appPackageName);
 
                     }
                 });

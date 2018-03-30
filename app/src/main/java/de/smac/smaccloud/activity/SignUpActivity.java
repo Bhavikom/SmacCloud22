@@ -45,6 +45,7 @@ import de.smac.smaccloud.helper.PreferenceHelper;
 import de.smac.smaccloud.model.Channel;
 import de.smac.smaccloud.model.User;
 import de.smac.smaccloud.model.UserPreference;
+import de.smac.smaccloud.service.FCMInstanceIdService;
 
 import static de.smac.smaccloud.base.Helper.LOCALIZATION_TYPE_ERROR_CODE;
 import static de.smac.smaccloud.base.NetworkService.KEY_AUTHORIZATION;
@@ -69,6 +70,7 @@ public class SignUpActivity extends Activity implements View.OnClickListener
             strOrganization = "", strPasswordConfirm = "", strContactNo = "",
             strAddress = "", strUserLanguage = "";
     MenuInflater inflater;
+    public String deviceId = "00000-00000-00000-00000-00000";
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -96,6 +98,16 @@ public class SignUpActivity extends Activity implements View.OnClickListener
             getSupportActionBar().setTitle(getString(R.string.sign_up));
 
         }
+        Helper.GCM.getCloudMessagingId(SignUpActivity.this, new Helper.GCM.RegistrationComplete()
+        {
+            @Override
+            public void onRegistrationComplete(String registrationId)
+            {
+                deviceId = registrationId;
+            }
+        });
+
+        new FCMInstanceIdService(context).onTokenRefresh();
     }
 
     @Override

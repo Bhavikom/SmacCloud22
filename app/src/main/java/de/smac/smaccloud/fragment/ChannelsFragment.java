@@ -129,7 +129,6 @@ public class ChannelsFragment extends Fragment
             @Override
             public void onNotificationIconValueChanged()
             {
-
                 applyThemeColor();
             }
         };

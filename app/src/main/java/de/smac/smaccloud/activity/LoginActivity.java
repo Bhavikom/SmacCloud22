@@ -61,7 +61,7 @@ public class LoginActivity extends Activity
     //CustomProgressDialog progressDialog;
     ProgressDialog progressDialog;
     long totalSizeInByte;
-    ImageView imageVieworganizationInfo;
+    ImageView imageViewOrganizationInfo;
     private TextView textTitle;
     private EditText editEmail;
     private EditText editPassword;
@@ -130,10 +130,10 @@ public class LoginActivity extends Activity
         btnLogin = (Button) findViewById(R.id.buttonLogin);
         parentLayout = (LinearLayout) findViewById(R.id.parentLayout);
         textTitle = (TextView) findViewById(R.id.textTitle);
-        imageVieworganizationInfo = (ImageView) findViewById(R.id.img_organization_info);
-        editOrganization.setText("SMACSoftware");
-        editEmail.setText("admin@smaccoftware.com");
-        editPassword.setText("smac@123");
+        imageViewOrganizationInfo = (ImageView) findViewById(R.id.img_organization_info);
+        editOrganization.setText("sambtestorg");
+        editEmail.setText("ravisamb@sambinfo.in");
+        editPassword.setText("ravisamb@123");
 
 
     }
@@ -152,9 +152,11 @@ public class LoginActivity extends Activity
                     case R.id.btnForgetPassword:
                         startForgotActivity();
                         break;
+
                     case R.id.img_organization_info:
                         orgnizationURLInfoDialog();
                         break;
+
                     case R.id.compoundButtonVisibility:
                         if (editPassword.getInputType() == InputType.TYPE_TEXT_VARIATION_PASSWORD)
                         {
@@ -167,6 +169,7 @@ public class LoginActivity extends Activity
                             imgVisibility.setImageResource(R.drawable.ic_visibility_off);
                         }
                         break;
+
                     case R.id.buttonLogin:
                         Helper.preventTwoClick(btnLogin);
 
@@ -245,7 +248,7 @@ public class LoginActivity extends Activity
         imgVisibility.setOnClickListener(clickListener);
         buttonForgetPassword.setOnClickListener(clickListener);
         btnLogin.setOnClickListener(clickListener);
-        imageVieworganizationInfo.setOnClickListener(clickListener);
+        imageViewOrganizationInfo.setOnClickListener(clickListener);
 
     }
 
@@ -633,7 +636,7 @@ public class LoginActivity extends Activity
         dialog.setLayout(view)
                 .setGravity(EasyDialog.GRAVITY_BOTTOM)
                 .setBackgroundColor(context.getResources().getColor(R.color.white1))
-                .setLocationByAttachedView(imageVieworganizationInfo)
+                .setLocationByAttachedView(imageViewOrganizationInfo)
                 .setTouchOutsideDismiss(true)
                 .setMatchParent(false)
                 .show();

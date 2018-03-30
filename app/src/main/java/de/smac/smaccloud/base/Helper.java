@@ -490,9 +490,9 @@ public class Helper
 
     public static void showSimpleDialog(final Context context, String message)
     {
-        if (!((Activity) context).isFinishing())
-        {
 
+        try
+        {
             AlertDialog alertDialog = new AlertDialog.Builder(context).create();
             alertDialog.setMessage(message);
             alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, context.getString(R.string.ok),
@@ -505,6 +505,11 @@ public class Helper
                     });
             alertDialog.show();
         }
+        catch (Exception ex)
+        {
+            ex.printStackTrace();
+        }
+
     }
 
     public static void downloadAllFiles(final Activity activity, final boolean isFromSetting)
@@ -651,15 +656,12 @@ public class Helper
         }
         else if (media.type.equals(MediaFragment.FILETYPE_MP3))
         {
-            /*File audioFile = new File("" + context.getFilesDir() + "/" + media.id);
-            new AudioPlayerDialog(context, media.id).show();*/
             Intent videoViewerActivityIntent = new Intent(context, VideoViewerActivity.class);
             videoViewerActivityIntent.putExtra(DocumentViewerActivity.EXTRA_MEDIA, media);
             context.startActivity(videoViewerActivityIntent);
         }
         else if (contentType[0].equals(MediaFragment.FILETYPE_VIDEO) || contentType[0].equals(MediaFragment.FILETYPE_VIDEO_MP4))
         {
-            //new VideoPlayerDialog(context, media.id).show();
             Intent videoViewerActivityIntent = new Intent(context, VideoViewerActivity.class);
             videoViewerActivityIntent.putExtra(DocumentViewerActivity.EXTRA_MEDIA, media);
             context.startActivity(videoViewerActivityIntent);

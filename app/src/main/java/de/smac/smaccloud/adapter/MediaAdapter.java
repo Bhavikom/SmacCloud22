@@ -277,6 +277,7 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.MediaHolder>
                 }
                 else
                 {
+
                     onItemClickOfAdapter.onItemClick(4, position);
                 }
             }

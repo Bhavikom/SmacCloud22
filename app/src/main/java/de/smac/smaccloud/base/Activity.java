@@ -328,12 +328,12 @@ public class Activity extends AppCompatActivity
                                 userComment.removeOffline(context);
                             }
                         }
-                        ArrayList<Channel> arraylistChannels = new ArrayList<>();
+                        ArrayList<Channel> arrayListChannels = new ArrayList<>();
                         JSONArray channelJsonArray = syncJson.optJSONArray("Channels");
                         try
                         {
-                            Channel.parseListFromJson(channelJsonArray, arraylistChannels);
-                            for (Channel channel : arraylistChannels)
+                            Channel.parseListFromJson(channelJsonArray, arrayListChannels);
+                            for (Channel channel : arrayListChannels)
                             {
                                 switch (channel.syncType)
                                 {
@@ -519,7 +519,9 @@ public class Activity extends AppCompatActivity
 
     public void notificationDialog(String title, String body)
     {
-        if (!((Activity) Activity.this).isFinishing())
+        /*if (!(Activity.this).isFinishing())
+        {*/
+        try
         {
             final AlertDialog alertDialog = new AlertDialog.Builder(Activity.this).create();
             alertDialog.setTitle(title);
@@ -536,7 +538,12 @@ public class Activity extends AppCompatActivity
             alertDialog.setCancelable(false);
             alertDialog.show();
         }
+        catch (Exception ex)
+        {
+            ex.printStackTrace();
+        }
     }
+
 
     public void askForSync()
     {

@@ -2,10 +2,12 @@ package de.smac.smaccloud.activity;
 
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -19,8 +21,10 @@ import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -209,7 +213,7 @@ public class UserCommentViewActivity extends Activity
 
         }
         Helper.setupTypeface(parentLayout, Helper.robotoRegularTypeface);
-        Helper.setupUI(this, parentLayout, parentLayout);
+       // Helper.setupUI(this, parentLayout, parentLayout);
     }
 
     @Override
@@ -543,6 +547,8 @@ public class UserCommentViewActivity extends Activity
                 scrollComment.fullScroll(View.FOCUS_DOWN);
             }
         });
+
+
     }
 
     private void setAlignment(CommentHolder holder, boolean isMe)

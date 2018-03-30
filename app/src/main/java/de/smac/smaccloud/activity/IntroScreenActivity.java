@@ -117,6 +117,7 @@ public class IntroScreenActivity extends Activity implements View.OnClickListene
 
                     if (slide10View != null)
                     {
+
                         buttonLogin = (Button) slide10View.findViewById(R.id.btn_login);
                         preManager = new PreferenceHelper(getApplicationContext());
                         //Helper.retainOrientation(IntroScreenActivity.this);
@@ -218,6 +219,8 @@ public class IntroScreenActivity extends Activity implements View.OnClickListene
         }
         buttonLogin.setText(getResources().getString(R.string.login));
         buttonSignUp.setText(getResources().getString(R.string.sign_up));
+        btnLogin.setText(getResources().getString(R.string.login));
+        btnSignUp.setText(getResources().getString(R.string.sign_up));
         textViewSmacSoftwareLink.setText(getResources().getString(R.string.smac_link));
 
     }
@@ -242,7 +245,9 @@ public class IntroScreenActivity extends Activity implements View.OnClickListene
         }
 
         setContentView(R.layout.activity_introduction);
+        PreferenceHelper.getSelectedLanguage(context);
         Helper.retainOrientation(IntroScreenActivity.this);
+
 
 
         viewPager = (ViewPager) findViewById(R.id.view_pager);
@@ -286,6 +291,7 @@ public class IntroScreenActivity extends Activity implements View.OnClickListene
 
 
         };
+
 
 
         Helper.setupTypeface(relativeLayout, Helper.robotoRegularTypeface);

@@ -69,10 +69,9 @@ public class LanguageListViewAdapter extends BaseAdapter
         {
             mViewHolder = (MyViewHolder) convertView.getTag();
         }
-        //      mViewHolder.textLanguageName.setTypeface(Helper.robotoRegularTypeface);
         mViewHolder.imgFlag.setImageResource(resIds[position]);
         mViewHolder.textLanguageName.setText(langNames[position]);
-        //mViewHolder.imgSelected.setVisibility(View.GONE);
+
 
         if ((PreferenceHelper.getSelectedLanguage(activity).equals("") || PreferenceHelper.getSelectedLanguage(activity).equals("en")) && position == 0)
         {

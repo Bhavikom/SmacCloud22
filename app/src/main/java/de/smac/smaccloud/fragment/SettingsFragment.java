@@ -100,7 +100,7 @@ public class SettingsFragment extends Fragment implements FCMMessagingService.Th
     int mediaPosition;
     int id = 1;
     String selectedLang = "en";
-    SettingsFragment.InterfacechangeLanguage interfacechangeLanguage;
+    InterfaceChangeLanguage interfacechangeLanguage;
     RelativeLayout btnChangeLanguage;
     RelativeLayout btnPassword;
     RelativeLayout btnEmailBody;
@@ -137,7 +137,6 @@ public class SettingsFragment extends Fragment implements FCMMessagingService.Th
     public void onStart()
     {
         super.onStart();
-        //applyThemeColor();
     }
 
     @Override
@@ -457,6 +456,7 @@ public class SettingsFragment extends Fragment implements FCMMessagingService.Th
                 {
                     case R.id.btn_change_language:
                         showDialogLikeTooltip();
+
                         break;
 
                     case R.id.btnEmailBody:
@@ -759,6 +759,7 @@ public class SettingsFragment extends Fragment implements FCMMessagingService.Th
                     selectedLang = "de";
                     PreferenceHelper.storeSelectedLanguage(getActivity(), "de");
 
+
                 }
                 updateLanguage();
                 ((DashboardActivity) activity).updateNavigationMenuString();
@@ -781,15 +782,13 @@ public class SettingsFragment extends Fragment implements FCMMessagingService.Th
 
         if (PreferenceHelper.getSelectedLanguage(context).equals("") || PreferenceHelper.getSelectedLanguage(context).equals("en"))
         {
-            if (PreferenceHelper.getSelectedLanguage(context).equals(""))
-                PreferenceHelper.storeSelectedLanguage(context, "en");
 
+            PreferenceHelper.storeSelectedLanguage(context, "en");
             Helper.setUpLanguage(context, PreferenceHelper.getSelectedLanguage(context));
         }
         else if (PreferenceHelper.getSelectedLanguage(context).equals("") || PreferenceHelper.getSelectedLanguage(context).equals("de"))
         {
             PreferenceHelper.storeSelectedLanguage(context, "de");
-
             Helper.setUpLanguage(context, PreferenceHelper.getSelectedLanguage(context));
         }
         if (!prefManager.isDemoLogin())
@@ -1088,7 +1087,17 @@ public class SettingsFragment extends Fragment implements FCMMessagingService.Th
                         loginActivity.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         new FCMInstanceIdService(context).deleteInstanceId();
                         PreferenceHelper.removeUserThemePreferences(context);
+                        if (selectedLang.equals("en"))
+                        {
+                            PreferenceHelper.storeSelectedLanguage(context, "en");
+                        }
+                        else
+                        {
+                            PreferenceHelper.storeSelectedLanguage(context, "de");
+                        }
+                        //PreferenceHelper.storeSelectedLanguage(context, selectedLang);
                         startActivity(loginActivity);
+
                         getActivity().finish();
                     }
                 }
@@ -1174,8 +1183,6 @@ public class SettingsFragment extends Fragment implements FCMMessagingService.Th
         switch (item.getItemId())
         {
             case android.R.id.home:
-                // app icon in action bar clicked; goto parent activity.
-                //  onBackPressed();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -1197,7 +1204,7 @@ public class SettingsFragment extends Fragment implements FCMMessagingService.Th
     public void onAttach(Context context)
     {
         super.onAttach(context);
-        interfacechangeLanguage = (InterfacechangeLanguage) context;
+        interfacechangeLanguage = (InterfaceChangeLanguage) context;
 
     }
 
@@ -1291,7 +1298,7 @@ public class SettingsFragment extends Fragment implements FCMMessagingService.Th
         request.execute();
     }
 
-    public interface InterfacechangeLanguage
+    public interface InterfaceChangeLanguage
     {
         void changeLanguage(String lang);
     }

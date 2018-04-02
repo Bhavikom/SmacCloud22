@@ -1,35 +1,36 @@
 <resources>
     <string name="app_name">SMAC Cloud</string>
 
-    <!--Introduction Screen String-->
-    <string name="intro_slide1">This is a very long and detailed description about absolutely nothing in particular.</string>
-    <string name="first_slide">First Slide</string>
-    <string name="second_slide">Second Slide</string>
-
-
-    <!--Demo Screen String-->
-    <string name="login">Login</string>
-    <string name="sign_up">Sign Up</string>
+    <!--Splash Screen String-->
     <string name="tra_demo">Try a Demo</string>
-    <string name="smac_link">Powered by: SMAC Softwares &#38; Services e.K.</string>
-    <string name="disable_comment_title">Comment Disable</string>
-    <string name="disable_comment_message">Comment is disable in demo mode.</string>
-    <string name="disable_like_title">Like Disable</string>
-    <string name="disable_like_message"> Like is disable in demo mode.</string>
-    <string name="disable_sharing_title"> Sharing Disable</string>
-    <string name="disable_sharing_message">Sharing is disable in demo mode.</string>
-    <string name="access_denied_title"> Access Denied</string>
-    <string name="access_denied_message">Access Denied in demo mode.</string>
-
+    <string name="configure_url">Configure URL</string>
+    <string name="start_demo">Start Demo</string>
 
     <!-- Organization Screen String-->
-    <string name="organization_name">Organization Name or Url</string>
+    <string name="organization_name">Organization</string>
     <string name="organization_url">Organization URL</string>
     <string name="organization_url_info">Enter your organization URL from greeting email</string>
     <string name="invalid_organization">Invalid Organization</string>
     <string name="Continue">Continue</string>
     <string name="enter_Organization_name">Enter Organization Name</string>
+    <string name="invalid_email">Please Enter Valid Email</string>
+    <string name="select_any_profession">Select any profession</string>
 
+    <!--Login Screen-->
+    <string name="hint_email">Email Id</string>
+    <string name="hint_password">Password</string>
+    <string name="hint_confirm_password">Confirm password</string>
+    <string name="forgot_password">Forgot Password?</string>
+    <string name="please_select_first">Please Select First</string>
+    <string name="enter_password">Enter Password</string>
+    <string name="help_login">Need help logging in?</string>
+    <string name="email_sent_successfully">Email Sent Successfully</string>
+    <string name="password_length_message">Password must requires at least six characters</string>
+    <string name="recognizing_and_sending_mail">Recognizing and sending mail…</string>
+    <string name="authentication">Authentication</string>
+    <string name="forgot_password_success_message1">If a SMAC Cloud account exist for </string>
+    <string name="forgot_password_success_message2"> an e-mail will be sent with further instructions.</string>
+    <string name="msg_please_check_your_connection">No internet connection</string>
 
     <!-- Try_Demo Screen String-->
     <string name="u_name">Name</string>
@@ -44,51 +45,34 @@
     <string name="enter_email">Enter Email</string>
     <string name="newsLetters">Newsletters?</string>
     <string name="select_country">select country</string>
-    <string name="start_demo">Start Demo</string>
+
     <string name="enter_name">Enter Name</string>
     <string name="enter_occupation">Enter Occupation</string>
     <string name="enter_company_type">Enter Company Type</string>
     <string name="enter_employee_strength">Enter Employee Strength</string>
     <string name="enter_email_address">Enter Email Address</string>
-    <string name="invalid_email">Invalid email</string>
 
     <string name="name_validation">Enter UserName</string>
-    <string name="emailid_validation">Enter Email Id</string>
+    <string name="emailId_validation">Enter Email Id</string>
     <string name="address_validation">Enter Address</string>
     <string name="contact_validation">Enter contactNo</string>
-    <string name="mobileno_validation">Enter MobileNo</string>
+    <string name="mobileNo_validation">Enter MobileNo</string>
     <string name="contactNo_validation">Enter ContactNo</string>
-    <string name="oragnization_validation">Enter Organization</string>
+    <string name="organization_validation">Enter Organization</string>
     <string name="password_validation">Enter password</string>
     <string name="confirm_password_validation">Enter confirmPassword</string>
     <string name="invalidMobileNo_validation">Mobile number should be 10 to 15 character long.</string>
     <string name="password_spacial_character_validation">Password must be 8 characters long and at least one letter, one special character and one number.</string>
-
-
-    <!--Login Screen-->
-    <string name="hint_email">Email Id</string>
-    <string name="hint_password">Password</string>
-    <string name="hint_confirm_password">Confirm password</string>
-    <string name="forgot_password">Forgot password?</string>
-    <string name="please_select_first">Please Select First</string>
-    <string name="enter_password">Enter Password</string>
-    <string name="help_login">Need help logging in?</string>
-    <string name="email_sent_successfully">Email Sent Successfully</string>
-    <string name="password_length_message">Please Enter at least 6 character in password</string>
-    <string name="recognizing_and_sending_mail">Recognizing and sending mail…</string>
-    <string name="authentication">Authentication</string>
-    <string name="forgot_password_success_message1">If a SMAC Cloud account exist for </string>
-    <string name="forgot_password_success_message2"> an e-mail will be sent with further instructions.</string>
 
     <!--syncActivity Screen-->
     <string name="sync">Synchronize your data </string>
     <string name="sync_sub_title_select_download">Select your download criteria</string>
     <string name="switch_views">Switch Views</string>
     <string name="download_option">Download Options</string>
-    <string name="sync_data">Synchronizing your data</string>
+    <string name="sync_data">Synchronizing the data</string>
     <string name="text_full_download">Full Download</string>
-    <string name="auto_download_hint">You files are downloading automatically in your device!</string>
-    <string name="download_on_demand_hint">Your files are not downloading automatically! You have to download it manually!</string>
+    <string name="auto_download_hint">Tap on it to download files Automatically.</string>
+    <string name="download_on_demand_hint">Tap on it to download files manually.</string>
     <string name="download_everything_now">Download everything now</string>
     <string name="download_on_demand">Download on Demand</string>
     <string name="label_auto_download">Auto Download</string>
@@ -99,16 +83,15 @@
     <string name="text_info_full_download">YMay take a long time if there a lot of content</string>
     <string name="text_info_quick_download">You can sync your data and download files manually</string>
     <string name="all_download">All Download</string>
-    <string name="battery_low_message">Battery low, first charge it</string>
-    <string name="no_available_space_message">No available space to download the content.</string>
+    <string name="battery_low_message">Battery low, please charge it.</string>
+    <string name="no_available_space_message">Not enough space available for the download.</string>
     <string name="app_title">SMAC</string>
     <string name="download_message">Do you want to download</string>
     <string name="download_message1">of data your Device?</string>
     <string name="download_message2">Available memory</string>
-    <string name="msg_please_wait_while_sync">Please wait while synchronize</string>
+    <string name="msg_please_wait_while_sync">Please wait while we synchronize</string>
 
     <!--ChangePassword Screen-->
-    <!--<string name="gcm_sender_id">100505523307</string> GCM sender id -->
     <string name="gcm_sender_id">645815223505</string> <!-- FCM sender id -->
     <string name="current_password">Current Password</string>
     <string name="label_change_password">Change Password</string>
@@ -116,12 +99,78 @@
     <string name="current_password_validation_message"> Enter current Password</string>
     <string name="new_password_validation_message">Enter New Password</string>
     <string name="confirm_password_validation_message">Enter Confirm Password</string>
-    <string name="password_mismatch_validation_message">Password does not match the confirm password.</string>
+    <string name="password_mismatch_validation_message">Password Mismatch</string>
     <string name="enter_old_password">Old Password</string>
     <string name="enter_New_password">New Password</string>
-    <string name="enter_confirm_password">Confirm Password</string>
-    <string name="change_password">your password has been changed successfully</string>
+    <string name="enter_confirm_password">Confirm New Password</string>
+    <string name="change_password_message">your password has been changed successfully</string>
     <string name="change_password_database_message">Email address is not available in database</string>
+
+    <!--Setting string-->
+    <string name="label_password">Password</string>
+    <string name="label_search">Search</string>
+    <string name="label_reset">Reset</string>
+    <string name="label_file_types">File types</string>
+    <string name="label_all">All</string>
+    <string name="label_channels">Channels</string>
+    <string name="txt_configure_filter">Configure Filter</string>
+    <string name="label_sharing">Sharing</string>
+    <string name="label_sharing1">SHARING</string>
+    <string name="label_account">ACCOUNT</string>
+    <string name="label_login_setting">Login</string>
+    <string name="label_signup_setting">Sign Up</string>
+    <string name="label_email_body">Email Body</string>
+    <string name="label_cc_address">CC </string>
+    <string name="label_bcc_address">BCC </string>
+    <string name="label_signature">Signature</string>
+    <string name="label_signature_msg">Your Filed Is Empty</string>
+    <string name="label_pick_image">Pick Image</string>
+    <string name="label_updates">Updates</string>
+    <string name="label_synchronization">SYNCHRONIZATION</string>
+    <string name="title_synchronization">Synchronization</string>
+    <string name="label_synchronize_now">Synchronize Now</string>
+    <string name="sync_update_dialog">Are you sure you want to synchronize?</string>
+    <string name="sync_data_update_sucessfully">Your data has been updated!</string>
+    <string name="label_download_contains">Download Contents</string>
+    <string name="label_set_schedule">Set Schedule</string>
+    <string name="label_information">INFORMATION</string>
+    <string name="label_storage">Storage</string>
+    <string name="label_terms">Terms</string>
+    <string name="label_privacy_policy">Privacy Policy</string>
+    <string name="label_privacy_policy_description">The protection of your personal data is very important for us. You can therefore use the website of SMAC Software &#38; Services e.K. without having to disclose personal information. However, as is the case with all Internet sites, our web server will temporarily record the domain name or IP address of the user’s computer, client file requests, http response codes and the Internet page that has transferred you to us. However, this information will not be used for person-related analyses.
+Name, address and other personal data will only be required if you provide them voluntarily, for example when ordering our product or making individual inquiries. These data will not be disclosed to third parties or used for purposes other than those stated in the respective documents.
+</string>
+    <string name="label_open_source_libraries">Open-source-Libraries</string>
+    <string name="label_help">Help</string>
+    <string name="label_about_us">About Us</string>
+    <string name="label_sign_out">Sign Out</string>
+    <string name="label_from">From</string>
+    <string name="label_to">To</string>
+    <string name="label_cc">CC</string>
+    <string name="label_bcc">BCC</string>
+    <string name="label_subject">Subject</string>
+    <string name="label_compose_email">Compose email</string>
+    <string name="label_attachment">Attachment</string>
+    <string name="keep_downloaded_files">Keep downloaded files</string>
+    <string name="delete_downloaded_files">Delete downloaded files</string>
+    <string name="label_select_filter">Select Filter</string>
+    <string name="label_select_file_type">Select File Type</string>
+    <string name="label_select_channel">Select Channel</string>
+
+
+    <!--Demo Screen String-->
+    <string name="login">Login</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="smac_link">Powered by: SMAC Softwares &#38; Services e.K.</string>
+    <string name="disable_comment_title">Comment Disable</string>
+    <string name="disable_comment_message">Comment is disable in demo mode.</string>
+    <string name="disable_like_title">Like Disable</string>
+    <string name="disable_like_message"> Like is disable in demo mode.</string>
+    <string name="disable_sharing_title"> Sharing Disable</string>
+    <string name="disable_sharing_message">Sharing is disable in demo mode.</string>
+    <string name="access_denied_title"> Access Denied</string>
+    <string name="access_denied_message">Access Denied in demo mode.</string>
+
 
     <!--AboutUs Screen-->
     <string name="version">Version:</string>
@@ -207,12 +256,12 @@
     <string name="share_via">Share via</string>
 
     <string name="msg_please_wait">Please wait..</string> <!-- Need to translate -->
-    <string name="msg_please_check_your_connection">Please check your connection</string>
+
     <string name="msg_network_connection_not_available">Network connection not available</string>
     <string name="msg_cannot_get_response_from_server">Cannot get response from server</string>
     <string name="msg_please_check_your_email">Please Check Your E-mail</string>
     <string name="msg_sure_want_to_leave">Sure want to leave?</string>
-    <string name="msg_invalid_response_from_server">Unknow error please contact your admin department.</string>
+    <string name="msg_invalid_response_from_server">Unknow error. Please contact your administrator.</string>
     <string name="msg_please_try_again_later">Please try again later</string>
     <string name="msg_cannot_complete_request">Cannot complete request.Please try again later</string>
     <string name="msg_downloading_already_in_progress">Downloading Already In Progress</string>
@@ -237,7 +286,7 @@
     <!--other string-->
     <string name="label_change_language">Language</string>
     <string name="likes">Likes</string>
-    <string name="retry">retry</string>
+    <string name="retry">Retry</string>
     <string name="skip">Skip</string>
     <string name="like">Like</string>
     <string name="comment">Comment</string>
@@ -291,56 +340,6 @@
     <string name="label_most_visited">Most Visited</string>
     <string name="label_visit">Visit</string>
 
-    <!--Setting string-->
-    <string name="label_password">Password</string>
-    <string name="label_search">Search</string>
-    <string name="label_reset">Reset</string>
-    <string name="label_file_types">File types</string>
-    <string name="label_all">All</string>
-    <string name="label_channels">Channels</string>
-    <string name="txt_configure_filter">Configure Filter</string>
-    <string name="label_sharing">Sharing</string>
-    <string name="label_sharing1">SHARING</string>
-    <string name="label_account">ACCOUNT</string>
-    <string name="label_login_setting">Login</string>
-    <string name="label_signup_setting">Sign Up</string>
-    <string name="label_email_body">Email Body</string>
-    <string name="label_cc_address">CC </string>
-    <string name="label_bcc_address">BCC </string>
-    <string name="label_signature">Signature</string>
-    <string name="label_signature_msg">Your Filed Is Empty</string>
-    <string name="label_pick_image">Pick Image</string>
-    <string name="label_updates">Updates</string>
-    <string name="label_synchronization">SYNCHRONIZATION</string>
-    <string name="title_synchronization">Synchronization</string>
-    <string name="label_synchronize_now">Synchronize Now</string>
-    <string name="sync_update_dialog">Are you sure you want to sync latest data?</string>
-    <string name="sync_data_update_sucessfully">Your data has been update!!!</string>
-    <string name="label_download_contains">Download Contents</string>
-    <string name="label_set_schedule">Set Schedule</string>
-    <string name="label_information">INFORMATION</string>
-    <string name="label_storage">Storage</string>
-    <string name="label_terms">Terms</string>
-    <string name="label_privacy_policy">Privacy Policy</string>
-    <string name="label_privacy_policy_description">The protection of your personal data is very important for us. You can therefore use the website of SMAC Software &#38; Services e.K. without having to disclose personal information. However, as is the case with all Internet sites, our web server will temporarily record the domain name or IP address of the user’s computer, client file requests, http response codes and the Internet page that has transferred you to us. However, this information will not be used for person-related analyses.
-Name, address and other personal data will only be required if you provide them voluntarily, for example when ordering our product or making individual inquiries. These data will not be disclosed to third parties or used for purposes other than those stated in the respective documents.
-</string>
-    <string name="label_open_source_libraries">Open-source-Libraries</string>
-    <string name="label_help">Help</string>
-    <string name="label_about_us">About</string>
-    <string name="label_sign_out">Sign Out</string>
-    <string name="label_from">From</string>
-    <string name="label_to">To</string>
-    <string name="label_cc">CC</string>
-    <string name="label_bcc">BCC</string>
-    <string name="label_subject">Subject</string>
-    <string name="label_compose_email">Compose email</string>
-    <string name="label_attachment">Attachment</string>
-    <string name="keep_downloaded_files">Keep downloaded files</string>
-    <string name="delete_downloaded_files">Delete downloaded files</string>
-    <string name="label_select_filter">Select Filter</string>
-    <string name="label_select_file_type">Select File Type</string>
-    <string name="label_select_channel">Select Channel</string>
 
     <!--Storage string-->
     <string name="label_total_disk_space">Total Disk Space</string>

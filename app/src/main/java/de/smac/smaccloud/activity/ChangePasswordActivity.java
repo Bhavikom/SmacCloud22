@@ -252,7 +252,7 @@ public class ChangePasswordActivity extends Activity implements View.OnClickList
                     {
                         AlertDialog alertDialog = new AlertDialog.Builder(context).create();
                         alertDialog.setTitle(context.getString(R.string.app_title));
-                        alertDialog.setMessage(context.getString(R.string.change_password));
+                        alertDialog.setMessage(context.getString(R.string.change_password_message));
                         alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, context.getString(R.string.ok),
                                 new DialogInterface.OnClickListener()
                                 {

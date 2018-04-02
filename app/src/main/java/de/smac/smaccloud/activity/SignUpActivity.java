@@ -132,7 +132,7 @@ public class SignUpActivity extends Activity implements View.OnClickListener
                 }
                 else if (strEmailId.isEmpty())
                 {
-                    Snackbar.make(linearParentLayout, getString(R.string.emailid_validation), Snackbar.LENGTH_LONG).show();
+                    Snackbar.make(linearParentLayout, getString(R.string.emailId_validation), Snackbar.LENGTH_LONG).show();
                 }
                 else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(strEmailId).matches())
                 {
@@ -140,7 +140,7 @@ public class SignUpActivity extends Activity implements View.OnClickListener
                 }
                 else if (strMobileNo.isEmpty())
                 {
-                    Snackbar.make(linearParentLayout, getString(R.string.mobileno_validation), Snackbar.LENGTH_LONG).show();
+                    Snackbar.make(linearParentLayout, getString(R.string.mobileNo_validation), Snackbar.LENGTH_LONG).show();
                 }
                 else if (!strMobileNo.matches(MobilePattern) || strMobileNo.length() > 15)
                 {
@@ -148,7 +148,7 @@ public class SignUpActivity extends Activity implements View.OnClickListener
                 }
                 else if (strOrganization.isEmpty())
                 {
-                    Snackbar.make(linearParentLayout, getString(R.string.oragnization_validation), Snackbar.LENGTH_LONG).show();
+                    Snackbar.make(linearParentLayout, getString(R.string.organization_validation), Snackbar.LENGTH_LONG).show();
                 }
                 else if (strPassword.isEmpty())
                 {

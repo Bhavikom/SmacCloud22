@@ -17,31 +17,25 @@
         android:layout_height="wrap_content"
         android:layout_above="@+id/linearCommentBar"
         android:layout_below="@+id/navBar"
+        android:transcriptMode="alwaysScroll"
         android:visibility="gone"/>
 
-    <LinearLayout
-        android:id="@+id/chiled_layout"
-        android:layout_width="match_parent"
+    <ScrollView
+        android:id="@+id/scrollComment"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_above="@+id/linearCommentBar"
+        android:layout_below="@+id/navBar"
+        android:fillViewport="true"
+        android:scrollbars="none"
+        android:visibility="visible">
 
-        <ScrollView
-            android:id="@+id/scrollComment"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:id="@+id/commentLinearLayout"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_above="@+id/linearCommentBar"
-            android:layout_below="@+id/navBar"
-            android:fillViewport="true"
-            android:scrollbars="none"
-            android:visibility="visible">
-
-            <LinearLayout
-                android:id="@+id/commentLinearLayout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"/>
-        </ScrollView>
-    </LinearLayout>
+            android:orientation="vertical"/>
+    </ScrollView>
 
     <LinearLayout
         android:id="@+id/linearCommentBar"
@@ -85,7 +79,6 @@
             android:text="@string/send"
             android:visibility="gone"/>
     </LinearLayout>
-
 
 </RelativeLayout>
 

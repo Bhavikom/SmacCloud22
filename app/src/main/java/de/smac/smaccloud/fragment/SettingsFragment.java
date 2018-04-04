@@ -1021,7 +1021,7 @@ public class SettingsFragment extends Fragment implements FCMMessagingService.Th
                             user.populateUsingId(context);
                             userPreference.userId = user.id;
                             PreferenceHelper.storeSyncStatus(context, true);
-                            showUpdatedDialog(getString(R.string.title_synchronization), getString(R.string.sync_data_update_sucessfully));
+                            showUpdatedDialog(getString(R.string.title_synchronization), getString(R.string.sync_data_update_successfully));
                             //Helper.showSimpleDialog(context, getString(R.string.sync_data_update_sucessfully));
 
 

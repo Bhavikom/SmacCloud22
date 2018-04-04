@@ -17,6 +17,14 @@
         android:layout_height="match_parent"
         android:background="@color/ivorya3">
 
+        <ImageView
+            android:id="@+id/language_english"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/forty_five_dp"
+            android:layout_marginLeft="@dimen/forty_five_dp"
+            android:src="@drawable/ic_flag_english"/>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -63,9 +71,9 @@
                     <ImageView
                         android:id="@+id/img_organization_info"
                         android:layout_width="wrap_content"
-                        android:tint="@color/black"
                         android:layout_height="wrap_content"
-                        android:src="@drawable/ic_info"/>
+                        android:src="@drawable/ic_info"
+                        android:tint="@color/black"/>
 
                     <EditText
                         android:id="@+id/editOrganization"
@@ -73,8 +81,8 @@
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="@dimen/padding_5dp"
                         android:background="@null"
-                        android:textSize="@dimen/title_ultra_small"
-                        android:hint="@string/organization_name"/>
+                        android:hint="@string/organization_name"
+                        android:textSize="@dimen/title_ultra_small"/>
 
                 </LinearLayout>
 

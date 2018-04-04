@@ -13,10 +13,13 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.michael.easydialog.EasyDialog;
@@ -28,6 +31,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 
 import de.smac.smaccloud.R;
+import de.smac.smaccloud.adapter.LanguageListViewAdapter;
 import de.smac.smaccloud.base.Activity;
 import de.smac.smaccloud.base.Helper;
 import de.smac.smaccloud.base.RequestParameter;
@@ -52,6 +56,7 @@ public class LoginActivity extends Activity
     private static final String KEY_TEXT_VALUE = "textValue";
     public PreferenceHelper prefManager;
     public LinearLayout parentLayout;
+    public EasyDialog dialog;
     String validUrl;
     String strOrganization = "";
     String strEmail = "";
@@ -70,6 +75,7 @@ public class LoginActivity extends Activity
     private Button buttonForgetPassword;
     private Button btnLogin;
     private String deviceId = "00000-00000-00000-00000-00000";
+    private ImageView languageChange;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -131,6 +137,7 @@ public class LoginActivity extends Activity
         parentLayout = (LinearLayout) findViewById(R.id.parentLayout);
         textTitle = (TextView) findViewById(R.id.textTitle);
         imageViewOrganizationInfo = (ImageView) findViewById(R.id.img_organization_info);
+        languageChange = (ImageView) findViewById(R.id.language_english);
         editOrganization.setText("sambtestorg");
         editEmail.setText("ravisamb@sambinfo.in");
         editPassword.setText("ravisamb@123");
@@ -241,6 +248,9 @@ public class LoginActivity extends Activity
                             Helper.showMessage(LoginActivity.this, false, getString(R.string.msg_please_check_your_connection));
                         }
                         break;
+                    case R.id.language_english:
+                        showDialogLikeTooltip();
+                        break;
 
                 }
             }
@@ -249,8 +259,10 @@ public class LoginActivity extends Activity
         buttonForgetPassword.setOnClickListener(clickListener);
         btnLogin.setOnClickListener(clickListener);
         imageViewOrganizationInfo.setOnClickListener(clickListener);
+        languageChange.setOnClickListener(clickListener);
 
     }
+
 
     @Override
     public boolean onTouchEvent(MotionEvent event)
@@ -483,9 +495,14 @@ public class LoginActivity extends Activity
                         totalSizeInByte = responseJson.optLong("Payload");
                         Helper.bytesConvertsToMb(totalSizeInByte, context);
                         PreferenceHelper.storeMediaSize(context, totalSizeInByte);
+                        Intent dashboardIntent = new Intent(context, SyncActivity.class);
+                        dashboardIntent.putExtra(SyncActivity.IS_FROM_SETTING, false);
+                        dashboardIntent.putExtra(SyncActivity.KEY_MEDIA_SIZE, totalSizeInByte);
+                        startActivity(dashboardIntent);
+                        finish();
 
-                        postNetworkRequest(REQUEST_GET_SETTINGS, DataProvider.ENDPOINT_USER, DataProvider.Actions.GET_SETTINGS,
-                                RequestParameter.urlEncoded("Org_Id", PreferenceHelper.getOrganizationId(context)));
+                       /* postNetworkRequest(REQUEST_GET_SETTINGS, DataProvider.ENDPOINT_USER, DataProvider.Actions.GET_SETTINGS,
+                                RequestParameter.urlEncoded("Org_Id", PreferenceHelper.getOrganizationId(context)));*/
                     }
                 }
                 catch (JSONException e)
@@ -551,7 +568,6 @@ public class LoginActivity extends Activity
                     else
                     {
                         JSONObject userJson = responseJson.optJSONObject("Payload");
-
                         Intent dashboardIntent = new Intent(context, SyncActivity.class);
                         dashboardIntent.putExtra(SyncActivity.IS_FROM_SETTING, false);
                         dashboardIntent.putExtra(SyncActivity.KEY_MEDIA_SIZE, totalSizeInByte);
@@ -643,5 +659,83 @@ public class LoginActivity extends Activity
 
     }
 
+    public void showDialogLikeTooltip()
+    {
+        dialog = new EasyDialog(LoginActivity.this);
+        final View view = getLayoutInflater().inflate(R.layout.dialog_language_list, null);
+        if (Helper.isTablet(LoginActivity.this))
+        {
+            view.setLayoutParams(new RelativeLayout.LayoutParams(Helper.getDeviceWidth(this) / 4, ViewGroup.LayoutParams.WRAP_CONTENT));
+        }
+        else
+        {
+            view.setLayoutParams(new RelativeLayout.LayoutParams(Helper.getDeviceWidth(this) / 2, ViewGroup.LayoutParams.WRAP_CONTENT));
+        }
 
+        final ListView listLanguage = (ListView) view.findViewById(R.id.listLanguage);
+        LanguageListViewAdapter languageListViewAdapter = new LanguageListViewAdapter(LoginActivity.this);
+        listLanguage.setAdapter(languageListViewAdapter);
+        listLanguage.setOnItemClickListener(new AdapterView.OnItemClickListener()
+        {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id)
+            {
+                if (position == 0)
+                {
+                    PreferenceHelper.storeSelectedLanguage(LoginActivity.this, "en");
+                    Helper.setUpLanguage(context, PreferenceHelper.getSelectedLanguage(context));
+                    languageChange.setImageResource(R.drawable.ic_flag_english);
+                }
+                else if (position == 1)
+                {
+                    PreferenceHelper.storeSelectedLanguage(LoginActivity.this, "de");
+                    Helper.setUpLanguage(context, PreferenceHelper.getSelectedLanguage(context));
+                    languageChange.setImageResource(R.drawable.ic_flag_german);
+                }
+                updateLanguage();
+                dialog.dismiss();
+            }
+        });
+        dialog.setLayout(view)
+                .setGravity(EasyDialog.GRAVITY_BOTTOM)
+                .setBackgroundColor(LoginActivity.this.getResources().getColor(R.color.white_color))
+                .setLocationByAttachedView(languageChange)
+                .setTouchOutsideDismiss(true)
+                .setMatchParent(false)
+                .show();
+
+    }
+
+    public void updateLanguage()
+    {
+        if (PreferenceHelper.getSelectedLanguage(context).equals("") || PreferenceHelper.getSelectedLanguage(context).equals("en"))
+        {
+            if (PreferenceHelper.getSelectedLanguage(context).equals(""))
+                PreferenceHelper.storeSelectedLanguage(context, "en");
+
+            Helper.setUpLanguage(context, PreferenceHelper.getSelectedLanguage(context));
+            languageChange.setImageResource(R.drawable.ic_flag_english);
+        }
+        else if (PreferenceHelper.getSelectedLanguage(context).equals("") || PreferenceHelper.getSelectedLanguage(context).equals("de"))
+        {
+            PreferenceHelper.storeSelectedLanguage(context, "de");
+            Helper.setUpLanguage(context, PreferenceHelper.getSelectedLanguage(context));
+            languageChange.setImageResource(R.drawable.ic_flag_german);
+        }
+        btnLogin.setText(getResources().getString(R.string.login));
+        editOrganization.setHint(getResources().getString(R.string.organization_name));
+        textInputMail.setHint(getResources().getString(R.string.hint_email));
+        textInputPassword.setHint(getResources().getString(R.string.hint_password));
+        buttonForgetPassword.setText(getResources().getString(R.string.forgot_password));
+        //.setText(getResources().getString(R.string.sign_up));
+
+
+    }
+
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+        updateLanguage();
+    }
 }

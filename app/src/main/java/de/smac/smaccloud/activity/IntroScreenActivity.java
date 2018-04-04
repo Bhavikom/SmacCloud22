@@ -163,6 +163,10 @@ public class IntroScreenActivity extends Activity implements View.OnClickListene
     protected void onResume()
     {
         super.onResume();
+
+        //if user back to login screen string update
+        btnLogin.setText(getResources().getString(R.string.login));
+        btnSignUp.setText(getResources().getString(R.string.sign_up));
         if (PreferenceHelper.hasUserContext(context))
         {
             finish();
@@ -518,5 +522,6 @@ public class IntroScreenActivity extends Activity implements View.OnClickListene
             container.removeView(view);
         }
     }
+
 
 }

@@ -55,7 +55,7 @@
             android:layout_weight="1"
             android:background="@drawable/rounded_search_edittext_background"
             android:focusable="true"
-            android:hint="@string/msg_please_enter_comment"
+            android:hint="@string/leave_a_comment"
             android:imeOptions="actionDone"
             android:inputType="textMultiLine"
             android:maxLines="2"

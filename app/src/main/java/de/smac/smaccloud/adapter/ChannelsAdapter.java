@@ -118,7 +118,7 @@ public class ChannelsAdapter extends RecyclerView.Adapter<ChannelsAdapter.Channe
                                                 public void onResourceReady(Bitmap bitmap, GlideAnimation<? super Bitmap> glideAnimation)
                                                 {
                                                     holder.imageIcon.setImageBitmap(bitmap);
-                                                    holder.imageIcon.setScaleType(ImageView.ScaleType.FIT_XY);
+                                                   // holder.imageIcon.setScaleType(ImageView.ScaleType.FIT_XY);
 
                                                 }
 

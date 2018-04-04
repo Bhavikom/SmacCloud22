@@ -495,7 +495,7 @@ public class Activity extends AppCompatActivity
                                 notificationIconValueChangeListener.onNotificationIconValueChanged();
 
                             }
-                            Helper.showSimpleDialog(this, getString(R.string.sync_data_update_sucessfully));
+                            Helper.showSimpleDialog(this, getString(R.string.sync_data_update_successfully));
 
                         }
                         catch (JSONException | ParseException e)

@@ -17,6 +17,14 @@
         android:layout_height="match_parent"
         android:background="@color/ivorya3">
 
+        <ImageView
+            android:id="@+id/language_english"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/forty_five_dp"
+            android:layout_marginLeft="@dimen/forty_five_dp"
+            android:src="@drawable/ic_flag_english"/>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"

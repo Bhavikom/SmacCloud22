@@ -602,7 +602,7 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.MediaHolder>
                             @Override
                             public void onResourceReady(Bitmap bitmap, GlideAnimation<? super Bitmap> glideAnimation)
                             {
-                                holder.imageIcon.setScaleType(ImageView.ScaleType.FIT_XY);
+                                //holder.imageIcon.setScaleType(ImageView.ScaleType.FIT_XY);
                                 holder.imageIcon.setImageBitmap(bitmap);
                                 holder.progressBarTemp.setVisibility(View.GONE);
 

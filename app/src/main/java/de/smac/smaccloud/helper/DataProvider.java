@@ -9,10 +9,10 @@ import de.smac.smaccloud.service.SMACCloudApplication;
 
 public class DataProvider
 {
-    public static final String SERVICE_PROTOCOL = "http://";
-    //public static final String SERVICE_PROTOCOL = "https://";
-    public static String SERVICE_HOST = (!PreferenceHelper.getServiceWeburl(SMACCloudApplication.getInstance()).isEmpty() ? PreferenceHelper.getServiceWeburl(SMACCloudApplication.getInstance()) : SERVICE_PROTOCOL + "smac-local.sambt.xyz:2020/");
-    //public static String SERVICE_HOST = (!PreferenceHelper.getServiceWeburl(SMACCloudApplication.getInstance()).isEmpty() ? PreferenceHelper.getServiceWeburl(SMACCloudApplication.getInstance()) : SERVICE_PROTOCOL + "smaccloud.smacsoftwares.de:2020/");
+    //public static final String SERVICE_PROTOCOL = "http://";
+    public static final String SERVICE_PROTOCOL = "https://";
+    //public static String SERVICE_HOST = (!PreferenceHelper.getServiceWeburl(SMACCloudApplication.getInstance()).isEmpty() ? PreferenceHelper.getServiceWeburl(SMACCloudApplication.getInstance()) : SERVICE_PROTOCOL + "smac-local.sambt.xyz:2020/");
+    public static String SERVICE_HOST = (!PreferenceHelper.getServiceWeburl(SMACCloudApplication.getInstance()).isEmpty() ? PreferenceHelper.getServiceWeburl(SMACCloudApplication.getInstance()) : SERVICE_PROTOCOL + "smaccloud.smacsoftwares.de:2020/");
     public static String SERVICE_PATH = SERVICE_HOST + "";
     //public static final String SERVICE_PATH = SERVICE_HOST + "SmacCloudService/";
     //public static final String SERVICE_PATH = SERVICE_HOST + "SmacCloud/";

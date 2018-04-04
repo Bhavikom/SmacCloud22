@@ -45,24 +45,24 @@
     <string name="enter_email">Enter Email</string>
     <string name="newsLetters">Newsletters?</string>
     <string name="select_country">select country</string>
-
     <string name="enter_name">Enter Name</string>
     <string name="enter_occupation">Enter Occupation</string>
     <string name="enter_company_type">Enter Company Type</string>
     <string name="enter_employee_strength">Enter Employee Strength</string>
     <string name="enter_email_address">Enter Email Address</string>
-
-    <string name="name_validation">Enter UserName</string>
-    <string name="emailId_validation">Enter Email Id</string>
-    <string name="address_validation">Enter Address</string>
-    <string name="contact_validation">Enter contactNo</string>
-    <string name="mobileNo_validation">Enter MobileNo</string>
-    <string name="contactNo_validation">Enter ContactNo</string>
-    <string name="organization_validation">Enter Organization</string>
-    <string name="password_validation">Enter password</string>
-    <string name="confirm_password_validation">Enter confirmPassword</string>
+    <string name="name_validation">Please enter username</string>
+    <string name="emailId_validation">Please Enter Email </string>
+    <string name="address_validation">Please enter address</string>
+    <string name="contact_validation">Please Enter contactNo</string>
+    <string name="mobileNo_validation">Please Enter MobileNo</string>
+    <string name="contactNo_validation">Please Enter ContactNo</string>
+    <string name="organization_validation">Please enter organization name</string>
+    <string name="password_validation">Please Enter password</string>
+    <string name="confirm_password_validation">Please confirm the password</string>
     <string name="invalidMobileNo_validation">Mobile number should be 10 to 15 character long.</string>
     <string name="password_spacial_character_validation">Password must be 8 characters long and at least one letter, one special character and one number.</string>
+    <string name="organization_detail_message">The required details have been sent to your Email. Please log in using that info and use all cool features. </string>
+
 
     <!--syncActivity Screen-->
     <string name="sync">Synchronize your data </string>
@@ -90,6 +90,7 @@
     <string name="download_message1">of data your Device?</string>
     <string name="download_message2">Available memory</string>
     <string name="msg_please_wait_while_sync">Please wait while we synchronize</string>
+    <string name="sync_latest_data_from_server">Please update your content, sync latest data from server!</string>
 
     <!--ChangePassword Screen-->
     <string name="gcm_sender_id">645815223505</string> <!-- FCM sender id -->
@@ -99,7 +100,7 @@
     <string name="current_password_validation_message"> Enter current Password</string>
     <string name="new_password_validation_message">Enter New Password</string>
     <string name="confirm_password_validation_message">Enter Confirm Password</string>
-    <string name="password_mismatch_validation_message">Password Mismatch</string>
+    <string name="password_mismatch_validation_message">Confirm password does not match</string>
     <string name="enter_old_password">Old Password</string>
     <string name="enter_New_password">New Password</string>
     <string name="enter_confirm_password">Confirm New Password</string>
@@ -118,7 +119,7 @@
     <string name="label_sharing1">SHARING</string>
     <string name="label_account">ACCOUNT</string>
     <string name="label_login_setting">Login</string>
-    <string name="label_signup_setting">Sign Up</string>
+    <string name="label_sign_up_setting">Sign Up</string>
     <string name="label_email_body">Email Body</string>
     <string name="label_cc_address">CC </string>
     <string name="label_bcc_address">BCC </string>
@@ -130,17 +131,17 @@
     <string name="title_synchronization">Synchronization</string>
     <string name="label_synchronize_now">Synchronize Now</string>
     <string name="sync_update_dialog">Are you sure you want to synchronize?</string>
-    <string name="sync_data_update_sucessfully">Your data has been updated!</string>
+    <string name="sync_data_update_successfully">Your data has been updated!</string>
     <string name="label_download_contains">Download Contents</string>
     <string name="label_set_schedule">Set Schedule</string>
     <string name="label_information">INFORMATION</string>
     <string name="label_storage">Storage</string>
     <string name="label_terms">Terms</string>
     <string name="label_privacy_policy">Privacy Policy</string>
-    <string name="label_privacy_policy_description">The protection of your personal data is very important for us. You can therefore use the website of SMAC Software &#38; Services e.K. without having to disclose personal information. However, as is the case with all Internet sites, our web server will temporarily record the domain name or IP address of the user’s computer, client file requests, http response codes and the Internet page that has transferred you to us. However, this information will not be used for person-related analyses.
+    <string name="label_privacy_policy_description">The protection of your personal data is very important for us. You can therefore use the website of SMAC Software &#38; Services. without having to disclose personal information. However, as is the case with all Internet sites, our web server will temporarily record the domain name or IP address of the user’s computer, client file requests, http response codes and the Internet page that has transferred you to us. However, this information will not be used for person-related analyses.
 Name, address and other personal data will only be required if you provide them voluntarily, for example when ordering our product or making individual inquiries. These data will not be disclosed to third parties or used for purposes other than those stated in the respective documents.
 </string>
-    <string name="label_open_source_libraries">Open-source-Libraries</string>
+    <string name="label_open_source_libraries">Open-source libraries</string>
     <string name="label_help">Help</string>
     <string name="label_about_us">About Us</string>
     <string name="label_sign_out">Sign Out</string>
@@ -150,18 +151,40 @@ Name, address and other personal data will only be required if you provide them 
     <string name="label_bcc">BCC</string>
     <string name="label_subject">Subject</string>
     <string name="label_compose_email">Compose email</string>
-    <string name="label_attachment">Attachment</string>
+    <string name="label_attachment">Attachments</string>
     <string name="keep_downloaded_files">Keep downloaded files</string>
     <string name="delete_downloaded_files">Delete downloaded files</string>
     <string name="label_select_filter">Select Filter</string>
     <string name="label_select_file_type">Select File Type</string>
     <string name="label_select_channel">Select Channel</string>
 
+    <!--Storage string-->
+    <string name="label_total_disk_space">Total Disk Space</string>
+    <string name="label_used_disk_space">Used</string>
+    <string name="label_free_disk_space">Available</string>
+    <string name="label_media">MEDIA</string>
+    <string name="label_used">Used</string>
+    <string name="label_images">Images</string>
+    <string name="label_videos">Videos</string>
+    <string name="label_documents">Documents</string>
+    <string name="label_space_used">Space Used</string>
+    <string name="label_space_free">Space Free</string>
+    <string name="label_byte">00 Byte</string>
+
+    <!--AboutUs Screen-->
+    <string name="version">Version:</string>
+    <string name="version_no">Version</string>
+    <string name="na">N/A</string>
+    <string name="copyright">CopyRight ©</string>
+    <string name="copyright1">SMAC Software &#38; Services.All Rights Reserved.</string>
+    <string name="plan">Plan:</string>
+    <string name="licence">Licence:</string>
+    <string name="smac_title">SMAC Cloud-2017</string>
 
     <!--Demo Screen String-->
     <string name="login">Login</string>
     <string name="sign_up">Sign Up</string>
-    <string name="smac_link">Powered by: SMAC Softwares &#38; Services e.K.</string>
+    <string name="smac_link">Powered by: SMAC Softwares &#38; Services.</string>
     <string name="disable_comment_title">Comment Disable</string>
     <string name="disable_comment_message">Comment is disable in demo mode.</string>
     <string name="disable_like_title">Like Disable</string>
@@ -170,17 +193,6 @@ Name, address and other personal data will only be required if you provide them 
     <string name="disable_sharing_message">Sharing is disable in demo mode.</string>
     <string name="access_denied_title"> Access Denied</string>
     <string name="access_denied_message">Access Denied in demo mode.</string>
-
-
-    <!--AboutUs Screen-->
-    <string name="version">Version:</string>
-    <string name="version_no">Version</string>
-    <string name="na">N/A</string>
-    <string name="copyright">CopyRight ©</string>
-    <string name="copyright1">SMAC Software &#38; Services e.K.All Rights Reserved.</string>
-    <string name="plan">Plan:</string>
-    <string name="licence">Licence:</string>
-    <string name="smac_title">SMAC Cloud-2017</string>
 
     <!--menu dialog string-->
     <integer-array name="arr_menu_img_res_ids">
@@ -207,7 +219,7 @@ Name, address and other personal data will only be required if you provide them 
 
     <string-array name="arr_lang_names">
         <item>English</item>
-        <item>German</item>
+        <item>Deutsch</item>
     </string-array>
 
     <!--Search Dialog string-->
@@ -239,7 +251,7 @@ Name, address and other personal data will only be required if you provide them 
     <string name="label_delete_dialog">Warning</string>
     <string name="label_download_first_dialog">Please download first</string>
     <string name="label_done">Done</string>
-    <string name="try_again_downloading">Please try again for downloading</string>
+    <string name="try_again_downloading">Please try again</string>
     <string name="un_supported_file_format_msg">You can not open these media.</string>
 
 
@@ -249,19 +261,17 @@ Name, address and other personal data will only be required if you provide them 
     <string name="msg_enter_subject">Please enter subject</string>
     <string name="msg_select_media_for_share">Please select file[s]</string>
     <string name="msg_invalid_email">Invalid email address(s)</string>
-    <string name="msg_email_send">Email send successfully</string>
+    <string name="msg_email_send">Email sent successfully</string>
     <string name="title_send_via">How do you want to send this mail</string>
     <string name="text_send_as_url">Send as URL</string>
     <string name="text_send_as_attachment">Send as attachment</string>
     <string name="share_via">Share via</string>
-
     <string name="msg_please_wait">Please wait..</string> <!-- Need to translate -->
-
     <string name="msg_network_connection_not_available">Network connection not available</string>
     <string name="msg_cannot_get_response_from_server">Cannot get response from server</string>
     <string name="msg_please_check_your_email">Please Check Your E-mail</string>
     <string name="msg_sure_want_to_leave">Sure want to leave?</string>
-    <string name="msg_invalid_response_from_server">Unknow error. Please contact your administrator.</string>
+    <string name="msg_invalid_response_from_server">Unknown Error from the Server</string>
     <string name="msg_please_try_again_later">Please try again later</string>
     <string name="msg_cannot_complete_request">Cannot complete request.Please try again later</string>
     <string name="msg_downloading_already_in_progress">Downloading Already In Progress</string>
@@ -340,20 +350,6 @@ Name, address and other personal data will only be required if you provide them 
     <string name="label_most_visited">Most Visited</string>
     <string name="label_visit">Visit</string>
 
-
-    <!--Storage string-->
-    <string name="label_total_disk_space">Total Disk Space</string>
-    <string name="label_used_disk_space">Used</string>
-    <string name="label_free_disk_space">Available </string>
-    <string name="label_media">MEDIA</string>
-    <string name="label_used">Used</string>
-    <string name="label_images">Images</string>
-    <string name="label_videos">Videos</string>
-    <string name="label_documents">Documents</string>
-    <string name="label_space_used">Space Used</string>
-    <string name="label_space_free">Space Free</string>
-    <string name="label_byte">00 Byte</string>
-
     <!--Demo user alert Dialog String-->
     <string name="alert">Alert</string>
     <string name="you_have_no_right">You do not have the proper rights</string>
@@ -362,8 +358,8 @@ Name, address and other personal data will only be required if you provide them 
     <string name="version_updation_title">Version Updation</string>
     <string name="version_force_update_message">This version is no longer available for access. Please, update a new version of the app from App Store.</string>
     <string name="version_update_message">A new version is now available in App Store. Would you like to update?</string>
-    <!--Terms&condition All String-->
 
+    <!--Terms&condition All String-->
     <!--<string name="description">http://www.justcloud.com/terms#eligibility\n\nSMAC Cloud Terms and Conditions and License Agreement\n\nThese are the terms you agree to when you use SMAC Cloud.\n\nThis is a legal contract between you and SMAC Cloud and it is important that you read it carefully. If there is anything you do not understand in this Agreement, please contact us.</string>-->
     <string name="title1">"General Information / Scope of validity"</string>
     <string name="description1">"
@@ -425,13 +421,13 @@ Name, address and other personal data will only be required if you provide them 
     <string name="description6">"
         (1) The warranty rights of the customer are exclusively defined in the license agreement included in the software or – if a separate license agreement is concluded – this separate license agreement.
 
-        (2) The statutory liability covering damages other then the purchase and use of the software applies with the following stipulations: SMAC Software &#38; Services e.K.’S LIABILITY IS LIMITED TO DAMAGES ARISING FROM GROSS NEGLIGENCE, WILLFUL ACTS, OR THE CULPABLE VIOLATION OF THE BASIC OBLIGATIONS STEMMING FROM THIS AGREEMENT. IN THE EVENT THAT SMAC Software &#38; Services e.K.’S VIOLATION OF AN OBLIGATION ESSENTIAL TO THE AGREEMENT IS NOT DUE TO GROSS NEGLIGENCE OR IS UNINTENTIONAL, THEN SMAC Software &#38; Services e.K.’S LIABILITY WILL BE LIMITED TO TYPICAL DAMAGES OR TO SUCH TYPICAL DAMAGES THAT WERE REASONABLY FORSEEABLE AT THE TIME THE AGREEMENT WAS MADE.
+        (2) The statutory liability covering damages other then the purchase and use of the software applies with the following stipulations: SMAC Software &#38; Services.’S LIABILITY IS LIMITED TO DAMAGES ARISING FROM GROSS NEGLIGENCE, WILLFUL ACTS, OR THE CULPABLE VIOLATION OF THE BASIC OBLIGATIONS STEMMING FROM THIS AGREEMENT. IN THE EVENT THAT SMAC Software &#38; Services.’S VIOLATION OF AN OBLIGATION ESSENTIAL TO THE AGREEMENT IS NOT DUE TO GROSS NEGLIGENCE OR IS UNINTENTIONAL, THEN SMAC Software &#38; Services.’S LIABILITY WILL BE LIMITED TO TYPICAL DAMAGES OR TO SUCH TYPICAL DAMAGES THAT WERE REASONABLY FORSEEABLE AT THE TIME THE AGREEMENT WAS MADE.
 
-        (3) FURTHERMORE, SMAC Software &#38; Services e.K.  IS NOT LIABLE FOR ANY LOST WAGES OR OTHER IMPAIRMENT TO CUSTOMER ASSETS.
+        (3) FURTHERMORE, SMAC Software &#38; Services.  IS NOT LIABLE FOR ANY LOST WAGES OR OTHER IMPAIRMENT TO CUSTOMER ASSETS.
 
-        (4) Any liability for damages arising from SMAC Software &#38; Services e.K. ’s negligence is limited to typical, foreseeable contractual damages that are usually equal to the license fee paid.
+        (4) Any liability for damages arising from SMAC Software &#38; Services. ’s negligence is limited to typical, foreseeable contractual damages that are usually equal to the license fee paid.
 
-        (5) SMAC Software &#38; Services e.K.  assumes no responsibility or liability for software or systems that are not the subject of this contract."</string>
+        (5) SMAC Software &#38; Services.  assumes no responsibility or liability for software or systems that are not the subject of this contract."</string>
 
     <string name="title7">"Data protection"</string>
     <string name="description7">"

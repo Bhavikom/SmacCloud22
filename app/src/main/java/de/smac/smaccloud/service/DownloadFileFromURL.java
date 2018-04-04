@@ -16,7 +16,6 @@ import java.util.TimeZone;
 
 import de.smac.smaccloud.base.Helper;
 import de.smac.smaccloud.base.NetworkService;
-import de.smac.smaccloud.data.DataHelper;
 import de.smac.smaccloud.helper.PreferenceHelper;
 import de.smac.smaccloud.model.Media;
 
@@ -69,22 +68,24 @@ public class DownloadFileFromURL extends AsyncTask<String, String, String>
             conection.connect();
 
             int lenghtOfFile = conection.getContentLength();
-            
+
             input = new BufferedInputStream(conection.getInputStream());
 
             File mFolder = new File("" + context.getFilesDir());
             if (!mFolder.exists())
                 mFolder.mkdirs();
-             output = new FileOutputStream(context.getFilesDir() + File.separator + media.id);
+            output = new FileOutputStream(context.getFilesDir() + File.separator + media.id);
 
             byte data[] = new byte[1024];
             long total = 0;
             while ((count = input.read(data)) != -1)
             {
-                if(Helper.mediaToCancel != null) {
-                    if (Helper.mediaToCancel.id == media.id) {
+                if (Helper.mediaToCancel != null)
+                {
+                    if (Helper.mediaToCancel.id == media.id)
+                    {
                         Helper.mediaToCancel = null;
-                        Log.e(" 4444444 "," download is canceled : "+position);
+                        Log.e(" 4444444 ", " download is canceled : " + position);
                         break;
                     }
                 }
@@ -100,7 +101,7 @@ public class DownloadFileFromURL extends AsyncTask<String, String, String>
 
                 media.progress = statusOfdownload;
                 media.isDownloading = 1;
-                interfaceResponse.statusOfDownload(media,Integer.parseInt(position));
+                interfaceResponse.statusOfDownload(media, Integer.parseInt(position));
 
                 //output.write(data, 0, count);
             }
@@ -125,7 +126,7 @@ public class DownloadFileFromURL extends AsyncTask<String, String, String>
         }
         catch (Exception e)
         {
-            Log.e(" in catch  "," download is stopped : "+e.toString());
+            Log.e(" in catch  ", " download is stopped : " + e.toString());
             e.printStackTrace();
             media.isDownloading = 0;
             isSuccess = false;
@@ -137,26 +138,37 @@ public class DownloadFileFromURL extends AsyncTask<String, String, String>
     protected void onPostExecute(String s)
     {
         super.onPostExecute(s);
-        if (isSuccess)
+        try
         {
+            if (isSuccess)
+            {
 
-            media.isDownloaded = 1;
-            media.isDownloading = 0;
-            media.progress = 100;
-            //DataHelper.updateMedia(context, media);
-            interfaceResponse.processFinish(s,media,Integer.parseInt(position));
+                media.isDownloaded = 1;
+                media.isDownloading = 0;
+                media.progress = 100;
+                //DataHelper.updateMedia(context, media);
+                interfaceResponse.processFinish(s, media, Integer.parseInt(position));
+            }
+            else
+            {
+                media.isDownloaded = 0;
+                media.isDownloading = 0;
+                media.progress = 0;
+                //DataHelper.updateMedia(context, media);
+                interfaceResponse.processFinish("fail", media, Integer.parseInt(position));
+            }
+
         }
-        else
+        catch (Exception ex)
         {
-            media.isDownloaded = 0;
-            media.isDownloading = 0;
-            media.progress = 0;
-            //DataHelper.updateMedia(context, media);
-            interfaceResponse.processFinish("fail",media,Integer.parseInt(position));
+            ex.printStackTrace();
         }
+
     }
-    public void cancelDownload(Media mediaReceived, String pos){
-        Log.e(" 33333333 "," download is canceled : "+pos);
+
+    public void cancelDownload(Media mediaReceived, String pos)
+    {
+        Log.e(" 33333333 ", " download is canceled : " + pos);
         Helper.mediaToCancel = mediaReceived;
         /*if(media.id == mediaReceived.id && pos==position){
             cancel(true);
@@ -164,9 +176,11 @@ public class DownloadFileFromURL extends AsyncTask<String, String, String>
         }*/
 
     }
+
     public interface interfaceAsyncResponse
     {
         void processFinish(String output, Media media, int pos);
+
         void statusOfDownload(Media media, int pos);
     }
 }

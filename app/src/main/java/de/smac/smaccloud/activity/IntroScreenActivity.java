@@ -169,7 +169,10 @@ public class IntroScreenActivity extends Activity implements View.OnClickListene
         btnSignUp.setText(getResources().getString(R.string.sign_up));
         if (PreferenceHelper.hasUserContext(context))
         {
-            finish();
+            if(prefManager.isSychRight())
+            {
+                finish();
+            }
         }
     }
 

@@ -22,7 +22,7 @@
     <string name="hint_confirm_password">Confirm password</string>
     <string name="forgot_password">Forgot Password?</string>
     <string name="please_select_first">Please Select First</string>
-    <string name="enter_password">Enter Password</string>
+    <string name="enter_password">Please Enter Password</string>
     <string name="help_login">Need help logging in?</string>
     <string name="email_sent_successfully">Email Sent Successfully</string>
     <string name="password_length_message">Password must requires at least six characters</string>
@@ -359,6 +359,29 @@ Name, address and other personal data will only be required if you provide them 
     <string name="version_force_update_message">This version is no longer available for access. Please, update a new version of the app from App Store.</string>
     <string name="version_update_message">A new version is now available in App Store. Would you like to update?</string>
 
+    <!-- start newly added string by bhavik-->
+
+    <!-- create channel screen string -->
+    <string name="choose">Choose</string>
+    <string name="channel_background">Channel background</string>
+    <string name="select_all">Select ALL</string>
+    <string name="assign_users_for_channel">Assign users for channel</string>
+    <string name="save">Save</string>
+    <string name="create_channel">Create Channel</string>
+    <string name="cancel">Cancel</string>
+
+    <string name="msg_please_enter_channel_name">Please add channel name</string>
+
+    <!-- create channel screen string-->
+
+    <string name="camera">CAMERA</string>
+    <string name="gallery">GALLERY</string>
+    <string name="cancel_captial">CANCEL</string>
+    <string name="please_select_atleast_one_media">Please select at least one media.</string>
+    <string name="create_folder">Create Folder</string>
+    <string name="please_add_folder_name">Please add folder name.</string>
+    <string name="sych_right_dialog"> Sorry, you have no rights to SYNC data please contact your administrator.</string>
+    <!-- end newly added string by bhavik-->
     <!--Terms&condition All String-->
     <!--<string name="description">http://www.justcloud.com/terms#eligibility\n\nSMAC Cloud Terms and Conditions and License Agreement\n\nThese are the terms you agree to when you use SMAC Cloud.\n\nThis is a legal contract between you and SMAC Cloud and it is important that you read it carefully. If there is anything you do not understand in this Agreement, please contact us.</string>-->
     <string name="title1">"General Information / Scope of validity"</string>

@@ -1,35 +1,55 @@
 package de.smac.smaccloud.fragment;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.util.Pair;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -37,26 +57,38 @@ import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.michael.easydialog.EasyDialog;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import de.smac.smaccloud.R;
 import de.smac.smaccloud.activity.MediaDetailActivity;
 import de.smac.smaccloud.activity.ShareActivity;
+import de.smac.smaccloud.activity.ShowGalleryFolderListActivity;
+import de.smac.smaccloud.activity.ShowGalleryItemListActivity;
 import de.smac.smaccloud.activity.UserCommentViewActivity;
 import de.smac.smaccloud.adapter.MediaAdapter;
 import de.smac.smaccloud.adapter.MenuDialogListViewAdapter;
+import de.smac.smaccloud.adapter.SelectedMediaAdapter;
 import de.smac.smaccloud.base.Fragment;
 import de.smac.smaccloud.base.Helper;
 import de.smac.smaccloud.base.RequestParameter;
 import de.smac.smaccloud.data.DataHelper;
 import de.smac.smaccloud.helper.DataProvider;
+import de.smac.smaccloud.helper.GenericHelperForRetrofit;
+import de.smac.smaccloud.helper.GridSpacingItemDecoration;
 import de.smac.smaccloud.helper.PreferenceHelper;
 import de.smac.smaccloud.model.Channel;
+import de.smac.smaccloud.model.ChannelFiles;
 import de.smac.smaccloud.model.Media;
+import de.smac.smaccloud.model.MediaVersion;
+import de.smac.smaccloud.model.SelectedMediaFromGalleryModel;
 import de.smac.smaccloud.model.User;
 import de.smac.smaccloud.model.UserComment;
 import de.smac.smaccloud.model.UserLike;
@@ -65,8 +97,15 @@ import de.smac.smaccloud.service.FCMInstanceIdService;
 import de.smac.smaccloud.service.FCMMessagingService;
 import de.smac.smaccloud.service.SMACCloudApplication;
 import de.smac.smaccloud.widgets.UserCommentDialog;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import static android.app.Activity.RESULT_OK;
+import static android.content.Context.LAYOUT_INFLATER_SERVICE;
 import static de.smac.smaccloud.activity.MediaActivity.REQUEST_COMMENT;
 import static de.smac.smaccloud.activity.MediaActivity.REQUEST_LIKE;
 import static de.smac.smaccloud.base.Helper.LOCALIZATION_TYPE_ERROR_CODE;
@@ -77,6 +116,20 @@ import static de.smac.smaccloud.base.Helper.LOCALIZATION_TYPE_ERROR_CODE;
  */
 public class MediaFragment extends Fragment implements DownloadFileFromURL.interfaceAsyncResponse, MediaAdapter.OnItemClickOfAdapter
 {
+    CharSequence[] mediaSelectionItems;
+    private int position;
+    ArrayList<SelectedMediaFromGalleryModel> arrayListSelectedMediaTemp;
+    boolean flagToShowPopup = false;
+    /* newly added code*/
+    SelectedMediaAdapter adapterSelectedMedia;
+    RecyclerView recyclerViewGallery;
+    ImageView imgBackground;
+    Bitmap bitmapSelected = null;
+    String imagePathFromGalleryOrCamera ="",imagePathDefault="";
+    String imageName ="";
+    private PopupWindow mPopupWindow;
+    public Menu mMenu;
+    /* newly added code*/
 
     public static final String EXTRA_CHANNEL = "extra_channel";
     public static final String EXTRA_PARENT = "extra_parent";
@@ -117,7 +170,7 @@ public class MediaFragment extends Fragment implements DownloadFileFromURL.inter
     {
         super.onCreate(savedInstanceState);
         prefManager = new PreferenceHelper(getActivity());
-        setHasOptionsMenu(false);
+        setHasOptionsMenu(true);
         interfaceResponse = this;
         handler = new Handler();
 
@@ -522,6 +575,7 @@ public class MediaFragment extends Fragment implements DownloadFileFromURL.inter
                 applyThemeColor();
             }
         };
+        mediaSelectionItems = new CharSequence[]{ getString(R.string.camera), getString(R.string.gallery), getString(R.string.cancel_captial)};
     }
 
 
@@ -744,20 +798,6 @@ public class MediaFragment extends Fragment implements DownloadFileFromURL.inter
             }
         }
     }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data)
-    {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK)
-        {
-            //if (data != null && data.hasExtra(KEY_MEDIA_DETAIL_IS_DELETED) && data.getBooleanExtra(KEY_MEDIA_DETAIL_IS_DELETED, false)) {
-            updateMediaList();
-            mediaAdapter.notifyDataSetChanged();
-            //}
-        }
-    }
-
     private void startUserCommentViewActivity()
     {
         Intent userCommentIntent = new Intent(context, UserCommentViewActivity.class);
@@ -914,5 +954,737 @@ public class MediaFragment extends Fragment implements DownloadFileFromURL.inter
     {
 
     }
+    /* newly added code*/
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()) {
+            case R.id.action_add:
+
+                /* on click of add button showing popup window to create folder or upload media*/
+                if(flagToShowPopup == false) {
+                    View view = getActivity().findViewById(R.id.action_add);
+                    showPopupToCreateFolderOrMedia(view);
+                    flagToShowPopup = true;
+                }else {
+                    mPopupWindow.dismiss();
+                    flagToShowPopup = false;
+                }
+                break;
+        }
+        return true;
+    }
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater)
+    {
+        menu.clear();
+        super.onCreateOptionsMenu(menu, inflater);
+        //inflater.inflate(R.menu.menu_media_all_download, menu);
+        inflater.inflate(R.menu.menu_fragment_media, menu);
+        mMenu = menu;
+
+        if(prefManager.isAddMediaRight()){
+            menu.findItem(R.id.action_add).setVisible(true);
+        }else {
+            menu.findItem(R.id.action_add).setVisible(false);
+        }
+        applyThemeColor();
+        // Do something that differs the Activity's menu here
+        //super.onCreateOptionsMenu(menu, inflater);
+    }
+    private void showPopupToCreateFolderOrMedia(View view){
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(LAYOUT_INFLATER_SERVICE);
+        // Inflate the custom layout/view
+        View customView = inflater.inflate(R.layout.popup_mediaadd,null);
+        mPopupWindow = new PopupWindow(customView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+
+        // Set an elevation value for popup window
+        // Call requires API level 21
+        if(Build.VERSION.SDK_INT>=21){
+            mPopupWindow.setElevation(5.0f);
+        }
+        // Get a reference for the custom view close button
+        ImageView imageViewAddFolder = (ImageView) customView.findViewById(R.id.img_create_folder);
+        ImageView imageViewAddMedia = (ImageView) customView.findViewById(R.id.img_add_media);
+
+        // Set a click listener for the popup window close button
+        imageViewAddFolder.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Dismiss the popup window
+                mPopupWindow.dismiss();
+                flagToShowPopup = false;
+                imagePathFromGalleryOrCamera="";
+                showCreateFolderDialog();
+            }
+        });
+        imageViewAddMedia.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Dismiss the popup window
+                mPopupWindow.dismiss();
+                flagToShowPopup = false;
+                imagePathFromGalleryOrCamera="";
+                if(ShowGalleryItemListActivity.arrayListSelectedMedia != null) {
+                    ShowGalleryItemListActivity.arrayListSelectedMedia.clear();
+                }
+                showUploadFileDialog();
+            }
+        });
+        mPopupWindow.showAsDropDown(view);
+    }
+    private void showCreateFolderDialog(){
+        // Create custom dialog object
+        final Dialog customDialog = new Dialog(getActivity());
+        // Include dialog.xml file
+        customDialog.setContentView(R.layout.custom_dialog_add_folder);
+        customDialog.setCancelable(false);
+        // set values for custom dialog components - text, image and button
+        final EditText editTextFolderName = (EditText) customDialog.findViewById(R.id.edittext_folder_name);
+        Button btnChoose = (Button)customDialog.findViewById(R.id.btn_choose);
+        Button btnCreateFolder = (Button)customDialog.findViewById(R.id.btn_create_folder);
+        TextView textViewCancel = (TextView)customDialog.findViewById(R.id.txt_cancel);
+        imgBackground = (ImageView)customDialog.findViewById(R.id.image_background);
+
+        //Uri path = Uri.parse("android.resource://de.smac.smaccloud/" + R.drawable.icon_default+".png");
+        //Uri path = Uri.parse("android.resource://"+R.class.getPackage().getName()+"/" +R.drawable.icon_default);
+        //imagePathDefault = path.toString();
+
+        textViewCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                customDialog.dismiss();
+            }
+        });
+        btnChoose.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                position = 1;
+                boolean isPermission=checkPermission();
+                if(isPermission){
+                    showDialogToChooseMedia(1);
+                }
+
+            }
+        });
+        btnCreateFolder.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                callCreateFolderService(editTextFolderName.getText().toString(),customDialog);
+            }
+        });
+        customDialog.show();
+    }
+    private void showUploadFileDialog(){
+        // Create custom dialog object
+        final Dialog customDialog = new Dialog(getActivity());
+        // Include dialog.xml file
+        customDialog.setContentView(R.layout.custom_dialog_upload_file);
+        customDialog.setCancelable(false);
+        // set values for custom dialog components - text, image and button
+        final EditText editTextDescription = (EditText) customDialog.findViewById(R.id.edittext_description);
+        final TextView textViewUploadFile = (TextView) customDialog.findViewById(R.id.txt_upload_file);
+        final TextView textViewCancel = (TextView) customDialog.findViewById(R.id.txt_cancel);
+        recyclerViewGallery = (RecyclerView)customDialog.findViewById(R.id.recycler_view_gallery);
+        //RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(context, 3);
+        //recyclerViewGallery.setLayoutManager(mLayoutManager);
+        //recyclerViewGallery.getItemAnimator().setChangeDuration(0);
+        //recyclerViewGallery.addItemDecoration(new GridSpacingItemDecoration(Helper.COLUMN_OF_GRIDVIEW,Helper.COLUMN_SPACE,Helper.IS_INCLUDE_EDGE));
+
+        if (Helper.isTablet(activity))
+        {
+            recyclerViewGallery.setLayoutManager(new GridLayoutManager(context, 3));
+        }
+        else
+        {
+            recyclerViewGallery.setLayoutManager(new GridLayoutManager(context, 2));
+        }
+
+
+        GridSpacingItemDecoration itemDecoration = new GridSpacingItemDecoration(context, R.dimen.padding_gridview_item);
+        recyclerViewGallery.addItemDecoration(itemDecoration);
+
+        adapterSelectedMedia = new SelectedMediaAdapter(ShowGalleryItemListActivity.arrayListSelectedMedia,context);
+        recyclerViewGallery.setAdapter(adapterSelectedMedia);
+
+        textViewCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                customDialog.cancel();
+            }
+        });
+        textViewUploadFile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(ShowGalleryItemListActivity.arrayListSelectedMedia.size() > 0){
+
+                    arrayListSelectedMediaTemp = new ArrayList<>();
+                    arrayListSelectedMediaTemp.addAll(ShowGalleryItemListActivity.arrayListSelectedMedia);
+                    int count = 0;
+                    for (int i=0;i<ShowGalleryItemListActivity.arrayListSelectedMedia.size();i++){
+
+                        callCreateFileService(ShowGalleryItemListActivity.arrayListSelectedMedia.get(i).getMediaName(),
+                                editTextDescription.getText().toString(),customDialog,
+                                ShowGalleryItemListActivity.arrayListSelectedMedia.get(i).getMediaBitmapPath(),
+                                ShowGalleryItemListActivity.arrayListSelectedMedia.get(i).getFileType(),i);
+                    }
+
+
+                }else {
+                    notifySimple(getString(R.string.please_select_atleast_one_media));
+                }
+
+            }
+        });
+        Button btnChoose = (Button)customDialog.findViewById(R.id.btn_choose);
+
+        btnChoose.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // open dialog to choose media
+                position = 2;
+                boolean isPermission=checkPermission();
+                if(isPermission){
+                    showDialogToChooseMedia(2);
+                }
+
+            }
+        });
+        customDialog.show();
+        Window window = customDialog.getWindow();
+        window.setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+    }
+    private void callCreateFolderService(String strFolderName, final Dialog customDialog){
+        if(!TextUtils.isEmpty(strFolderName)){
+            try {
+                File file;
+                if(!TextUtils.isEmpty(imagePathFromGalleryOrCamera)) {
+                    file = new File(imagePathFromGalleryOrCamera);
+                }else {
+                    file = Helper.createFileFromDrawable(context,R.drawable.icon_default);
+                }
+                GenericHelperForRetrofit helper = new GenericHelperForRetrofit(getActivity());
+                HashMap<String,String> hashMap = new HashMap();
+                hashMap.put("Name",strFolderName);
+                hashMap.put("UserId", String.valueOf(PreferenceHelper.getUserContext(context)));
+                hashMap.put("Org_Id",PreferenceHelper.getOrganizationId(context));
+                hashMap.put("ChannelId", String.valueOf(channel.id));
+                hashMap.put("ParentId", String.valueOf(parentId));
+                JSONObject jsonObject = Helper.createJsonObject(DataProvider.Actions.ACTION_CREATE_FOLDER,hashMap);
+
+                RequestBody requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), file);
+                // MultipartBody.Part is used to send also the actual file name
+                MultipartBody.Part body = MultipartBody.Part.createFormData("file", file.getName(), requestFile);
+
+                Call<String> call = helper.getRetrofit().createFolder(jsonObject.toString(),body);
+                call.enqueue(new Callback<String>() {
+                    @Override
+                    public void onResponse(Call<String> call, Response<String> response) {
+                        Log.e(" success ", " response from retro : "+response);
+                        try {
+                            JSONObject jsonObjectMain = new JSONObject(response.body());
+                            JSONObject jsonObjectInner = jsonObjectMain.getJSONObject("Payload");
+                            ArrayList<Channel> arraylistChannels = new ArrayList<>();
+                            JSONArray channelJsonArray = jsonObjectInner.optJSONArray("Channels");
+                            Channel.parseListFromJson(channelJsonArray, arraylistChannels);
+                            for (Channel channel : arraylistChannels) {
+                                switch (channel.syncType) {
+                                    case 1:
+                                        channel.add(context);
+                                        break;
+
+                                    case 2:
+                                        channel.saveChanges(context);
+                                        break;
+
+                                    case 3:
+                                        channel.remove(context);
+                                        break;
+                                }
+                                addCreator(channel.creator);
+                            }
+                            if (jsonObjectInner.has("Media") && !jsonObjectInner.isNull("Media")) {
+                                JSONArray mediaJsonArray = jsonObjectInner.optJSONArray("Media");
+                                ArrayList<Media> arraylistMediallist = new ArrayList<>();
+                                Media.parseListFromJson(mediaJsonArray, arraylistMediallist);
+                                for (Media media : arraylistMediallist) {
+                                    switch (media.syncType) {
+                                        case 1:
+                                            media.add(context);
+
+                                            break;
+                                        case 2:
+                                            media.saveChanges(context);
+
+                                            break;
+
+                                        case 3:
+                                            media.remove(context);
+                                            break;
+                                    }
+                                    Log.e("Media type", media.type + media.currentVersionId);
+                                    if (!(media.type.equals("folder"))) {
+                                        addMediaVersion(media.currentVersion);
+                                    }
+                                }
+                            }
+                            if (jsonObjectInner.has("ChannelFiles") && !jsonObjectInner.isNull("ChannelFiles")) {
+                                JSONArray channelFilesJsonArray = jsonObjectInner.optJSONArray("ChannelFiles");
+                                ArrayList<ChannelFiles> arraylistChhannelFiles = new ArrayList<>();
+                                ChannelFiles.parseListFromJson(channelFilesJsonArray, arraylistChhannelFiles);
+                                for (ChannelFiles channelFile : arraylistChhannelFiles) {
+                                    switch (channelFile.syncType) {
+                                        case 1:
+                                            channelFile.add(context);
+                                            break;
+
+                                        case 2:
+                                            channelFile.saveChanges(context);
+                                            break;
+
+                                        case 3:
+                                            channelFile.remove(context);
+                                            break;
+                                    }
+                                }
+                            }
+                            updateMediaList();
+                            mediaAdapter.notifyDataSetChanged();
+                            customDialog.dismiss();
+
+                        }catch (Exception e){
+                            customDialog.dismiss();
+                            notifySimple(getString(R.string.msg_invalid_response_from_server));
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<String> call, Throwable t) {
+                        customDialog.dismiss();
+                        notifySimple(getString(R.string.msg_invalid_response_from_server));
+                    }
+                });
+            }catch (Exception e){
+                customDialog.dismiss();
+                notifySimple(getString(R.string.msg_invalid_response_from_server));
+            }
+
+        }else {
+            notifySimple(getString(R.string.please_add_folder_name));
+        }
+    }
+    private void callCreateFileService(String fileName, String strDescription, final Dialog customDialog,
+                                       final String filePath, final String fileType, final int posUploadingItem){
+        try {
+            GenericHelperForRetrofit helper = new GenericHelperForRetrofit(getActivity());
+            HashMap<String,String> hashMap = new HashMap();
+            hashMap.put("Name",fileName);
+            hashMap.put("UserId", String.valueOf(PreferenceHelper.getUserContext(context)));
+            hashMap.put("Org_Id",PreferenceHelper.getOrganizationId(context));
+            hashMap.put("ChannelId", String.valueOf(channel.id));
+            hashMap.put("ParentId", String.valueOf(parentId));
+            hashMap.put("Description",strDescription);
+            hashMap.put("Attachable","0");
+
+            JSONObject jsonObject = Helper.createJsonObject(DataProvider.Actions.ACTION_CREATE_FILE,hashMap);
+            Call<String> call = helper.getRetrofit().createFile(jsonObject.toString());
+            call.enqueue(new Callback<String>() {
+                @Override
+                public void onResponse(Call<String> call, Response<String> response) {
+                    Log.e(" success ", " response from retro : "+response);
+                    try {
+                        JSONObject jsonObjectMain = new JSONObject(response.body());
+                        JSONObject jsonObjectPayload = jsonObjectMain.getJSONObject("Payload");
+
+                        String mediaId = jsonObjectPayload.getString("Id");
+
+                        callUploadFileService(mediaId,filePath,customDialog,fileType,posUploadingItem);
+
+                    }catch (Exception e){
+                        customDialog.dismiss();
+                        notifySimple(getString(R.string.msg_invalid_response_from_server));
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<String> call, Throwable t) {
+                    customDialog.dismiss();
+                    notifySimple(getString(R.string.msg_invalid_response_from_server));
+                }
+            });
+        }catch (Exception e){
+            customDialog.dismiss();
+            notifySimple(getString(R.string.msg_invalid_response_from_server));
+        }
+    }
+    private void callUploadFileService(final String mediaId, String filePath, final Dialog customDialog, String fileType, final int posUploadingItem){
+        try {
+
+            final File sourceLocation = new File(filePath);
+
+            GenericHelperForRetrofit helper = new GenericHelperForRetrofit(getActivity());
+            HashMap<String,String> hashMap = new HashMap();
+
+            hashMap.put("UserId", String.valueOf(PreferenceHelper.getUserContext(context)));
+            hashMap.put("Org_Id",PreferenceHelper.getOrganizationId(context));
+            hashMap.put("ChannelId", String.valueOf(channel.id));
+            hashMap.put("MediaId", mediaId);
+
+            RequestBody requestFile = RequestBody.create(MediaType.parse(fileType), sourceLocation);
+            // MultipartBody.Part is used to send also the actual file name
+            MultipartBody.Part body = MultipartBody.Part.createFormData("file", sourceLocation.getName(), requestFile);
+
+            JSONObject jsonObject = Helper.createJsonObject(DataProvider.Actions.ACTION_ADD_MEDIA_CONTENT,hashMap);
+            Call<String> call = helper.getRetrofit().addMediaContent(jsonObject.toString(),body);
+            call.enqueue(new Callback<String>() {
+                @Override
+                public void onResponse(Call<String> call, Response<String> response) {
+                    Log.e(" success ", " response from retro : "+response);
+                    try {
+                        JSONObject jsonObjectMain = new JSONObject(response.body());
+                        JSONObject jsonObjectPayload = jsonObjectMain.getJSONObject("Payload");
+
+                        ArrayList<Channel> arraylistChannels = new ArrayList<>();
+                        JSONArray channelJsonArray = jsonObjectPayload.optJSONArray("Channels");
+                        Channel.parseListFromJson(channelJsonArray, arraylistChannels);
+                        for (Channel channel : arraylistChannels) {
+                            switch (channel.syncType) {
+                                case 1:
+                                    channel.add(context);
+                                    break;
+
+                                case 2:
+                                    channel.saveChanges(context);
+                                    break;
+
+                                case 3:
+                                    channel.remove(context);
+                                    break;
+                            }
+                            addCreator(channel.creator);
+                        }
+                        if (jsonObjectPayload.has("ChannelFiles") && !jsonObjectPayload.isNull("ChannelFiles")) {
+                            JSONArray channelFilesJsonArray = jsonObjectPayload.optJSONArray("ChannelFiles");
+                            ArrayList<ChannelFiles> arraylistChhannelFiles = new ArrayList<>();
+                            ChannelFiles.parseListFromJson(channelFilesJsonArray, arraylistChhannelFiles);
+                            for (ChannelFiles channelFile : arraylistChhannelFiles) {
+                                switch (channelFile.syncType) {
+                                    case 1:
+                                        channelFile.add(context);
+                                        break;
+
+                                    case 2:
+                                        channelFile.saveChanges(context);
+                                        break;
+
+                                    case 3:
+                                        channelFile.remove(context);
+                                        break;
+                                }
+                            }
+                        }
+                        if (jsonObjectPayload.has("Media") && !jsonObjectPayload.isNull("Media")) {
+                            JSONArray mediaJsonArray = jsonObjectPayload.optJSONArray("Media");
+                            ArrayList<Media> arraylistMediallist = new ArrayList<>();
+                            Media.parseListFromJson(mediaJsonArray, arraylistMediallist);
+                            for (Media media : arraylistMediallist) {
+
+                                media.isDownloaded = 1;
+                                switch (media.syncType) {
+                                    case 1:
+                                        media.add(context);
+
+                                        break;
+                                    case 2:
+                                        media.saveChanges(context);
+
+                                        break;
+
+                                    case 3:
+                                        media.remove(context);
+                                        break;
+                                }
+                                Log.e("Media type", media.type + media.currentVersionId);
+                                if (!(media.type.equals("folder"))) {
+                                    addMediaVersion(media.currentVersion);
+                                }
+                            }
+                        }
+                        SelectedMediaFromGalleryModel modelTemp = new SelectedMediaFromGalleryModel();
+                        modelTemp = ShowGalleryItemListActivity.arrayListSelectedMedia.get(posUploadingItem);
+                        modelTemp.setUploadedCompleted(true);
+
+                        ShowGalleryItemListActivity.arrayListSelectedMedia.set(posUploadingItem,modelTemp);
+                        adapterSelectedMedia.notifyDataSetChanged();
+
+                        Helper.copyFileFromSourceToTrage(sourceLocation,Helper.getDownloadFilePath(context,mediaId));
+                        updateMediaList();
+                        mediaAdapter.notifyDataSetChanged();
+
+
+                        if(arrayListSelectedMediaTemp.size() > 0) {
+                            arrayListSelectedMediaTemp.remove(0);
+                        }
+                        if(arrayListSelectedMediaTemp.size() == 0){
+                            customDialog.dismiss();
+                        }
+
+                    }catch (Exception e){
+                        notifySimple(getString(R.string.msg_invalid_response_from_server));
+                    }
+                }
+                @Override
+                public void onFailure(Call<String> call, Throwable t) {
+
+                    notifySimple(getString(R.string.msg_invalid_response_from_server));
+                }
+            });
+        }catch (Exception e){
+
+            notifySimple(getString(R.string.msg_invalid_response_from_server));
+        }
+    }
+    private void onCaptureImageResult(Intent data) {
+        Uri selectedImageUri = data.getData();
+        String[] filePathColumn = {MediaStore.Images.Media.DATA};
+
+        Cursor cursor = context.getContentResolver().query(selectedImageUri, filePathColumn, null, null, null);
+        if (cursor != null) {
+            cursor.moveToFirst();
+            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+
+            imagePathFromGalleryOrCamera = cursor.getString(columnIndex);
+        }
+        if (data != null) {
+            try {
+                bitmapSelected = MediaStore.Images.Media.getBitmap(context.getContentResolver(), data.getData());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        imgBackground.setImageBitmap(bitmapSelected);
+    }
+    private void onCaptureImageOrVideoResult(Intent data) {
+        Uri selectedImageUri = data.getData();
+        String[] filePathColumn = {MediaStore.Images.Media.DATA};
+
+        String[] fileNameColumn = {MediaStore.Images.Media.DISPLAY_NAME};
+
+        Cursor cursor = context.getContentResolver().query(selectedImageUri, filePathColumn, null, null, null);
+
+        Cursor cursorName = context.getContentResolver().query(selectedImageUri, fileNameColumn, null, null, null);
+
+        if (cursor != null) {
+            cursor.moveToFirst();
+            cursorName.moveToFirst();
+            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+            int columnIndexName = cursorName.getColumnIndex(fileNameColumn[0]);
+
+            imagePathFromGalleryOrCamera = cursor.getString(columnIndex);
+            imageName = cursorName.getString(columnIndexName);
+
+            if(!TextUtils.isEmpty(imagePathFromGalleryOrCamera) && !TextUtils.isEmpty(imageName)){
+                if(ShowGalleryItemListActivity.arrayListSelectedMedia == null ){
+                    ShowGalleryItemListActivity.arrayListSelectedMedia = new ArrayList<>();
+
+                    SelectedMediaFromGalleryModel mediaFromGalleryModel = new SelectedMediaFromGalleryModel();
+                    mediaFromGalleryModel.setMediaBitmapPath(imagePathFromGalleryOrCamera);
+                    mediaFromGalleryModel.setMediaName(imageName);
+                    ShowGalleryItemListActivity.arrayListSelectedMedia.add(mediaFromGalleryModel);
+
+                    refreshAdapter();
+                }else {
+                    SelectedMediaFromGalleryModel mediaFromGalleryModel = new SelectedMediaFromGalleryModel();
+                    mediaFromGalleryModel.setMediaBitmapPath(imagePathFromGalleryOrCamera);
+                    mediaFromGalleryModel.setMediaName(imageName);
+                    ShowGalleryItemListActivity.arrayListSelectedMedia.add(mediaFromGalleryModel);
+
+                    refreshAdapter();
+                }
+            }
+        }
+    }
+
+    @SuppressWarnings("deprecation")
+    private void onSelectFromGalleryResult(Intent data) {
+
+        Uri selectedImageUri = data.getData();
+        String[] filePathColumn = {MediaStore.Images.Media.DATA};
+
+        Cursor cursor = context.getContentResolver().query(selectedImageUri, filePathColumn, null, null, null);
+
+        if (cursor != null) {
+            cursor.moveToFirst();
+
+            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+            imagePathFromGalleryOrCamera = cursor.getString(columnIndex);
+        }
+        //Bitmap bm=null;
+        if (data != null) {
+            try {
+                bitmapSelected = MediaStore.Images.Media.getBitmap(context.getContentResolver(), data.getData());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        imgBackground.setImageBitmap(bitmapSelected);
+    }
+    public void showDialogToChooseMedia(final int pos) {
+        android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(activity);
+        //builder.setTitle("Add Photo!");
+        builder.setItems(mediaSelectionItems, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int item) {
+                openGalleryOrCamera(mediaSelectionItems,item,pos);
+            }
+        });
+        builder.show();
+    }
+    private void openGalleryOrCamera(CharSequence[] items,int item,int pos){
+        if (items[item].equals(getString(R.string.camera))) {
+            Helper.userChoosenTask = getString(R.string.camera);
+            if(pos == 1) { // pos == 1 means user wants to create folder so just allow to capture image
+                cameraIntentForImage();
+            }else {
+                cameraIntentForImageVideo(); // want to upload media so allow to capture image and video both
+            }
+
+        } else if (items[item].equals(getString(R.string.gallery))) {
+            Helper.userChoosenTask = getString(R.string.gallery);
+
+            if(pos == 2){
+                // choose multi media from gallery
+                openGalleryFolderListActivity();
+            }else {
+                // choose single image from gallery
+                galleryIntentForImage();
+            }
+        } else if (items[item].equals(getString(R.string.cancel_captial))) {
+            dialog.dismiss();
+        }
+    }
+    public void galleryIntentForImage()
+    {
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);//
+        startActivityForResult(Intent.createChooser(intent, "Select File"),Helper.SELECT_SINGLE_IMAGE_FROM_GALLERY);
+    }
+    private void cameraIntentForImageVideo(){
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        Intent takeVideoIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+        Intent chooserIntent = Intent.createChooser(takePictureIntent, "Capture Image or Video");
+        chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[]{takeVideoIntent});
+        startActivityForResult(chooserIntent, Helper.REQUEST_CAMERA_IMAGE_VIDEO);
+    }
+    public void cameraIntentForImage()
+    {
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        startActivityForResult(intent, Helper.REQUEST_CAMERA_IMAGE);
+    }
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK)
+        {
+            if (requestCode == Helper.SELECT_SINGLE_IMAGE_FROM_GALLERY) {
+                onSelectFromGalleryResult(data);
+            }
+            else if (requestCode == Helper.REQUEST_CAMERA_IMAGE) {
+                onCaptureImageResult(data);
+            }
+            else if (requestCode == Helper.REQUEST_CAMERA_IMAGE_VIDEO) {
+                onCaptureImageOrVideoResult(data);
+            }
+            else if(requestCode == Helper.OPEN_MEDIA_PICKER_FOR_SINGLE_OR_MULTIPLE){
+                if(ShowGalleryItemListActivity.arrayListSelectedMedia != null && ShowGalleryItemListActivity.arrayListSelectedMedia.size() > 0 ){
+                    adapterSelectedMedia.notifyDataSetChanged();
+                }
+            }
+            else {
+                updateMediaList();
+                mediaAdapter.notifyDataSetChanged();
+            }
+        }
+    }
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    public boolean checkPermission()
+    {
+        int currentAPIVersion = Build.VERSION.SDK_INT;
+        if(currentAPIVersion>=android.os.Build.VERSION_CODES.M)
+        {
+            if (ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
+                    || ContextCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ) {
+                requestPermissions(new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE,
+                                android.Manifest.permission.READ_EXTERNAL_STORAGE},
+                        Helper.MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+                return false;
+            } else {
+                return true;
+            }
+        } else {
+            return true;
+        }
+    }
+    protected void addCreator(User creator)
+    {
+        switch (creator.syncType)
+        {
+            case 0:
+                creator.saveChanges(context);
+                break;
+            case 1:
+                creator.add(context);
+                break;
+            case 2:
+                creator.saveChanges(context);
+                break;
+            case 3:
+                creator.remove(context);
+                break;
+        }
+    }
+    protected void addMediaVersion(MediaVersion currentVersion)
+    {
+        if (currentVersion != null)
+        {
+            switch (currentVersion.syncType)
+            {
+                case 0:
+                    currentVersion.saveChanges(context);
+                    addCreator(currentVersion.creator);
+                    break;
+                case 1:
+                    currentVersion.add(context);
+                    addCreator(currentVersion.creator);
+                    break;
+                case 2:
+                    currentVersion.saveChanges(context);
+                    addCreator(currentVersion.creator);
+                    break;
+                case 3:
+                    currentVersion.remove(context);
+                    addCreator(currentVersion.creator);
+                    break;
+            }
+        }
+
+    }
+    public void openGalleryFolderListActivity() {
+        Intent intent= new Intent(getActivity(), ShowGalleryFolderListActivity.class);
+        startActivityForResult(intent,Helper.OPEN_MEDIA_PICKER_FOR_SINGLE_OR_MULTIPLE);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if(requestCode == Helper.MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE){
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                showDialogToChooseMedia(position);
+            }
+        }
+    }
+    /* newly added code*/
 
 }

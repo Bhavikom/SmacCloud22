@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="vertical"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <RelativeLayout
+        android:background="@color/black"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dialog_header_height">
+        <TextView
+            android:textSize="@dimen/dialog_textsize_mediam"
+            android:layout_marginLeft="@dimen/padding_5dp"
+            android:textColor="@color/white"
+            android:layout_centerVertical="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/txt_cancel"
+            android:text="@string/cancel"/>
+        <TextView
+            android:textSize="@dimen/dialog_header_textsize"
+            android:textColor="@color/white"
+            android:layout_centerInParent="true"
+            android:layout_centerVertical="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/txt_create_folder"
+            android:text="Upload File"/>
+        <TextView
+            android:textSize="@dimen/dialog_textsize_mediam"
+            android:textColor="@color/white"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/txt_upload_file"
+            android:text="Upload File"/>
+    </RelativeLayout>
+    <LinearLayout
+        android:orientation="vertical"
+        android:background="@color/gray1"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/textInputEmail"
+            android:layout_margin="@dimen/padding_5dp"
+            style="@style/EditTextWhiteHint"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/padding_small"
+            android:textColorHint="@color/black"
+            >
+
+            <EditText
+                android:id="@+id/edittext_description"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/ic_mandatory"
+                android:drawablePadding="@dimen/padding_1dp"
+                android:hint="Description"
+                android:maxLength="50"
+                android:inputType="text"
+                android:singleLine="true"
+                android:textColor="@color/black"
+                android:textSize="@dimen/dialog_textsize_mediam"/>
+
+        </android.support.design.widget.TextInputLayout>
+
+
+        <Button
+            android:layout_margin="@dimen/padding_5dp"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
+            android:id="@+id/btn_choose"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/orange_border_background"
+            android:text="@string/choose"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:textSize="@dimen/dialog_textsize_mediam"
+            android:textStyle="bold"/>
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recycler_view_gallery"
+            android:layout_marginTop="@dimen/padding_5dp"
+            android:layout_width="match_parent"
+            android:clipToPadding="false"
+            android:padding="@dimen/padding_large"
+            android:layout_height="match_parent"></android.support.v7.widget.RecyclerView>
+    </LinearLayout>
+</LinearLayout>

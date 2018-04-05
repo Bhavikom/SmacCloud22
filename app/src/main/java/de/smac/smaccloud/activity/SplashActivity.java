@@ -134,10 +134,19 @@ public class SplashActivity extends de.smac.smaccloud.base.Activity
         {
             if (PreferenceHelper.hasUserContext(SplashActivity.this))
             {
-                if (PreferenceHelper.getSyncStatus(SplashActivity.this))
-                    startDashboardActivity();
-                else
-                    startSyncActivity();
+                if(prefManager.isSychRight()) {
+                    if (PreferenceHelper.getSyncStatus(SplashActivity.this)){
+                        startDashboardActivity();
+                    }
+                    else{
+                        startSyncActivity();
+                    }
+
+                }else {
+                    Intent i = new Intent(SplashActivity.this, IntroScreenActivity.class);
+                    startActivity(i);
+                    finish();
+                }
             }
             else
             {
@@ -269,10 +278,19 @@ public class SplashActivity extends de.smac.smaccloud.base.Activity
                             //Log.e("TEST>>"," get localization : " + DataHelper.getLocalizationMessageFromCode(this,"2101","en-en","3"));
                             if (PreferenceHelper.hasUserContext(SplashActivity.this))
                             {
-                                if (PreferenceHelper.getSyncStatus(SplashActivity.this))
-                                    startDashboardActivity();
-                                else
-                                    startSyncActivity();
+                                if(prefManager.isSychRight()) {
+                                    if (PreferenceHelper.getSyncStatus(SplashActivity.this)){
+                                        startDashboardActivity();
+                                    }
+                                    else{
+                                        startSyncActivity();
+                                    }
+
+                                }else {
+                                    Intent i = new Intent(SplashActivity.this, IntroScreenActivity.class);
+                                    startActivity(i);
+                                    finish();
+                                }
                             }
                             else
                             {
@@ -294,10 +312,19 @@ public class SplashActivity extends de.smac.smaccloud.base.Activity
             {
                 if (PreferenceHelper.hasUserContext(SplashActivity.this))
                 {
-                    if (PreferenceHelper.getSyncStatus(SplashActivity.this))
-                        startDashboardActivity();
-                    else
-                        startSyncActivity();
+                    if(prefManager.isSychRight()) {
+                        if (PreferenceHelper.getSyncStatus(SplashActivity.this)){
+                            startDashboardActivity();
+                        }
+                        else{
+                            startSyncActivity();
+                        }
+
+                    }else {
+                        Intent i = new Intent(SplashActivity.this, IntroScreenActivity.class);
+                        startActivity(i);
+                        finish();
+                    }
                 }
                 else
                 {

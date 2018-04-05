@@ -1,5 +1,6 @@
 package de.smac.smaccloud.fragment;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Color;
@@ -29,14 +30,16 @@ import de.smac.smaccloud.base.Activity;
 import de.smac.smaccloud.base.Fragment;
 import de.smac.smaccloud.base.Helper;
 import de.smac.smaccloud.data.DataHelper;
+import de.smac.smaccloud.helper.InterfaceChannelCreated;
 import de.smac.smaccloud.helper.PreferenceHelper;
 import de.smac.smaccloud.model.Channel;
 
 /**
  * Show channel data
  */
-public class ChannelsFragment extends Fragment
+public class ChannelsFragment extends Fragment implements InterfaceChannelCreated
 {
+    private PreferenceHelper prefManager;
     public Menu mMenu;
     boolean isTabletSize;
     private RecyclerView recyclerViewChannels;
@@ -51,6 +54,7 @@ public class ChannelsFragment extends Fragment
     {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        prefManager = new PreferenceHelper(context);
     }
 
     @Nullable
@@ -186,6 +190,14 @@ public class ChannelsFragment extends Fragment
         //inflater.inflate(R.menu.menu_media_all_download, menu);
         inflater.inflate(R.menu.menu_fragment_channels, menu);
         mMenu = menu;
+
+        if(prefManager.isCreateChannelRight()){
+            menu.findItem(R.id.action_create_channel).setVisible(true);
+        }else {
+            menu.findItem(R.id.action_create_channel).setVisible(false);
+        }
+
+
         applyThemeColor();
         // Do something that differs the Activity's menu here
         //super.onCreateOptionsMenu(menu, inflater);
@@ -278,8 +290,8 @@ public class ChannelsFragment extends Fragment
         {
             e.printStackTrace();
         }
-        adapterChannels = new ChannelsAdapter(activity, arraylistChannels);
-        recyclerViewChannels.getAdapter().notifyDataSetChanged();
+        //adapterChannels = new ChannelsAdapter(activity, arraylistChannels);
+        //recyclerViewChannels.getAdapter().notifyDataSetChanged();
 
     }
 
@@ -296,5 +308,15 @@ public class ChannelsFragment extends Fragment
             ((DashboardActivity) (activity)).navigationDashboard.getMenu().findItem(R.id.menuChannels).setCheckable(true).setChecked(true);
         }
         applyThemeColor();
+    }
+    @Override
+    public void channelAdded() {
+        initializeComponents();
+        bindEvents();
+    }
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        ((DashboardActivity)context).interfaceChannelCreated = this;
     }
 }

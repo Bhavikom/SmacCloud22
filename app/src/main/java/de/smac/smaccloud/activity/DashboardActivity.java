@@ -1,23 +1,37 @@
 package de.smac.smaccloud.activity;
 
+import android.Manifest;
+import android.annotation.TargetApi;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.graphics.drawable.DrawerArrowDrawable;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextPaint;
+import android.text.TextUtils;
 import android.text.style.TypefaceSpan;
 import android.util.Log;
 import android.view.Menu;
@@ -25,7 +39,11 @@ import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.animation.AnimationUtils;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -33,35 +51,77 @@ import android.widget.TextView;
 
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.michael.easydialog.EasyDialog;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.Type;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.List;
 
 import de.smac.smaccloud.R;
 import de.smac.smaccloud.adapter.AnnouncementListViewAdapter;
+import de.smac.smaccloud.adapter.ChannelUserListAdapter;
 import de.smac.smaccloud.base.Activity;
 import de.smac.smaccloud.base.Helper;
+import de.smac.smaccloud.base.RequestParameter;
 import de.smac.smaccloud.data.DataHelper;
 import de.smac.smaccloud.fragment.ChannelsFragment;
 import de.smac.smaccloud.fragment.RecentActivitiesFragment;
 import de.smac.smaccloud.fragment.SettingsFragment;
+import de.smac.smaccloud.helper.DataProvider;
+import de.smac.smaccloud.helper.GenericHelperForRetrofit;
+import de.smac.smaccloud.helper.InterfaceChannelCreated;
 import de.smac.smaccloud.helper.PreferenceHelper;
 import de.smac.smaccloud.model.Announcement;
+import de.smac.smaccloud.model.Channel;
+import de.smac.smaccloud.model.ChannelUser;
+import de.smac.smaccloud.model.CreateChannnelModel;
 import de.smac.smaccloud.model.Media;
 import de.smac.smaccloud.model.MediaAllDownload;
 import de.smac.smaccloud.model.User;
 import de.smac.smaccloud.model.UserPreference;
 import de.smac.smaccloud.service.DownloadService;
 import de.smac.smaccloud.service.FCMMessagingService;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
+import static de.smac.smaccloud.base.Helper.LOCALIZATION_TYPE_ERROR_CODE;
 
 /**
  * Main activity class
  */
 public class DashboardActivity extends Activity implements SettingsFragment.InterfaceChangeLanguage
 {
+    /* newly added */
+    Dialog customDialogCteateChannel;
+    public InterfaceChannelCreated interfaceChannelCreated;
+    TextView textviewCancel,textviewSave;
+    EditText editTextChannelName;
+    Button btnChoose,btnSelectAll;
+    RecyclerView recyclerViewUser;
+    ImageView imageViewChannelBackground;
+    List<CreateChannnelModel> arrayListUser = new ArrayList<>();
+    ChannelUserListAdapter adapterUserList;
+    String strChannelName="";
+    Bitmap bitmapSelected = null;
+    String imagePathFromGalleryOrCamera ="";
+    public static final int REQUEST_GET_USERLIST = 501;
+    public static final int REQUEST_CREATE_CHANNEL = 502;
+    public static final int REQUEST_ADD_CHANNEL_USER = 503;
+    private RecyclerView.LayoutManager listManager;
+    /* newly added */
+
     private PreferenceHelper prefManager;
     private static ActionBarDrawerToggle drawerToggle;
     public LinearLayout parentLayout;
@@ -388,6 +448,9 @@ public class DashboardActivity extends Activity implements SettingsFragment.Inte
             case R.id.action_search:
                 startActivity(new Intent(DashboardActivity.this, MediaSearchActivity.class));
                 break;
+            case R.id.action_create_channel:
+                showCreateChannelDialog();
+                break;
         }
         return true;
     }
@@ -604,5 +667,407 @@ public class DashboardActivity extends Activity implements SettingsFragment.Inte
         super.onPause();
 
 
+    }
+    private void showCreateChannelDialog(){
+
+        // Create custom dialog object
+        customDialogCteateChannel = new Dialog(DashboardActivity.this);
+        // Include dialog.xml file
+        customDialogCteateChannel.setContentView(R.layout.activity_create_channel);
+        customDialogCteateChannel.setCancelable(false);
+
+        imagePathFromGalleryOrCamera="";
+        // set values for custom dialog components - text, image and button
+        textviewSave = (TextView) customDialogCteateChannel.findViewById(R.id.txt_save);
+        textviewCancel = (TextView) customDialogCteateChannel.findViewById(R.id.txt_cancel);
+
+        btnChoose = (Button) customDialogCteateChannel.findViewById(R.id.btn_choose);
+        btnSelectAll = (Button) customDialogCteateChannel.findViewById(R.id.btn_select_all);
+        recyclerViewUser = (RecyclerView) customDialogCteateChannel.findViewById(R.id.recycler_view_user);
+
+        listManager = new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false);
+        recyclerViewUser.setLayoutManager(listManager);
+
+        imageViewChannelBackground = (ImageView) customDialogCteateChannel.findViewById(R.id.image_background);
+        editTextChannelName = (EditText) customDialogCteateChannel.findViewById(R.id.edittext_channel);
+
+        btnChoose.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                boolean result=checkPermission();
+                if(result) {
+                    selectImage(DashboardActivity.this);
+                }
+            }
+        });
+        btnSelectAll.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(arrayListUser.size() > 0) {
+                    for (int i = 0; i < arrayListUser.size(); i++) {
+                        CreateChannnelModel modelTemp = arrayListUser.get(i);
+                        modelTemp.setSelected(true);
+                        arrayListUser.set(i,modelTemp);
+                    }
+                    adapterUserList.notifyDataSetChanged();
+                }
+            }
+        });
+        textviewCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                customDialogCteateChannel.cancel();
+            }
+        });
+        textviewSave.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (Helper.isNetworkAvailable(context))
+                {
+                    strChannelName = editTextChannelName.getText().toString();
+                    if(!TextUtils.isEmpty(strChannelName)){
+                        try
+                        {
+                            File file;
+                            if(!TextUtils.isEmpty(imagePathFromGalleryOrCamera)) {
+                                file = new File(imagePathFromGalleryOrCamera);
+                            }else {
+                                file = Helper.createFileFromDrawable(context,R.drawable.icon_default);
+                            }
+
+                            GenericHelperForRetrofit helper = new GenericHelperForRetrofit(DashboardActivity.this);
+                            try {
+                                String strPayload = "";
+
+                                JSONObject main = new JSONObject();
+                                main.put("Action",DataProvider.Actions.ACTION_CREATE_CHANNEL);
+
+                                JSONObject payload = new JSONObject();
+
+                                payload.put("Name",strChannelName);
+                                payload.put("UserId",String.valueOf(PreferenceHelper.getUserContext(context)));
+                                payload.put("Org_Id",PreferenceHelper.getOrganizationId(context));
+
+                                main.put("Payload",payload);
+
+                                RequestBody requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), file);
+
+                                // MultipartBody.Part is used to send also the actual file name
+                                MultipartBody.Part body = MultipartBody.Part.createFormData("file", file.getName(), requestFile);
+
+                                Call<String> call = helper.getRetrofit().createChannel(main.toString(),body);
+
+                                call.enqueue(new Callback<String>() {
+
+                                    @Override
+                                    public void onResponse(Call<String> call, Response<String> response) {
+                                        Log.e(" success ", " response from retro : "+response);
+
+                                        //if(status){
+                                        try {
+                                            JSONObject jsonObjectMain = new JSONObject(response.body());
+
+                                            int requestStatus = jsonObjectMain.optInt("Status");
+                                            if (requestStatus > 0)
+                                            {
+                                                notifySimple(DataHelper.getLocalizationMessageFromCode(context, String.valueOf(requestStatus), LOCALIZATION_TYPE_ERROR_CODE));
+                                            }
+                                            else {
+                                                Channel modelChannel = new Channel();
+                                                ArrayList<Channel> arraylistChannels = new ArrayList<>();
+
+                                                JSONObject payload = jsonObjectMain.getJSONObject("Payload");
+                                                String orgId = payload.getString("Org_Id");
+                                                String channelId = payload.getString("Id");
+                                                JSONObject objCreater = new JSONObject();
+                                                objCreater = payload.getJSONObject("Creator");
+
+                                                // getting channles list from service and storing in database
+                                                Channel.parseListFromJsonObject(payload, arraylistChannels);
+                                                for (Channel channel : arraylistChannels)
+                                                {
+                                                    channel.add(context);
+                                                }
+
+
+                                                JSONArray jsonArray = new JSONArray();
+                                                JSONObject object = new JSONObject();
+                                                object.put("Id",String.valueOf(PreferenceHelper.getUserContext(context)));
+                                                jsonArray.put(object);
+                                                if(arrayListUser != null && arrayListUser.size() > 0){
+                                                    for (int i = 0; i < arrayListUser.size() ; i++) {
+                                                        if(arrayListUser.get(i).isSelected()){
+                                                            JSONObject objId = new JSONObject();
+                                                            objId.put("Id",arrayListUser.get(i).getId());
+                                                            jsonArray.put(objId);
+                                                        }
+                                                    }
+                                                }
+                                                postNetworkRequest(REQUEST_ADD_CHANNEL_USER, DataProvider.ENDPOINT_ADD_USER,
+                                                        DataProvider.Actions.ACTION_ADD_CHANNEL_USER,
+                                                        RequestParameter.urlEncoded("UserId", String.valueOf(PreferenceHelper.getUserContext(context))),
+                                                        RequestParameter.urlEncoded("ChannelId", channelId),
+                                                        RequestParameter.jsonArray("Users", jsonArray),
+                                                        RequestParameter.urlEncoded("Org_Id", orgId),
+                                                        RequestParameter.urlEncoded("DeviceId", "00000-00000-00000-00000-00000"));
+
+
+                                            }
+                                        }catch (Exception e){
+                                            notifySimple(getString(R.string.msg_invalid_response_from_server));
+                                        }
+                                        //}
+
+                                    }
+
+                                    @Override
+                                    public void onFailure(Call<String> call, Throwable t) {
+                                        Log.e(" fail ", " response from retro : "+t.toString());
+                                        notifySimple(getString(R.string.msg_invalid_response_from_server));
+                                    }
+                                });
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                                notifySimple(getString(R.string.msg_invalid_response_from_server));
+
+                            }
+
+                        }catch (Exception e){
+                            e.printStackTrace();
+                            notifySimple(getString(R.string.msg_invalid_response_from_server));
+                        }
+                    }else {
+                        notifySimple(getString(R.string.msg_please_enter_channel_name));
+                    }
+
+                }else {
+                    notifySimple(getString(R.string.msg_please_check_your_connection));
+                }
+            }
+        });
+
+        if(arrayListUser != null && arrayListUser.size() > 0){
+            adapterUserList = new ChannelUserListAdapter(this,arrayListUser);
+            recyclerViewUser.setAdapter(adapterUserList);
+        }
+
+        customDialogCteateChannel.show();
+        Window window = customDialogCteateChannel.getWindow();
+        window.setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+    }
+    @Override
+    protected void onNetworkReady() {
+        super.onNetworkReady();
+        if (Helper.isNetworkAvailable(context))
+        {
+            try
+            {
+                postNetworkRequest(REQUEST_GET_USERLIST, DataProvider.ENDPOINT_GET_USER,
+                        DataProvider.Actions.ACTION_GET_USER,
+                        RequestParameter.urlEncoded("UserId", String.valueOf(PreferenceHelper.getUserContext(context))),
+                        RequestParameter.urlEncoded("Keyword", "Bhavik"),
+                        RequestParameter.urlEncoded("Offset", "1"),
+                        RequestParameter.urlEncoded("Count", "1"),
+                        RequestParameter.urlEncoded("SortBy", ""),
+                        RequestParameter.urlEncoded("SortOrder", "0"),
+                        RequestParameter.urlEncoded("Org_Id", PreferenceHelper.getOrganizationId(context)));
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+    }
+    private void selectImage(final Activity activity) {
+        final CharSequence[] items = { getString(R.string.camera), getString(R.string.gallery),
+                getString(R.string.cancel_captial)};
+        android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(activity);
+        //builder.setTitle("Add Photo!");
+        builder.setItems(items, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int item) {
+                if (items[item].equals(getString(R.string.camera))) {
+                    Helper.userChoosenTask = getString(R.string.camera);
+                    cameraIntent();
+                } else if (items[item].equals(getString(R.string.gallery))) {
+                    Helper.userChoosenTask = getString(R.string.gallery);
+                    galleryIntent();
+                } else if (items[item].equals(getString(R.string.cancel_captial))) {
+                    dialog.dismiss();
+                }
+            }
+        });
+        builder.show();
+    }
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    public  boolean checkPermission()
+    {
+        int currentAPIVersion = Build.VERSION.SDK_INT;
+        if(currentAPIVersion>=android.os.Build.VERSION_CODES.M)
+        {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
+                    || ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ) {
+                ActivityCompat.requestPermissions(this,new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE,
+                                android.Manifest.permission.READ_EXTERNAL_STORAGE},
+                        Helper.MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+                return false;
+            } else {
+                return true;
+            }
+        } else {
+            return true;
+        }
+    }
+    private void galleryIntent()
+    {
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        //intent.setType("*/*");
+        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent, "Select File"),Helper.SELECT_SINGLE_IMAGE_FROM_GALLERY);
+    }
+
+    private void cameraIntent()
+    {
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        startActivityForResult(intent, Helper.REQUEST_CAMERA_IMAGE);
+    }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case Helper.MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE:
+                selectImage(DashboardActivity.this);
+                break;
+        }
+    }
+    private void onSelectFromGalleryResult(Intent data) {
+
+        Uri selectedImageUri = data.getData();
+        String[] filePathColumn = {MediaStore.Images.Media.DATA};
+
+        Cursor cursor = getContentResolver().query(selectedImageUri, filePathColumn, null, null, null);
+
+        if (cursor != null) {
+            cursor.moveToFirst();
+
+            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+            imagePathFromGalleryOrCamera = cursor.getString(columnIndex);
+        }
+        //Bitmap bm=null;
+        if (data != null) {
+            try {
+                selectedImageUri = data.getData();
+                bitmapSelected = MediaStore.Images.Media.getBitmap(getApplicationContext().getContentResolver(), data.getData());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        imageViewChannelBackground.setImageBitmap(bitmapSelected);
+    }
+    private void onCaptureImageResult(Intent data) {
+        Uri selectedImageUri = data.getData();
+        String[] filePathColumn = {MediaStore.Images.Media.DATA};
+
+        Cursor cursor = getContentResolver().query(selectedImageUri, filePathColumn, null, null, null);
+
+        if (cursor != null) {
+            cursor.moveToFirst();
+
+            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+            imagePathFromGalleryOrCamera = cursor.getString(columnIndex);
+        }
+        //Bitmap bm=null;
+        if (data != null) {
+            try {
+                selectedImageUri = data.getData();
+                bitmapSelected = MediaStore.Images.Media.getBitmap(getApplicationContext().getContentResolver(), data.getData());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        imageViewChannelBackground.setImageBitmap(bitmapSelected);
+    }
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode == Activity.RESULT_OK) {
+            if (requestCode == Helper.SELECT_SINGLE_IMAGE_FROM_GALLERY)
+                onSelectFromGalleryResult(data);
+            else if (requestCode == Helper.REQUEST_CAMERA_IMAGE)
+                onCaptureImageResult(data);
+        }
+    }
+    @Override
+    protected void onNetworkResponse(int requestCode, boolean status, String response) {
+        super.onNetworkResponse(requestCode, status, response);
+
+        if(requestCode == REQUEST_GET_USERLIST){
+            if(status){
+                try {
+                    JSONObject jsonObjectMain = new JSONObject(response);
+
+                    int requestStatus = jsonObjectMain.optInt("Status");
+                    if (requestStatus > 0)
+                    {
+                        notifySimple(DataHelper.getLocalizationMessageFromCode(context, String.valueOf(requestStatus), LOCALIZATION_TYPE_ERROR_CODE));
+                    }
+                    else {
+                        // parse response here
+                        JSONArray jsonArray = jsonObjectMain.getJSONArray("Payload");
+
+                        Gson gson = new Gson();
+                        String jsonOutput = jsonArray.toString();
+                        Type listType = new TypeToken<List<CreateChannnelModel>>(){}.getType();
+                        arrayListUser = (List<CreateChannnelModel>) gson.fromJson(jsonOutput, listType);
+
+                    }
+                }catch (Exception e){
+                    notifySimple(getString(R.string.msg_invalid_response_from_server));
+                }
+            }
+        }
+        else if(requestCode == REQUEST_ADD_CHANNEL_USER){
+            if(status){
+                try {
+                    JSONObject jsonObjectMain = new JSONObject(response);
+
+                    int requestStatus = jsonObjectMain.optInt("Status");
+                    if (requestStatus > 0)
+                    {
+                        notifySimple(DataHelper.getLocalizationMessageFromCode(context, String.valueOf(requestStatus), LOCALIZATION_TYPE_ERROR_CODE));
+                    }
+                    else {
+                        JSONObject payload = jsonObjectMain.getJSONObject("Payload");
+
+                        // getting json array of channels from service and updating in database
+                        ArrayList<Channel> arraylistChannelsForUpdate = new ArrayList<>();
+                        JSONArray jsonArrayChannels = payload.optJSONArray("Channels");
+                        Channel.parseListFromJson(jsonArrayChannels, arraylistChannelsForUpdate);
+                        for (Channel channel : arraylistChannelsForUpdate)
+                        {
+                            channel.saveChanges(context);
+                        }
+
+                        // getting json array of channels user and adding in database
+                        JSONArray channelUsersJsonArray = payload.optJSONArray("ChannelUsers");
+                        ArrayList<ChannelUser> arraylistChannelUsers = new ArrayList<>();
+                        ChannelUser.parseListFromJson(channelUsersJsonArray, arraylistChannelUsers);
+                        for (ChannelUser channelUser : arraylistChannelUsers)
+                        {
+                            channelUser.add(context);
+                        }
+
+                        interfaceChannelCreated.channelAdded();
+                        if(customDialogCteateChannel.isShowing() && customDialogCteateChannel != null){
+                            customDialogCteateChannel.dismiss();
+                        }
+
+
+                    }
+                }catch (Exception e){
+                    notifySimple(getString(R.string.msg_invalid_response_from_server));
+                }
+            }
+        }
     }
 }

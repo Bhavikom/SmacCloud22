@@ -55,6 +55,16 @@
     <dimen name="seven_hundred">700sp</dimen>
     <dimen name="seven_hundred_fifty">750sp</dimen>
 
+    <!-- new dimension by bhavik-->
+    <dimen name="dialog_header_height">40dp</dimen>
+    <dimen name="defualt_image_size">130dp</dimen>
+    <dimen name="dialog_textsize_mediam">17dp</dimen>
+    <dimen name="dialog_header_textsize">20dp</dimen>
+    <dimen name="padding_all_side">10dp</dimen>
+    <dimen name="padding_gridview_item">18dp</dimen>
+    <dimen name="gallery_image_size">120dp</dimen>
+    <!-- new dimension by bhavik-->
+
     <!-- <dimen name="one_sp">1sp</dimen>
      <dimen name="two_sp">2sp</dimen>
      <dimen name="three_sp">3sp</dimen>

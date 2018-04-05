@@ -59,6 +59,9 @@ import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.gson.Gson;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -66,11 +69,13 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -100,6 +105,14 @@ import static de.smac.smaccloud.fragment.MediaFragment.REQ_IS_MEDIA_DELETED;
 @SuppressWarnings("unused")
 public class Helper
 {
+    public static int COLUMN_OF_GRIDVIEW = 3; // 3 columns
+    public static int COLUMN_SPACE = 50; // 50px
+    public static boolean IS_INCLUDE_EDGE = false;
+    public static String userChoosenTask;
+    public static int REQUEST_CAMERA_IMAGE = 0, SELECT_SINGLE_IMAGE_FROM_GALLERY = 1,MULTI_SELECTION_GALLERY = 3,REQUEST_CAMERA_IMAGE_VIDEO = 5;
+    public static final int OPEN_MEDIA_PICKER_FOR_SINGLE_OR_MULTIPLE = 4;
+    public static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 123;
+
     public static final String START_DOWNLOAD = "start_download";
     public static final String START_DOWNLOAD_FROM_DETAIL = "start_download_from_detail";
     public static final String STOP_DOWNLOAD = "stop_download";
@@ -1337,6 +1350,84 @@ public class Helper
             }
             return false;
         }
+    }
+    public static JSONObject createJsonObject(String action,HashMap<String,String> hashMap){
+        JSONObject jsonObjectMain = new JSONObject();
+        JSONObject jsonObjectInner = new JSONObject(hashMap);
+
+        try {
+            jsonObjectMain.put("Action",action);
+            jsonObjectMain.put("Payload",jsonObjectInner);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return jsonObjectMain;
+    }
+    public static File createFileFromDrawable(Context context,int id){
+        Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(),id);
+        File mFile1 = Environment.getExternalStorageDirectory();
+
+        String fileName ="defualt.png";
+
+        File mFile2 = new File(mFile1,fileName);
+        try {
+            FileOutputStream outStream;
+
+            outStream = new FileOutputStream(mFile2);
+
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, outStream);
+
+            outStream.flush();
+
+            outStream.close();
+
+        } catch (FileNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        String sdPath = mFile1.getAbsolutePath().toString()+"/"+fileName;
+
+        Log.i("hiya", "Your IMAGE ABSOLUTE PATH:-"+sdPath);
+
+        File temp=new File(sdPath);
+
+        return temp;
+    }
+    public static  void copyFileFromSourceToTrage(File sourceLocation,File targetLocation){
+        if(sourceLocation.exists()){
+            try {
+                InputStream in = new FileInputStream(sourceLocation);
+                OutputStream out = new FileOutputStream(targetLocation);
+
+                // Copy the bits from instream to outstream
+                byte[] buf = new byte[1024];
+                int len;
+
+                while ((len = in.read(buf)) > 0) {
+                    out.write(buf, 0, len);
+                }
+
+                in.close();
+                out.close();
+                Log.e(" file copy ", "Copy file successful.");
+            }catch (Exception e){
+                Log.e(" !!!!!! "," exception while copy file : "+e.toString());
+            }
+
+
+
+        }else{
+            Log.v("", "Copy file failed. Source file missing.");
+        }
+    }
+    public static File getDownloadFilePath(Context context,String mediaid){
+        File tragetLocation = null;
+        tragetLocation = new File(context.getFilesDir() + File.separator + mediaid);
+        return tragetLocation;
     }
 }
 

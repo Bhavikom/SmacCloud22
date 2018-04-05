@@ -9,13 +9,16 @@ import de.smac.smaccloud.service.SMACCloudApplication;
 
 public class DataProvider
 {
-    //public static final String SERVICE_PROTOCOL = "http://";
-    public static final String SERVICE_PROTOCOL = "https://";
-    //public static String SERVICE_HOST = (!PreferenceHelper.getServiceWeburl(SMACCloudApplication.getInstance()).isEmpty() ? PreferenceHelper.getServiceWeburl(SMACCloudApplication.getInstance()) : SERVICE_PROTOCOL + "smac-local.sambt.xyz:2020/");
-    public static String SERVICE_HOST = (!PreferenceHelper.getServiceWeburl(SMACCloudApplication.getInstance()).isEmpty() ? PreferenceHelper.getServiceWeburl(SMACCloudApplication.getInstance()) : SERVICE_PROTOCOL + "smaccloud.smacsoftwares.de:2020/");
+    public static final String SERVICE_PROTOCOL = "http://";
+    //public static final String SERVICE_PROTOCOL = "https://";
+    public static String SERVICE_HOST = (!PreferenceHelper.getServiceWeburl(SMACCloudApplication.getInstance()).isEmpty() ? PreferenceHelper.getServiceWeburl(SMACCloudApplication.getInstance()) : SERVICE_PROTOCOL + "smac-local.sambt.xyz:2020/");
+   // public static String SERVICE_HOST = (!PreferenceHelper.getServiceWeburl(SMACCloudApplication.getInstance()).isEmpty() ? PreferenceHelper.getServiceWeburl(SMACCloudApplication.getInstance()) : SERVICE_PROTOCOL + "smaccloud.smacsoftwares.de:2020/");
     public static String SERVICE_PATH = SERVICE_HOST + "";
+    public static String ENDPOINT_CREATE_CHANNEL = SERVICE_PATH + "";
     //public static final String SERVICE_PATH = SERVICE_HOST + "SmacCloudService/";
     //public static final String SERVICE_PATH = SERVICE_HOST + "SmacCloud/";
+    public static String ENDPOINT_ADD_USER = SERVICE_PATH + "Channel";
+    public static String ENDPOINT_GET_USER = SERVICE_PATH + "User";
     public static String ENDPOINT_USER = SERVICE_PATH + "User";
     public static String ENDPOINT_CHANNEL = SERVICE_PATH + "Channel";
     public static String ENDPOINT_FILE = SERVICE_PATH + "File";
@@ -29,6 +32,9 @@ public class DataProvider
     public static String ENDPOINT_ABOUTUS = SERVICE_PATH + "AboutUs";
     public static String ENDPOINT_UPDATE_TOKEN = SERVICE_PATH + "Update/Token";
     public static String ENDPOINT_SIGNUP_URL = SERVICE_PATH + "StoreDetail";
+
+    /* newly added url */
+    public static String ENDPOINT_GET_USER_RIGHTS = SERVICE_PATH + "User";
     /*public static String SIGNUP_SERVICE_URL ="http://smaccloud.smacsoftwares.de:2020/StoreDetail";*/
 
 
@@ -91,6 +97,15 @@ public class DataProvider
         public static final String ACTION_GET_VERSION = "GET_VERSION";
         public static final String GET_SETTINGS = "GET_SETTINGS";
         public static final String CHECK_ORGNIZATION = "CHECK_ORG";
+
+        /* newly addded action*/
+        public static final String GET_USER_RIGHTS = "GET_USER_RIGHTS";
+        public static final String ACTION_CREATE_FOLDER = "CREATE_FOLDER";
+        public static final String ACTION_CREATE_FILE = "CREATE_FILE";
+        public static final String ACTION_ADD_MEDIA_CONTENT = "ADD_CHANNEL_MEDIA_CONTENT";
+        public static final String ACTION_ADD_CHANNEL_USER = "ADD_CHANNEL_USERS";
+        public static final String ACTION_CREATE_CHANNEL = "CREATE_CHANNEL";
+        public static final String ACTION_GET_USER = "GET_USERS";
     }
 
     public static class Messages

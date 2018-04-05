@@ -223,4 +223,11 @@ public class Channel implements Parcelable
         dest.writeParcelable(this.creator, flags);
         dest.writeString(this.thumbnail);
     }
+    public static void parseListFromJsonObject(JSONObject channelsJson, ArrayList<Channel> channels) throws JSONException, ParseException
+    {
+        Channel channel = new Channel();
+        parseFromJson(channelsJson, channel);
+        channels.add(channel);
+
+    }
 }

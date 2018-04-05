@@ -12,6 +12,13 @@ import de.smac.smaccloud.model.UserPreference;
  */
 public class PreferenceHelper
 {
+    private static final String IS_SYCH_RIGHT = "isSychRight";
+    private static final String IS_CREATE_CHANNEL_RIGHT = "isCreateChannelright";
+    private static final String IS_MODIFY_CHANNEL_CHANNEL_RIGHT = "isModifyChannelRight";
+    private static final String IS_ADD_MEDIA_RIGHT = "isAddMediaRight";
+    private static final String IS_DELETE_CHANNEL_RIGHT = "isDeleteChannelRight";
+    private static final String IS_DELETE_MEDIA_RIGHT = "isDeleteMediaRight";
+
     public static final String KEY_SWITCH_STATUS = "off";
     public static final String KEY_SERVICE_WEBURL = "serviceWebUrl";
     public static final String KEY_EMAIL_BODY = "emailBody";
@@ -415,6 +422,58 @@ public class PreferenceHelper
     {
         editor.putBoolean(IS_FIRST_TIME_CONFIGURE_SERVER, isFirstTimeConfigureServer);
         editor.commit();
+    }
+    public void saveIsSychRight(boolean flag){
+        editor.putBoolean(IS_SYCH_RIGHT, flag);
+        editor.commit();
+    }
+    public boolean isSychRight()
+    {
+        return pref.getBoolean(IS_SYCH_RIGHT, false);
+    }
+
+    public void saveIsCreateChannelRight(boolean flag){
+        editor.putBoolean(IS_CREATE_CHANNEL_RIGHT, flag);
+        editor.commit();
+    }
+    public boolean isCreateChannelRight()
+    {
+        return pref.getBoolean(IS_CREATE_CHANNEL_RIGHT, false);
+    }
+
+    public void saveIsModifyChannelRight(boolean flag){
+        editor.putBoolean(IS_MODIFY_CHANNEL_CHANNEL_RIGHT, flag);
+        editor.commit();
+    }
+    public boolean isModifyChannelRight()
+    {
+        return pref.getBoolean(IS_MODIFY_CHANNEL_CHANNEL_RIGHT, false);
+    }
+    public void saveIsDeleteChannelRight(boolean flag){
+    editor.putBoolean(IS_DELETE_CHANNEL_RIGHT ,flag);
+    editor.commit();
+}
+    public boolean isDeleteChannelRight()
+    {
+        return pref.getBoolean(IS_DELETE_CHANNEL_RIGHT, false);
+    }
+
+    public void saveIsAddMediaRight(boolean flag){
+        editor.putBoolean(IS_ADD_MEDIA_RIGHT ,flag);
+        editor.commit();
+    }
+    public boolean isAddMediaRight()
+    {
+        return pref.getBoolean(IS_ADD_MEDIA_RIGHT, false);
+    }
+
+    public void saveIsDeleteMediaRight(boolean flag){
+        editor.putBoolean(IS_DELETE_MEDIA_RIGHT ,flag);
+        editor.commit();
+    }
+    public boolean isDeleteMediaRight()
+    {
+        return pref.getBoolean(IS_DELETE_MEDIA_RIGHT, false);
     }
 
 

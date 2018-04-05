@@ -2,6 +2,8 @@
           xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.INTERNET"/>
 
@@ -205,6 +207,12 @@
             android:name="de.smac.smaccloud.activity.PrivacyPolicyActivity"
             android:configChanges="orientation"/>
 
+        <activity
+            android:name=".activity.ShowGalleryFolderListActivity"
+            android:configChanges="orientation" />
+        <activity
+            android:name=".activity.ShowGalleryItemListActivity"
+            android:configChanges="orientation" />
         <!-- END FIREBASE CLOUD MESSAGING-->
 
     </application>

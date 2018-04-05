@@ -11,6 +11,14 @@
         smaccloud:showAsAction="always"/>
 
     <item
+        android:id="@+id/action_create_channel"
+        android:icon="@drawable/add_channel"
+        android:orderInCategory="200"
+        android:title="@string/announcements"
+        smaccloud:showAsAction="always"
+        />
+
+    <item
         android:id="@+id/action_notifications"
         android:icon="@drawable/ic_notify"
         android:orderInCategory="200"

@@ -32,8 +32,8 @@ public class MediaAllDownload implements Parcelable
         out.writeInt(isDownloading);
     }
 
-    public static final Parcelable.Creator<MediaAllDownload> CREATOR
-            = new Parcelable.Creator<MediaAllDownload>()
+    public static final Creator<MediaAllDownload> CREATOR
+            = new Creator<MediaAllDownload>()
     {
         public MediaAllDownload createFromParcel(Parcel in)
         {

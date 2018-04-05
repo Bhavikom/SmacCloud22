@@ -1,7 +1,9 @@
 package de.smac.smaccloud.activity;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -24,6 +26,7 @@ import android.widget.TextView;
 
 import com.michael.easydialog.EasyDialog;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -47,10 +50,10 @@ import static de.smac.smaccloud.base.Helper.LOCALIZATION_TYPE_ERROR_CODE;
 
 public class LoginActivity extends Activity
 {
+    private static final int REQUEST_GET_USER_RIGHTS = 4304;
     public static final int REQUEST_CHECK_HEALTH = 101;
     public static final int REQUEST_LOGIN = 4301;
     public static final int REQUEST_ORGANIZATION = 4306;
-    public static final int REQUEST_GET_SETTINGS = 102;
     public static final int REQUEST_MEDIA_SIZE = 4302;
     private static final int REQUEST_FORGOT_PASSWORD = 4303;
     private static final String KEY_TEXT_VALUE = "textValue";
@@ -84,7 +87,10 @@ public class LoginActivity extends Activity
         prefManager = new PreferenceHelper(this);
         if (PreferenceHelper.hasUserContext(context))
         {
-            startDashboardActivity();
+            if(prefManager.isSychRight())
+            {
+                startDashboardActivity();
+            }
         }
         setContentView(R.layout.activity_login);
         Helper.retainOrientation(LoginActivity.this);
@@ -139,8 +145,8 @@ public class LoginActivity extends Activity
         imageViewOrganizationInfo = (ImageView) findViewById(R.id.img_organization_info);
         languageChange = (ImageView) findViewById(R.id.language_english);
         editOrganization.setText("sambtestorg");
-        editEmail.setText("ravisamb@sambinfo.in");
-        editPassword.setText("ravisamb@123");
+        editEmail.setText("bhaviksamb@sambinfo.in");
+        editPassword.setText("bhaviksamb@123");
 
 
     }
@@ -448,18 +454,10 @@ public class LoginActivity extends Activity
                             DataHelper.updateUser(context, user);
                             userPreference.userId = user.id;
                             userPreference.populateUsingUserId(context);
-                            //startSyncActivity();
-                            ArrayList<Channel> channels = new ArrayList<>();
-                            DataHelper.getChannels(context, channels);
-                            if (PreferenceHelper.getSyncStatus(LoginActivity.this) || !channels.isEmpty())
-                            {
-                                PreferenceHelper.storeSyncStatus(LoginActivity.this, true);
-                                startDashboardActivity();
-                            }
-                            else
-                            {
-                                startSyncActivity();
-                            }
+
+                            postNetworkRequest(REQUEST_GET_USER_RIGHTS, DataProvider.ENDPOINT_GET_USER_RIGHTS, DataProvider.Actions.GET_USER_RIGHTS,
+                                    RequestParameter.urlEncoded("UserId", String.valueOf(PreferenceHelper.getUserContext(context))),
+                                    RequestParameter.urlEncoded("Org_Id", PreferenceHelper.getOrganizationId(context)));
                         }
 
                     }
@@ -495,14 +493,15 @@ public class LoginActivity extends Activity
                         totalSizeInByte = responseJson.optLong("Payload");
                         Helper.bytesConvertsToMb(totalSizeInByte, context);
                         PreferenceHelper.storeMediaSize(context, totalSizeInByte);
-                        Intent dashboardIntent = new Intent(context, SyncActivity.class);
+
+                        postNetworkRequest(REQUEST_GET_USER_RIGHTS, DataProvider.ENDPOINT_GET_USER_RIGHTS, DataProvider.Actions.GET_USER_RIGHTS,
+                                RequestParameter.urlEncoded("UserId", String.valueOf(PreferenceHelper.getUserContext(context))),
+                                RequestParameter.urlEncoded("Org_Id", PreferenceHelper.getOrganizationId(context)));
+                        /*Intent dashboardIntent = new Intent(context, SyncActivity.class);
                         dashboardIntent.putExtra(SyncActivity.IS_FROM_SETTING, false);
                         dashboardIntent.putExtra(SyncActivity.KEY_MEDIA_SIZE, totalSizeInByte);
                         startActivity(dashboardIntent);
-                        finish();
-
-                       /* postNetworkRequest(REQUEST_GET_SETTINGS, DataProvider.ENDPOINT_USER, DataProvider.Actions.GET_SETTINGS,
-                                RequestParameter.urlEncoded("Org_Id", PreferenceHelper.getOrganizationId(context)));*/
+                        finish();*/
                     }
                 }
                 catch (JSONException e)
@@ -553,7 +552,7 @@ public class LoginActivity extends Activity
                 notifySimple(getString(R.string.msg_please_try_again_later));
             }
         }
-        else if (requestCode == REQUEST_GET_SETTINGS)
+        else if (requestCode == REQUEST_GET_USER_RIGHTS)
         {
             if (status)
             {
@@ -567,13 +566,50 @@ public class LoginActivity extends Activity
                     }
                     else
                     {
-                        JSONObject userJson = responseJson.optJSONObject("Payload");
-                        Intent dashboardIntent = new Intent(context, SyncActivity.class);
-                        dashboardIntent.putExtra(SyncActivity.IS_FROM_SETTING, false);
-                        dashboardIntent.putExtra(SyncActivity.KEY_MEDIA_SIZE, totalSizeInByte);
-                        startActivity(dashboardIntent);
-                        finish();
+                        JSONArray jsonArray = responseJson.optJSONArray("Payload");
+                        boolean isSychRight = false;
+                        prefManager.saveIsSychRight(false);
+                        if(jsonArray.length() > 0){
+                            for (int j = 0; j < jsonArray.length(); j++) {
+                                JSONObject objectInner = jsonArray.getJSONObject(j);
+                                if(objectInner.getString("Name").equals("SYNC")){
+                                    isSychRight = true;
+                                    break;
+                                }
+                            }
+                            if(isSychRight) {
+                                prefManager.saveIsSychRight(true);
+                                for (int i = 0; i < jsonArray.length(); i++) {
+                                    JSONObject objectInner = jsonArray.getJSONObject(i);
 
+                                    if (objectInner.getString("Name").equals("CREATE_CHANNEL")) {
+                                        prefManager.saveIsCreateChannelRight(true);
+                                    }
+                                    if (objectInner.getString("Name").equals("MODIFY_CHANNEL")) {
+                                        prefManager.saveIsModifyChannelRight(true);
+                                    }
+                                    if (objectInner.getString("Name").equals("DELETE_CHANNEL")) {
+                                        prefManager.saveIsDeleteChannelRight(true);
+                                    }
+                                    if (objectInner.getString("Name").equals("ADD_RIGHT")) {
+                                        prefManager.saveIsAddMediaRight(true);
+                                    }
+                                    if (objectInner.getString("Name").equals("DELETE_MEDIA")) {
+                                        prefManager.saveIsDeleteMediaRight(true);
+                                    }
+                                }
+                                Intent dashboardIntent = new Intent(context, SyncActivity.class);
+                                dashboardIntent.putExtra(SyncActivity.IS_FROM_SETTING, false);
+                                dashboardIntent.putExtra(SyncActivity.KEY_MEDIA_SIZE, totalSizeInByte);
+                                startActivity(dashboardIntent);
+                                finish();
+                            }
+                            else {
+                                showSychDialog();
+                            }
+                        }else{
+                            showSychDialog();
+                        }
                     }
                 }
                 catch (JSONException e)
@@ -587,7 +623,6 @@ public class LoginActivity extends Activity
             }
         }
     }
-
     private void startDashboardActivity()
     {
         if (progressDialog != null && progressDialog.isShowing())
@@ -737,5 +772,24 @@ public class LoginActivity extends Activity
     {
         super.onResume();
         updateLanguage();
+    }
+    private void showSychDialog(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setCancelable(false);
+        builder.setMessage(getString(R.string.sych_right_dialog));
+        builder.setPositiveButton(getString(R.string.ok),
+                new DialogInterface.OnClickListener()
+                {
+                    public void onClick(DialogInterface dialog, int which)
+                    {
+                        dialog.dismiss();
+                        Intent intent = new Intent(LoginActivity.this,IntroScreenActivity.class);
+                        startActivity(intent);
+                        finish();
+                    }
+                });
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 }

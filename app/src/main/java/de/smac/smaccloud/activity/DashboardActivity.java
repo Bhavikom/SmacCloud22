@@ -51,6 +51,7 @@ import android.widget.TextView;
 
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.maps.model.Dash;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.michael.easydialog.EasyDialog;
@@ -120,6 +121,7 @@ public class DashboardActivity extends Activity implements SettingsFragment.Inte
     public static final int REQUEST_CREATE_CHANNEL = 502;
     public static final int REQUEST_ADD_CHANNEL_USER = 503;
     private RecyclerView.LayoutManager listManager;
+    public String deviceId = "00000-00000-00000-00000-00000";
     /* newly added */
 
     private PreferenceHelper prefManager;
@@ -230,6 +232,14 @@ public class DashboardActivity extends Activity implements SettingsFragment.Inte
                 super.onDrawerSlide(drawerView, 0);
             }
         };
+        Helper.GCM.getCloudMessagingId(DashboardActivity.this, new Helper.GCM.RegistrationComplete()
+        {
+            @Override
+            public void onRegistrationComplete(String registrationId)
+            {
+                deviceId = registrationId;
+            }
+        });
 
         applyTheme();
     }
@@ -449,6 +459,11 @@ public class DashboardActivity extends Activity implements SettingsFragment.Inte
                 startActivity(new Intent(DashboardActivity.this, MediaSearchActivity.class));
                 break;
             case R.id.action_create_channel:
+                /*SearchDialog searchDialog = new SearchDialog(DashboardActivity.this);
+                searchDialog.show();*/
+
+                //startActivity(new Intent(DashboardActivity.this, CreateChannelActivity.class));
+                //finish();
                 showCreateChannelDialog();
                 break;
         }
@@ -709,7 +724,10 @@ public class DashboardActivity extends Activity implements SettingsFragment.Inte
                         modelTemp.setSelected(true);
                         arrayListUser.set(i,modelTemp);
                     }
-                    adapterUserList.notifyDataSetChanged();
+                    if(arrayListUser != null && arrayListUser.size() > 0){
+                        adapterUserList = new ChannelUserListAdapter(DashboardActivity.this,arrayListUser);
+                        recyclerViewUser.setAdapter(adapterUserList);
+                    }
                 }
             }
         });
@@ -809,7 +827,7 @@ public class DashboardActivity extends Activity implements SettingsFragment.Inte
                                                         RequestParameter.urlEncoded("ChannelId", channelId),
                                                         RequestParameter.jsonArray("Users", jsonArray),
                                                         RequestParameter.urlEncoded("Org_Id", orgId),
-                                                        RequestParameter.urlEncoded("DeviceId", "00000-00000-00000-00000-00000"));
+                                                        RequestParameter.urlEncoded("DeviceId",PreferenceHelper.getFCMTokenId(context)));
 
 
                                             }

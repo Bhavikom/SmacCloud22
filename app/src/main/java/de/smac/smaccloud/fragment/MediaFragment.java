@@ -1374,7 +1374,7 @@ public class MediaFragment extends Fragment implements DownloadFileFromURL.inter
                                         break;
 
                                     case 2:
-                                        channelFile.saveChanges(context);
+                                        channelFile.add(context);
                                         break;
 
                                     case 3:

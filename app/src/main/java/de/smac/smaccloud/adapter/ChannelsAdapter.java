@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -157,10 +158,13 @@ public class ChannelsAdapter extends RecyclerView.Adapter<ChannelsAdapter.Channe
             //holder.txt_share_with.setText(DataHelper.getUsersByChannelId(activity, channel.id) + " " + activity.getString(R.string.users));
             holder.txt_share_with.setText("" + DataHelper.getUsersByChannelId(activity, channel.id) + " ");
 
-            CharSequence timeAgo = DateUtils.getRelativeTimeSpanString(channel.updateDate.getTime(),
-                    System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS);
+            //CharSequence timeAgo = DateUtils.getRelativeTimeSpanString(channel.updateDate.getTime(),
+                   // System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS);
+
             SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy ", Locale.US);
-            holder.txt_created_on.setText(sdf.format(channel.updateDate));
+            if(channel.updateDate != null) {
+                holder.txt_created_on.setText(sdf.format(channel.updateDate));
+            }
 
             isTabletSize = activity.getResources().getBoolean(R.bool.isTablet);
             if (activity.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT)

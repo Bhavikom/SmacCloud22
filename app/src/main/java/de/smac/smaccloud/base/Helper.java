@@ -746,7 +746,6 @@ public class Helper
     {
         Snackbar snackbar = Snackbar.make(activity.findViewById(android.R.id.content), message, Snackbar.LENGTH_LONG);
         TextView textView = (TextView) snackbar.getView().findViewById(android.support.design.R.id.snackbar_text);
-        //textView.setTextColor(isSuccess ? Color.GREEN : Color.RED);
         textView.setTextColor(Color.WHITE);
         textView.setMaxLines(3);
         snackbar.show();

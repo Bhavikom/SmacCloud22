@@ -106,22 +106,7 @@ public class DashboardActivity extends Activity implements SettingsFragment.Inte
     /* newly added */
     Dialog customDialogCteateChannel;
     public InterfaceChannelCreated interfaceChannelCreated;
-    TextView textviewCancel,textviewSave;
-    EditText editTextChannelName;
-    Button btnChoose,btnSelectAll;
-    RecyclerView recyclerViewUser;
-    ImageView imageViewChannelBackground;
-    List<CreateChannnelModel> arrayListUser = new ArrayList<>();
-    ChannelUserListAdapter adapterUserList;
-    String strChannelName="";
-    Bitmap bitmapSelected = null;
-    String imagePathFromGalleryOrCamera ="";
-    public static final int REQUEST_GET_USERLIST = 501;
-    public static final int REQUEST_CREATE_CHANNEL = 502;
-    public static final int REQUEST_ADD_CHANNEL_USER = 503;
-    private RecyclerView.LayoutManager listManager;
     /* newly added */
-
     private PreferenceHelper prefManager;
     private static ActionBarDrawerToggle drawerToggle;
     public LinearLayout parentLayout;
@@ -668,6 +653,21 @@ public class DashboardActivity extends Activity implements SettingsFragment.Inte
 
 
     }
+    TextView textviewCancel,textviewSave;
+    EditText editTextChannelName;
+    Button btnChoose,btnSelectAll;
+    RecyclerView recyclerViewUser;
+    ImageView imageViewChannelBackground;
+    List<CreateChannnelModel> arrayListUser = new ArrayList<>();
+    ChannelUserListAdapter adapterUserList;
+    String strChannelName="";
+    Bitmap bitmapSelected = null;
+    String imagePathFromGalleryOrCamera ="";
+    public static final int REQUEST_GET_USERLIST = 501;
+    public static final int REQUEST_CREATE_CHANNEL = 502;
+    public static final int REQUEST_ADD_CHANNEL_USER = 503;
+
+    private RecyclerView.LayoutManager listManager;
     private void showCreateChannelDialog(){
 
         // Create custom dialog object
@@ -1056,6 +1056,7 @@ public class DashboardActivity extends Activity implements SettingsFragment.Inte
                         {
                             channelUser.add(context);
                         }
+
 
                         interfaceChannelCreated.channelAdded();
                         if(customDialogCteateChannel.isShowing() && customDialogCteateChannel != null){

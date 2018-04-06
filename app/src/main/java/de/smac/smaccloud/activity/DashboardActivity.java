@@ -116,6 +116,7 @@ public class DashboardActivity extends Activity implements SettingsFragment.Inte
     private TextView textviewNavigationHeader;
     private int currentNavigationItem = 0;
     private NavigationView.OnNavigationItemSelectedListener menuItemCallback;
+    public String deviceId = "00000-00000-00000-00000-00000";
     private ArrayList<MediaAllDownload> arraylistDownloadList = new ArrayList<MediaAllDownload>();
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
@@ -174,6 +175,14 @@ public class DashboardActivity extends Activity implements SettingsFragment.Inte
                 }
             }
         }
+        Helper.GCM.getCloudMessagingId(DashboardActivity.this, new Helper.GCM.RegistrationComplete()
+        {
+            @Override
+            public void onRegistrationComplete(String registrationId)
+            {
+                deviceId = registrationId;
+            }
+        });
 
     }
 
@@ -809,11 +818,12 @@ public class DashboardActivity extends Activity implements SettingsFragment.Inte
                                                         RequestParameter.urlEncoded("ChannelId", channelId),
                                                         RequestParameter.jsonArray("Users", jsonArray),
                                                         RequestParameter.urlEncoded("Org_Id", orgId),
-                                                        RequestParameter.urlEncoded("DeviceId", "00000-00000-00000-00000-00000"));
+                                                        RequestParameter.urlEncoded("DeviceId",PreferenceHelper.getFCMTokenId(context)));
 
 
                                             }
-                                        }catch (Exception e){
+                                        }
+                                        catch (Exception e){
                                             notifySimple(getString(R.string.msg_invalid_response_from_server));
                                         }
                                         //}

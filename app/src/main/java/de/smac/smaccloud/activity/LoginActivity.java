@@ -144,9 +144,9 @@ public class LoginActivity extends Activity
         textTitle = (TextView) findViewById(R.id.textTitle);
         imageViewOrganizationInfo = (ImageView) findViewById(R.id.img_organization_info);
         languageChange = (ImageView) findViewById(R.id.language_english);
-        editOrganization.setText("sambtestorg");
-        editEmail.setText("bhaviksamb@sambinfo.in");
-        editPassword.setText("bhaviksamb@123");
+        editOrganization.setText("SMACSoftware");
+        editEmail.setText("ba@sambinfo.in");
+        editPassword.setText("123456@om");
 
 
     }

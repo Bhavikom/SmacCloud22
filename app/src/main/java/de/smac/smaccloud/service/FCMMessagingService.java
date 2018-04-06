@@ -123,6 +123,7 @@ public class FCMMessagingService extends FirebaseMessagingService
                             announcement.associatedId = -1;
                             if (fcmPushReceiveListener != null)
                             {
+
                                 fcmPushReceiveListener.onFCMPushReceived(messageTitle, messageBody, remoteMessage.getData());
                             }
                             break;

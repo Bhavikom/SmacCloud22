@@ -4,6 +4,7 @@ import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -36,11 +37,13 @@ import android.text.style.TypefaceSpan;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.SubMenu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.animation.AnimationUtils;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -88,6 +91,7 @@ import de.smac.smaccloud.model.MediaAllDownload;
 import de.smac.smaccloud.model.User;
 import de.smac.smaccloud.model.UserPreference;
 import de.smac.smaccloud.service.DownloadService;
+import de.smac.smaccloud.service.FCMInstanceIdService;
 import de.smac.smaccloud.service.FCMMessagingService;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -183,6 +187,7 @@ public class DashboardActivity extends Activity implements SettingsFragment.Inte
                 deviceId = registrationId;
             }
         });
+        new FCMInstanceIdService(context).onTokenRefresh();
 
     }
 
@@ -675,10 +680,11 @@ public class DashboardActivity extends Activity implements SettingsFragment.Inte
     public static final int REQUEST_GET_USERLIST = 501;
     public static final int REQUEST_CREATE_CHANNEL = 502;
     public static final int REQUEST_ADD_CHANNEL_USER = 503;
-
+    private boolean flagSelectButton = false;
     private RecyclerView.LayoutManager listManager;
     private void showCreateChannelDialog(){
 
+        flagSelectButton = false;
         // Create custom dialog object
         customDialogCteateChannel = new Dialog(DashboardActivity.this);
         // Include dialog.xml file
@@ -705,20 +711,42 @@ public class DashboardActivity extends Activity implements SettingsFragment.Inte
             public void onClick(View v) {
                 boolean result=checkPermission();
                 if(result) {
-                    selectImage(DashboardActivity.this);
+                     selectImage(DashboardActivity.this);
                 }
             }
         });
         btnSelectAll.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(arrayListUser.size() > 0) {
-                    for (int i = 0; i < arrayListUser.size(); i++) {
-                        CreateChannnelModel modelTemp = arrayListUser.get(i);
-                        modelTemp.setSelected(true);
-                        arrayListUser.set(i,modelTemp);
+                if(!flagSelectButton)
+                {
+                    btnSelectAll.setText(getString(R.string.de_select_all));
+                    flagSelectButton = true;
+                    if (arrayListUser.size() > 0)
+                    {
+                        for (int i = 0; i < arrayListUser.size(); i++)
+                        {
+                            CreateChannnelModel modelTemp = arrayListUser.get(i);
+                            modelTemp.setSelected(true);
+                            arrayListUser.set(i, modelTemp);
+                        }
+                        adapterUserList.notifyDataSetChanged();
                     }
-                    adapterUserList.notifyDataSetChanged();
+
+                }else {
+                    btnSelectAll.setText(getString(R.string.select_all));
+                    flagSelectButton = false;
+
+                    if (arrayListUser.size() > 0)
+                    {
+                        for (int i = 0; i < arrayListUser.size(); i++)
+                        {
+                            CreateChannnelModel modelTemp = arrayListUser.get(i);
+                            modelTemp.setSelected(false);
+                            arrayListUser.set(i, modelTemp);
+                        }
+                        adapterUserList.notifyDataSetChanged();
+                    }
                 }
             }
         });
@@ -1080,5 +1108,14 @@ public class DashboardActivity extends Activity implements SettingsFragment.Inte
                 }
             }
         }
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event)
+    {
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.
+                INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+        return true;
     }
 }

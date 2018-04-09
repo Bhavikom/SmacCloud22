@@ -10,6 +10,8 @@ import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
+import android.text.Html;
+import android.text.Spanned;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -20,6 +22,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.apache.http.message.BasicNameValuePair;
@@ -71,6 +74,8 @@ public class SignUpActivity extends Activity implements View.OnClickListener
             strAddress = "", strUserLanguage = "";
     MenuInflater inflater;
     public String deviceId = "00000-00000-00000-00000-00000";
+    TextView textViewUserAgreement;
+    Spanned Text;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -88,6 +93,7 @@ public class SignUpActivity extends Activity implements View.OnClickListener
         editPassword = (EditText) findViewById(R.id.textPassword);
         editConfirmPassword = (EditText) findViewById(R.id.textCPassword);
         buttonSignUp = (Button) findViewById(R.id.btn_signUp);
+        textViewUserAgreement= (TextView) findViewById(R.id.txt_user_agreement);
         linearParentLayout = (LinearLayout) findViewById(R.id.parentLayout);
         Helper.setupUI(SignUpActivity.this, linearParentLayout, linearParentLayout);
 
@@ -108,6 +114,7 @@ public class SignUpActivity extends Activity implements View.OnClickListener
         });
 
         new FCMInstanceIdService(context).onTokenRefresh();
+
     }
 
     @Override
@@ -186,6 +193,9 @@ public class SignUpActivity extends Activity implements View.OnClickListener
                         notifySimple(getString(R.string.msg_network_connection_not_available));
                     }
                 }
+                break;
+            case R.id.txt_user_agreement:
+
                 break;
         }
     }

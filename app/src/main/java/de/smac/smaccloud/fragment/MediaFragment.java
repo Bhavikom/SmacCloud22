@@ -39,9 +39,11 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -76,6 +78,7 @@ import de.smac.smaccloud.activity.UserCommentViewActivity;
 import de.smac.smaccloud.adapter.MediaAdapter;
 import de.smac.smaccloud.adapter.MenuDialogListViewAdapter;
 import de.smac.smaccloud.adapter.SelectedMediaAdapter;
+import de.smac.smaccloud.base.Activity;
 import de.smac.smaccloud.base.Fragment;
 import de.smac.smaccloud.base.Helper;
 import de.smac.smaccloud.base.RequestParameter;
@@ -110,12 +113,12 @@ import static de.smac.smaccloud.activity.MediaActivity.REQUEST_COMMENT;
 import static de.smac.smaccloud.activity.MediaActivity.REQUEST_LIKE;
 import static de.smac.smaccloud.base.Helper.LOCALIZATION_TYPE_ERROR_CODE;
 
-
 /**
  * Show arrayListMedia data
  */
 public class MediaFragment extends Fragment implements DownloadFileFromURL.interfaceAsyncResponse, MediaAdapter.OnItemClickOfAdapter
 {
+    private Dialog overlayDialog;
     CharSequence[] mediaSelectionItems;
     private int position;
     ArrayList<SelectedMediaFromGalleryModel> arrayListSelectedMediaTemp;
@@ -1117,11 +1120,12 @@ public class MediaFragment extends Fragment implements DownloadFileFromURL.inter
             @Override
             public void onClick(View v) {
                 if(ShowGalleryItemListActivity.arrayListSelectedMedia.size() > 0){
-
+                    disableAnyInput();
                     arrayListSelectedMediaTemp = new ArrayList<>();
                     arrayListSelectedMediaTemp.addAll(ShowGalleryItemListActivity.arrayListSelectedMedia);
                     int count = 0;
                     for (int i=0;i<ShowGalleryItemListActivity.arrayListSelectedMedia.size();i++){
+
 
                         callCreateFileService(ShowGalleryItemListActivity.arrayListSelectedMedia.get(i).getMediaName(),
                                 editTextDescription.getText().toString(),customDialog,
@@ -1427,6 +1431,7 @@ public class MediaFragment extends Fragment implements DownloadFileFromURL.inter
                         }
                         if(arrayListSelectedMediaTemp.size() == 0){
                             customDialog.dismiss();
+                            enableAnyInput();
                         }
 
                     }catch (Exception e){
@@ -1435,7 +1440,7 @@ public class MediaFragment extends Fragment implements DownloadFileFromURL.inter
                 }
                 @Override
                 public void onFailure(Call<String> call, Throwable t) {
-
+                    enableAnyInput();
                     notifySimple(getString(R.string.msg_invalid_response_from_server));
                 }
             });
@@ -1683,6 +1688,17 @@ public class MediaFragment extends Fragment implements DownloadFileFromURL.inter
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 showDialogToChooseMedia(position);
             }
+        }
+    }
+    private void disableAnyInput(){
+        overlayDialog = new Dialog(activity, android.R.style.Theme_Panel);
+        overlayDialog.setCancelable(true);
+        overlayDialog.show();
+    }
+    private void enableAnyInput(){
+        if(overlayDialog != null && overlayDialog.isShowing())
+        {
+            overlayDialog.dismiss();
         }
     }
     /* newly added code*/

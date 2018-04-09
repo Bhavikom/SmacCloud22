@@ -44,6 +44,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.inputmethod.InputMethodManager;
+import android.webkit.MimeTypeMap;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -578,7 +579,7 @@ public class MediaFragment extends Fragment implements DownloadFileFromURL.inter
                 applyThemeColor();
             }
         };
-        mediaSelectionItems = new CharSequence[]{ getString(R.string.camera), getString(R.string.gallery), getString(R.string.cancel_captial)};
+        mediaSelectionItems = new CharSequence[]{ getString(R.string.camera), getString(R.string.gallery)};
     }
 
 
@@ -1435,6 +1436,7 @@ public class MediaFragment extends Fragment implements DownloadFileFromURL.inter
                         }
 
                     }catch (Exception e){
+                        enableAnyInput();
                         notifySimple(getString(R.string.msg_invalid_response_from_server));
                     }
                 }
@@ -1445,7 +1447,7 @@ public class MediaFragment extends Fragment implements DownloadFileFromURL.inter
                 }
             });
         }catch (Exception e){
-
+            enableAnyInput();
             notifySimple(getString(R.string.msg_invalid_response_from_server));
         }
     }
@@ -1488,6 +1490,12 @@ public class MediaFragment extends Fragment implements DownloadFileFromURL.inter
             imagePathFromGalleryOrCamera = cursor.getString(columnIndex);
             imageName = cursorName.getString(columnIndexName);
 
+            String type = null;
+            String extension = MimeTypeMap.getFileExtensionFromUrl(imagePathFromGalleryOrCamera);
+            if (extension != null) {
+                type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
+            }
+
             if(!TextUtils.isEmpty(imagePathFromGalleryOrCamera) && !TextUtils.isEmpty(imageName)){
                 if(ShowGalleryItemListActivity.arrayListSelectedMedia == null ){
                     ShowGalleryItemListActivity.arrayListSelectedMedia = new ArrayList<>();
@@ -1495,6 +1503,7 @@ public class MediaFragment extends Fragment implements DownloadFileFromURL.inter
                     SelectedMediaFromGalleryModel mediaFromGalleryModel = new SelectedMediaFromGalleryModel();
                     mediaFromGalleryModel.setMediaBitmapPath(imagePathFromGalleryOrCamera);
                     mediaFromGalleryModel.setMediaName(imageName);
+                    mediaFromGalleryModel.setFileType(type);
                     ShowGalleryItemListActivity.arrayListSelectedMedia.add(mediaFromGalleryModel);
 
                     refreshAdapter();
@@ -1502,6 +1511,7 @@ public class MediaFragment extends Fragment implements DownloadFileFromURL.inter
                     SelectedMediaFromGalleryModel mediaFromGalleryModel = new SelectedMediaFromGalleryModel();
                     mediaFromGalleryModel.setMediaBitmapPath(imagePathFromGalleryOrCamera);
                     mediaFromGalleryModel.setMediaName(imageName);
+                    mediaFromGalleryModel.setFileType(type);
                     ShowGalleryItemListActivity.arrayListSelectedMedia.add(mediaFromGalleryModel);
 
                     refreshAdapter();
@@ -1535,15 +1545,15 @@ public class MediaFragment extends Fragment implements DownloadFileFromURL.inter
         imgBackground.setImageBitmap(bitmapSelected);
     }
     public void showDialogToChooseMedia(final int pos) {
-        android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(activity);
-        //builder.setTitle("Add Photo!");
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        builder.setNegativeButton(getString(R.string.cancel_captial), null);
         builder.setItems(mediaSelectionItems, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int item) {
                 openGalleryOrCamera(mediaSelectionItems,item,pos);
             }
         });
-        builder.show();
+        builder.create().show();
     }
     private void openGalleryOrCamera(CharSequence[] items,int item,int pos){
         if (items[item].equals(getString(R.string.camera))) {
@@ -1553,7 +1563,6 @@ public class MediaFragment extends Fragment implements DownloadFileFromURL.inter
             }else {
                 cameraIntentForImageVideo(); // want to upload media so allow to capture image and video both
             }
-
         } else if (items[item].equals(getString(R.string.gallery))) {
             Helper.userChoosenTask = getString(R.string.gallery);
 
@@ -1564,8 +1573,6 @@ public class MediaFragment extends Fragment implements DownloadFileFromURL.inter
                 // choose single image from gallery
                 galleryIntentForImage();
             }
-        } else if (items[item].equals(getString(R.string.cancel_captial))) {
-            dialog.dismiss();
         }
     }
     public void galleryIntentForImage()

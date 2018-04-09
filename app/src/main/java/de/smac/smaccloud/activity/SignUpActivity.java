@@ -7,23 +7,28 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.speech.tts.TextToSpeech;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
-import android.text.Html;
-import android.text.Spanned;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.michael.easydialog.EasyDialog;
 
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;
@@ -37,6 +42,7 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import de.smac.smaccloud.R;
+import de.smac.smaccloud.adapter.LanguageListViewAdapter;
 import de.smac.smaccloud.base.Activity;
 import de.smac.smaccloud.base.Helper;
 import de.smac.smaccloud.base.NetworkRequest;
@@ -63,6 +69,8 @@ public class SignUpActivity extends Activity implements View.OnClickListener
     public static final int REQUEST_MEDIA_SIZE = 4303;
     private static final int REQUEST_CHECK_ORAGNIZATION = 4301;
     public PreferenceHelper prefManager;
+    public String deviceId = "00000-00000-00000-00000-00000";
+    public EasyDialog dialog;
     long totalSizeInByte;
     ProgressDialog progressDialog;
     EditText editUserName, editEmailId, editAddress, editContact, editMobileNo, editOragnization, editPassword, editConfirmPassword;
@@ -73,9 +81,8 @@ public class SignUpActivity extends Activity implements View.OnClickListener
             strOrganization = "", strPasswordConfirm = "", strContactNo = "",
             strAddress = "", strUserLanguage = "";
     MenuInflater inflater;
-    public String deviceId = "00000-00000-00000-00000-00000";
     TextView textViewUserAgreement;
-    Spanned Text;
+    String Text;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -93,12 +100,15 @@ public class SignUpActivity extends Activity implements View.OnClickListener
         editPassword = (EditText) findViewById(R.id.textPassword);
         editConfirmPassword = (EditText) findViewById(R.id.textCPassword);
         buttonSignUp = (Button) findViewById(R.id.btn_signUp);
-        textViewUserAgreement= (TextView) findViewById(R.id.txt_user_agreement);
+        textViewUserAgreement = (TextView) findViewById(R.id.txt_user_agreement);
         linearParentLayout = (LinearLayout) findViewById(R.id.parentLayout);
         Helper.setupUI(SignUpActivity.this, linearParentLayout, linearParentLayout);
+        Text = getString(R.string.user_agreement_msg1) + getString(R.string.user_agreement_msg2) + getString(R.string.user_agreement_msg3);
+        dialog = new EasyDialog(context);
 
 
         buttonSignUp.setOnClickListener(this);
+        textViewUserAgreement.setOnClickListener(this);
         if (getSupportActionBar() != null)
         {
             getSupportActionBar().setTitle(getString(R.string.sign_up));
@@ -195,7 +205,7 @@ public class SignUpActivity extends Activity implements View.OnClickListener
                 }
                 break;
             case R.id.txt_user_agreement:
-
+                showDialogUserAgreement();
                 break;
         }
     }
@@ -612,6 +622,54 @@ public class SignUpActivity extends Activity implements View.OnClickListener
         Drawable drawable = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_help, null);
         drawable = DrawableCompat.wrap(drawable);
         DrawableCompat.setTint(drawable, Color.parseColor(PreferenceHelper.getAppColor(context)));
+    }
+    public void showDialogUserAgreement(){
+        final EasyDialog dialog = new EasyDialog(context);
+        View view = getLayoutInflater().inflate(R.layout.user_agreement_dialog, null);
+        view.setLayoutParams(new RelativeLayout.LayoutParams(Helper.getDeviceWidth(SignUpActivity.this) / 2, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+        LinearLayout linearParent = (LinearLayout) view.findViewById(R.id.parentLayout);
+        Helper.setupTypeface(linearParent, Helper.robotoRegularTypeface);
+        TextView cancel= (TextView)view.findViewById(R.id.txt_user_agreement_cancel);
+        RelativeLayout UserAgreement = (RelativeLayout) view.findViewById(R.id.btn_user_agreement);
+        final RelativeLayout UserPrivacyPolicy = (RelativeLayout) view.findViewById(R.id.btn_user_privacy_policy);
+
+        UserAgreement.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                dialog.dismiss();
+            }
+
+
+        });
+        UserPrivacyPolicy.setOnClickListener(new View.OnClickListener()
+        {
+
+            @Override
+            public void onClick(View v)
+            {
+
+                dialog.dismiss();
+            }
+        });
+        cancel.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                dialog.dismiss();
+            }
+        });
+        dialog.setLayout(view)
+                .setGravity(EasyDialog.GRAVITY_RIGHT)
+                .setBackgroundColor(context.getResources().getColor(R.color.white1))
+                .setLocationByAttachedView(textViewUserAgreement)
+                .setTouchOutsideDismiss(true)
+                .setMatchParent(false)
+                .show();
+
     }
 
 }

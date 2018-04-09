@@ -614,7 +614,7 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.MediaHolder>
                                 super.onLoadFailed(e, errorDrawable);
                                 holder.progressBarTemp.setVisibility(View.GONE);
                                 holder.imageIcon.setImageResource(R.drawable.ic_logo);
-                                holder.imageIcon.setScaleType(ImageView.ScaleType.FIT_CENTER);
+                              //  holder.imageIcon.setScaleType(ImageView.ScaleType.FIT_CENTER);
                             }
                         });
             }

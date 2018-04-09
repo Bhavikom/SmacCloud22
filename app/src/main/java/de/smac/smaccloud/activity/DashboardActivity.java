@@ -730,7 +730,8 @@ public class DashboardActivity extends Activity implements SettingsFragment.Inte
                             modelTemp.setSelected(true);
                             arrayListUser.set(i, modelTemp);
                         }
-                        adapterUserList.notifyDataSetChanged();
+                        adapterUserList = new ChannelUserListAdapter(DashboardActivity.this,arrayListUser);
+                        recyclerViewUser.setAdapter(adapterUserList);
                     }
 
                 }else {
@@ -745,7 +746,8 @@ public class DashboardActivity extends Activity implements SettingsFragment.Inte
                             modelTemp.setSelected(false);
                             arrayListUser.set(i, modelTemp);
                         }
-                        adapterUserList.notifyDataSetChanged();
+                        adapterUserList = new ChannelUserListAdapter(DashboardActivity.this,arrayListUser);
+                        recyclerViewUser.setAdapter(adapterUserList);
                     }
                 }
             }
@@ -915,10 +917,9 @@ public class DashboardActivity extends Activity implements SettingsFragment.Inte
         }
     }
     private void selectImage(final Activity activity) {
-        final CharSequence[] items = { getString(R.string.camera), getString(R.string.gallery),
-                getString(R.string.cancel_captial)};
+        final CharSequence[] items = { getString(R.string.camera), getString(R.string.gallery)};
         android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(activity);
-        //builder.setTitle("Add Photo!");
+        builder.setNegativeButton(getString(R.string.cancel_captial), null);
         builder.setItems(items, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int item) {
@@ -942,9 +943,10 @@ public class DashboardActivity extends Activity implements SettingsFragment.Inte
         if(currentAPIVersion>=android.os.Build.VERSION_CODES.M)
         {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
+                    || ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
                     || ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ) {
                 ActivityCompat.requestPermissions(this,new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE,
-                                android.Manifest.permission.READ_EXTERNAL_STORAGE},
+                                android.Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.CAMERA},
                         Helper.MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
                 return false;
             } else {

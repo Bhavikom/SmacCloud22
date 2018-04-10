@@ -91,6 +91,11 @@
     <string name="download_message2">Available memory</string>
     <string name="msg_please_wait_while_sync">Please wait while we synchronize</string>
     <string name="sync_latest_data_from_server">Please update your content, sync latest data from server!</string>
+    <string name="user_agreement_msg1">You agree to the SMAC Cloud</string>
+    <string name="user_agreement_msg2">User Agreement</string>
+    <string name="user_agreement_msg3"> Privacy Policy</string>
+    <string name="and">and</string>
+
 
     <!--ChangePassword Screen-->
     <string name="gcm_sender_id">645815223505</string> <!-- FCM sender id -->
@@ -365,6 +370,7 @@ Name, address and other personal data will only be required if you provide them 
     <string name="choose">Choose</string>
     <string name="channel_background">Channel background</string>
     <string name="select_all">Select ALL</string>
+    <string name="de_select_all">DeSelect ALL</string>
     <string name="assign_users_for_channel">Assign users for channel</string>
     <string name="save">Save</string>
     <string name="create_channel">Create Channel</string>

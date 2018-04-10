@@ -13,8 +13,8 @@
         android:orientation="vertical">
 
         <ImageView
-            android:layout_width="@dimen/hundred_fifty_dp"
-            android:layout_height="@dimen/hundred_fifty_dp"
+            android:layout_width="@dimen/two_hundred"
+            android:layout_height="@dimen/two_hundred"
             android:layout_gravity="center"
             android:src="@drawable/ic_mobile_apps" />
 
@@ -23,7 +23,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/padding_5dp"
             android:text="@string/slide_3_title"
-            android:layout_marginTop="@dimen/padding_5dp"
+            android:layout_marginTop="@dimen/padding_large"
             android:textColor="@android:color/black"
             android:textSize="@dimen/title_medium"
             android:textStyle="bold"/>

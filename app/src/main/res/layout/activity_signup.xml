@@ -75,6 +75,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/padding_5dp"
+                    android:visibility="gone"
                     app:hintTextAppearance="@style/EditTextBlackHint">
 
                     <EditText
@@ -95,6 +96,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/padding_5dp"
+                    android:visibility="gone"
                     app:hintTextAppearance="@style/EditTextBlackHint">
 
                     <EditText
@@ -201,6 +203,15 @@
                 </android.support.design.widget.TextInputLayout>
 
 
+                <TextView
+                    android:id="@+id/txt_user_agreement"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/padding_extra_large"
+                    android:gravity="center"
+                    android:text="@string/user_agreement_msg1"/>
+
+
                 <Button
                     android:id="@+id/btn_signUp"
                     android:layout_width="match_parent"
@@ -211,7 +222,7 @@
                     android:text="@string/sign_up"
                     android:textAllCaps="false"
                     android:textColor="@color/white"
-                    android:textSize="@dimen/title_very_small"
+                    android:textSize="@dimen/title_medium"
                     android:textStyle="bold"/>
 
 

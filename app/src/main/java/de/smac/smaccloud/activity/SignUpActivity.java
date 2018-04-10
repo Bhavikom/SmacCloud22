@@ -10,17 +10,27 @@ import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.TextPaint;
 import android.text.TextUtils;
+import android.text.method.LinkMovementMethod;
+import android.text.style.ClickableSpan;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import com.michael.easydialog.EasyDialog;
 
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;
@@ -60,6 +70,8 @@ public class SignUpActivity extends Activity implements View.OnClickListener
     public static final int REQUEST_MEDIA_SIZE = 4303;
     private static final int REQUEST_CHECK_ORAGNIZATION = 4301;
     public PreferenceHelper prefManager;
+    public String deviceId = "00000-00000-00000-00000-00000";
+    public EasyDialog dialog;
     long totalSizeInByte;
     ProgressDialog progressDialog;
     EditText editUserName, editEmailId, editAddress, editContact, editMobileNo, editOragnization, editPassword, editConfirmPassword;
@@ -70,7 +82,8 @@ public class SignUpActivity extends Activity implements View.OnClickListener
             strOrganization = "", strPasswordConfirm = "", strContactNo = "",
             strAddress = "", strUserLanguage = "";
     MenuInflater inflater;
-    public String deviceId = "00000-00000-00000-00000-00000";
+    TextView textViewUserAgreement;
+    String Text;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -88,9 +101,56 @@ public class SignUpActivity extends Activity implements View.OnClickListener
         editPassword = (EditText) findViewById(R.id.textPassword);
         editConfirmPassword = (EditText) findViewById(R.id.textCPassword);
         buttonSignUp = (Button) findViewById(R.id.btn_signUp);
+        textViewUserAgreement = (TextView) findViewById(R.id.txt_user_agreement);
         linearParentLayout = (LinearLayout) findViewById(R.id.parentLayout);
         Helper.setupUI(SignUpActivity.this, linearParentLayout, linearParentLayout);
+        Text = getString(R.string.user_agreement_msg1) + getString(R.string.user_agreement_msg2) + getString(R.string.user_agreement_msg3);
+        dialog = new EasyDialog(context);
 
+        SpannableString text1 = new SpannableString(getString(R.string.user_agreement_msg1) + " ");
+
+        SpannableString text2 = new SpannableString(getString(R.string.user_agreement_msg2));
+        ClickableSpan clickableSpanUserAgreement = new ClickableSpan()
+        {
+            @Override
+            public void onClick(View textView)
+            {
+                showDialogUserAgreement();
+            }
+
+            @Override
+            public void updateDrawState(TextPaint ds)
+            {
+                super.updateDrawState(ds);
+                ds.setColor(Color.BLUE);
+                ds.setUnderlineText(false);
+            }
+        };
+        text2.setSpan(clickableSpanUserAgreement, 0, text2.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+        SpannableString text3 = new SpannableString(", " + getString(R.string.and) + " ");
+
+        SpannableString text4 = new SpannableString(getString(R.string.user_agreement_msg3));
+        ClickableSpan clickableSpanPrivacyPolicy = new ClickableSpan()
+        {
+            @Override
+            public void onClick(View textView)
+            {
+                showDialogUserAgreement();
+            }
+
+            @Override
+            public void updateDrawState(TextPaint ds)
+            {
+                super.updateDrawState(ds);
+                ds.setColor(Color.BLUE);
+                ds.setUnderlineText(false);
+            }
+        };
+        text4.setSpan(clickableSpanPrivacyPolicy, 0, text4.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+        textViewUserAgreement.setText(TextUtils.concat(text1, text2, text3, text4));
+        textViewUserAgreement.setMovementMethod(LinkMovementMethod.getInstance());
 
         buttonSignUp.setOnClickListener(this);
         if (getSupportActionBar() != null)
@@ -108,6 +168,7 @@ public class SignUpActivity extends Activity implements View.OnClickListener
         });
 
         new FCMInstanceIdService(context).onTokenRefresh();
+
     }
 
     @Override
@@ -602,6 +663,76 @@ public class SignUpActivity extends Activity implements View.OnClickListener
         Drawable drawable = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_help, null);
         drawable = DrawableCompat.wrap(drawable);
         DrawableCompat.setTint(drawable, Color.parseColor(PreferenceHelper.getAppColor(context)));
+    }
+
+    public void showDialogUserAgreement()
+    {
+        final EasyDialog dialog = new EasyDialog(context);
+        View view = getLayoutInflater().inflate(R.layout.user_agreement_dialog, null);
+        view.setLayoutParams(new RelativeLayout.LayoutParams(Helper.getDeviceWidth(SignUpActivity.this) / 2, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+        LinearLayout linearParent = (LinearLayout) view.findViewById(R.id.parentLayout);
+        Helper.setupTypeface(linearParent, Helper.robotoRegularTypeface);
+        TextView cancel = (TextView) view.findViewById(R.id.txt_user_agreement_cancel);
+        TextView btn_user_agreement = (TextView) view.findViewById(R.id.btn_user_agreement);
+        TextView btn_user_privacy_policy = (TextView) view.findViewById(R.id.btn_user_privacy_policy);
+
+        btn_user_agreement.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                dialog.dismiss();
+                openUserAgreementURL();
+            }
+        });
+        btn_user_privacy_policy.setOnClickListener(new View.OnClickListener()
+        {
+
+            @Override
+            public void onClick(View v)
+            {
+                dialog.dismiss();
+                openPrivacyPolicyURL();
+            }
+        });
+        cancel.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                dialog.dismiss();
+            }
+        });
+        dialog.setLayout(view)
+
+                .setBackgroundColor(context.getResources().getColor(R.color.white1))
+                .setLocationByAttachedView(textViewUserAgreement)
+                .setTouchOutsideDismiss(true)
+                .setMatchParent(false);
+        /*if (getResources().getBoolean(R.bool.isTablet))
+        {
+            dialog.setGravity(EasyDialog.GRAVITY_RIGHT);
+        }
+        else
+        {
+            dialog.setGravity(EasyDialog.GRAVITY_BOTTOM);
+        }*/
+        dialog.setGravity(EasyDialog.GRAVITY_BOTTOM);
+        dialog.show();
+
+    }
+
+    public void openUserAgreementURL()
+    {
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.smaccloud.com/terms-and-conditions/"));
+        startActivity(browserIntent);
+    }
+
+    public void openPrivacyPolicyURL()
+    {
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.smaccloud.com/privacy-policy/"));
+        startActivity(browserIntent);
     }
 
 }

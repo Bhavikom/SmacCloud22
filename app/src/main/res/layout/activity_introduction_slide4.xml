@@ -14,15 +14,15 @@
 
 
         <ImageView
-            android:layout_width="@dimen/hundred_fifty_dp"
-            android:layout_height="@dimen/hundred_fifty_dp"
+            android:layout_width="@dimen/two_hundred"
+            android:layout_height="@dimen/two_hundred"
             android:layout_gravity="center"
             android:src="@drawable/ic_safe_sound" />
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/slide_4_title"
-            android:layout_marginTop="@dimen/padding_5dp"
+            android:layout_marginTop="@dimen/padding_large"
             android:textColor="@android:color/black"
             android:textSize="@dimen/title_medium"
             android:textStyle="bold" />

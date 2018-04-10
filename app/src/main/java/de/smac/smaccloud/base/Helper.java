@@ -4,6 +4,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -102,8 +103,6 @@ import de.smac.smaccloud.service.DownloadService;
 import de.smac.smaccloud.service.SMACCloudApplication;
 
 import static de.smac.smaccloud.fragment.MediaFragment.REQ_IS_MEDIA_DELETED;
-
-
 @SuppressWarnings("unused")
 public class Helper
 {

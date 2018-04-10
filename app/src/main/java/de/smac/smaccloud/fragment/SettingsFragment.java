@@ -322,6 +322,7 @@ public class SettingsFragment extends Fragment implements FCMMessagingService.Th
                 deviceId = registrationId;
             }
         });
+        new FCMInstanceIdService(context).onTokenRefresh();
         FCMMessagingService.themeChangeNotificationListener = new FCMMessagingService.ThemeChangeNotificationListener()
         {
             @Override

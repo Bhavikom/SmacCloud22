@@ -39,10 +39,13 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
+import android.webkit.MimeTypeMap;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -77,6 +80,7 @@ import de.smac.smaccloud.activity.UserCommentViewActivity;
 import de.smac.smaccloud.adapter.MediaAdapter;
 import de.smac.smaccloud.adapter.MenuDialogListViewAdapter;
 import de.smac.smaccloud.adapter.SelectedMediaAdapter;
+import de.smac.smaccloud.base.Activity;
 import de.smac.smaccloud.base.Fragment;
 import de.smac.smaccloud.base.Helper;
 import de.smac.smaccloud.base.RequestParameter;
@@ -110,7 +114,6 @@ import static android.content.Context.LAYOUT_INFLATER_SERVICE;
 import static de.smac.smaccloud.activity.MediaActivity.REQUEST_COMMENT;
 import static de.smac.smaccloud.activity.MediaActivity.REQUEST_LIKE;
 import static de.smac.smaccloud.base.Helper.LOCALIZATION_TYPE_ERROR_CODE;
-
 
 /**
  * Show arrayListMedia data
@@ -577,7 +580,7 @@ public class MediaFragment extends Fragment implements DownloadFileFromURL.inter
                 applyThemeColor();
             }
         };
-        mediaSelectionItems = new CharSequence[]{ getString(R.string.camera), getString(R.string.gallery), getString(R.string.cancel_captial)};
+        mediaSelectionItems = new CharSequence[]{ getString(R.string.camera), getString(R.string.gallery)};
     }
 
 
@@ -1118,34 +1121,26 @@ public class MediaFragment extends Fragment implements DownloadFileFromURL.inter
         textViewUploadFile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 disableAnyInput();
                 if(ShowGalleryItemListActivity.arrayListSelectedMedia.size() > 0){
-
                     for (SelectedMediaFromGalleryModel selectedMediaFromGalleryModel : ShowGalleryItemListActivity.arrayListSelectedMedia) {
                         // do stuff
                         ShowGalleryItemListActivity.arrayListSelectedMedia.
                                 get(ShowGalleryItemListActivity.arrayListSelectedMedia.indexOf(selectedMediaFromGalleryModel)).setUplodaingRunning(true);
                     }
-                    adapterSelectedMedia.notifyDataSetChanged();
-
+                    disableAnyInput();
                     arrayListSelectedMediaTemp = new ArrayList<>();
                     arrayListSelectedMediaTemp.addAll(ShowGalleryItemListActivity.arrayListSelectedMedia);
                     int count = 0;
                     for (int i=0;i<ShowGalleryItemListActivity.arrayListSelectedMedia.size();i++){
-
-
                         callCreateFileService(ShowGalleryItemListActivity.arrayListSelectedMedia.get(i).getMediaName(),
                                 editTextDescription.getText().toString(),customDialog,
                                 ShowGalleryItemListActivity.arrayListSelectedMedia.get(i).getMediaBitmapPath(),
                                 ShowGalleryItemListActivity.arrayListSelectedMedia.get(i).getFileType(),i);
                     }
-
-
                 }else {
                     notifySimple(getString(R.string.please_select_atleast_one_media));
                 }
-
             }
         });
         Button btnChoose = (Button)customDialog.findViewById(R.id.btn_choose);
@@ -1440,9 +1435,11 @@ public class MediaFragment extends Fragment implements DownloadFileFromURL.inter
                         if(arrayListSelectedMediaTemp.size() == 0){
                             enableAnyInput();
                             customDialog.dismiss();
+                            enableAnyInput();
                         }
 
                     }catch (Exception e){
+                        enableAnyInput();
                         notifySimple(getString(R.string.msg_invalid_response_from_server));
                     }
                 }
@@ -1454,7 +1451,7 @@ public class MediaFragment extends Fragment implements DownloadFileFromURL.inter
                 }
             });
         }catch (Exception e){
-
+            enableAnyInput();
             notifySimple(getString(R.string.msg_invalid_response_from_server));
         }
     }
@@ -1497,6 +1494,12 @@ public class MediaFragment extends Fragment implements DownloadFileFromURL.inter
             imagePathFromGalleryOrCamera = cursor.getString(columnIndex);
             imageName = cursorName.getString(columnIndexName);
 
+            String type = null;
+            String extension = MimeTypeMap.getFileExtensionFromUrl(imagePathFromGalleryOrCamera);
+            if (extension != null) {
+                type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
+            }
+
             if(!TextUtils.isEmpty(imagePathFromGalleryOrCamera) && !TextUtils.isEmpty(imageName)){
                 if(ShowGalleryItemListActivity.arrayListSelectedMedia == null ){
                     ShowGalleryItemListActivity.arrayListSelectedMedia = new ArrayList<>();
@@ -1504,6 +1507,7 @@ public class MediaFragment extends Fragment implements DownloadFileFromURL.inter
                     SelectedMediaFromGalleryModel mediaFromGalleryModel = new SelectedMediaFromGalleryModel();
                     mediaFromGalleryModel.setMediaBitmapPath(imagePathFromGalleryOrCamera);
                     mediaFromGalleryModel.setMediaName(imageName);
+                    mediaFromGalleryModel.setFileType(type);
                     ShowGalleryItemListActivity.arrayListSelectedMedia.add(mediaFromGalleryModel);
 
                     refreshAdapter();
@@ -1511,6 +1515,7 @@ public class MediaFragment extends Fragment implements DownloadFileFromURL.inter
                     SelectedMediaFromGalleryModel mediaFromGalleryModel = new SelectedMediaFromGalleryModel();
                     mediaFromGalleryModel.setMediaBitmapPath(imagePathFromGalleryOrCamera);
                     mediaFromGalleryModel.setMediaName(imageName);
+                    mediaFromGalleryModel.setFileType(type);
                     ShowGalleryItemListActivity.arrayListSelectedMedia.add(mediaFromGalleryModel);
 
                     refreshAdapter();
@@ -1544,15 +1549,15 @@ public class MediaFragment extends Fragment implements DownloadFileFromURL.inter
         imgBackground.setImageBitmap(bitmapSelected);
     }
     public void showDialogToChooseMedia(final int pos) {
-        android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(activity);
-        //builder.setTitle("Add Photo!");
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        builder.setNegativeButton(getString(R.string.cancel_captial), null);
         builder.setItems(mediaSelectionItems, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int item) {
                 openGalleryOrCamera(mediaSelectionItems,item,pos);
             }
         });
-        builder.show();
+        builder.create().show();
     }
     private void openGalleryOrCamera(CharSequence[] items,int item,int pos){
         if (items[item].equals(getString(R.string.camera))) {
@@ -1562,7 +1567,6 @@ public class MediaFragment extends Fragment implements DownloadFileFromURL.inter
             }else {
                 cameraIntentForImageVideo(); // want to upload media so allow to capture image and video both
             }
-
         } else if (items[item].equals(getString(R.string.gallery))) {
             Helper.userChoosenTask = getString(R.string.gallery);
 
@@ -1573,8 +1577,6 @@ public class MediaFragment extends Fragment implements DownloadFileFromURL.inter
                 // choose single image from gallery
                 galleryIntentForImage();
             }
-        } else if (items[item].equals(getString(R.string.cancel_captial))) {
-            dialog.dismiss();
         }
     }
     public void galleryIntentForImage()
@@ -1699,18 +1701,16 @@ public class MediaFragment extends Fragment implements DownloadFileFromURL.inter
             }
         }
     }
-    /* newly added code*/
-    public void disableAnyInput(){
-
-        overlayDialog = new Dialog(getActivity(), android.R.style.Theme_Panel);
-        overlayDialog.setCancelable(false);
+    private void disableAnyInput(){
+        overlayDialog = new Dialog(activity, android.R.style.Theme_Panel);
+        overlayDialog.setCancelable(true);
         overlayDialog.show();
     }
-    public void enableAnyInput(){
-
-        if(overlayDialog != null && overlayDialog.isShowing()) {
+    private void enableAnyInput(){
+        if(overlayDialog != null && overlayDialog.isShowing())
+        {
             overlayDialog.dismiss();
         }
     }
-
+    /* newly added code*/
 }

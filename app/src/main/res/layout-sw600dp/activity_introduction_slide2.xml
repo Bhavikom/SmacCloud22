@@ -13,8 +13,8 @@
         android:orientation="vertical">
 
         <ImageView
-            android:layout_width="@dimen/two_hundred"
-            android:layout_height="@dimen/two_hundred"
+            android:layout_width="@dimen/two_hundred_eightee"
+            android:layout_height="@dimen/two_hundred_eightee"
             android:layout_gravity="center"
             android:src="@drawable/ic_smac_cloud_sync" />
 
@@ -22,7 +22,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/slide_2_title"
-            android:layout_marginTop="@dimen/padding_5dp"
+            android:layout_marginTop="@dimen/padding_extra_large"
             android:textColor="@android:color/black"
             android:padding="@dimen/padding_5dp"
             android:textSize="@dimen/title_medium"

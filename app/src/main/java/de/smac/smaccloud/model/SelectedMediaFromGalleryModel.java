@@ -12,6 +12,15 @@ public class SelectedMediaFromGalleryModel implements Parcelable{
     String mediaBitmapPath;
     String fileType;
     boolean isUploadedCompleted;
+    boolean isUplodaingRunning;
+
+    public boolean isUplodaingRunning() {
+        return isUplodaingRunning;
+    }
+
+    public void setUplodaingRunning(boolean uplodaingRunning) {
+        isUplodaingRunning = uplodaingRunning;
+    }
 
     public boolean isUploadedCompleted() {
         return isUploadedCompleted;

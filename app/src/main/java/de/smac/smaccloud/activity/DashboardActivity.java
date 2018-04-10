@@ -718,7 +718,8 @@ public class DashboardActivity extends Activity implements SettingsFragment.Inte
                         modelTemp.setSelected(true);
                         arrayListUser.set(i,modelTemp);
                     }
-                    adapterUserList.notifyDataSetChanged();
+                    adapterUserList = new ChannelUserListAdapter(DashboardActivity.this,arrayListUser);
+                    recyclerViewUser.setAdapter(adapterUserList);
                 }
             }
         });

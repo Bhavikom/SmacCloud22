@@ -57,11 +57,15 @@ public class SelectedMediaAdapter extends RecyclerView.Adapter<SelectedMediaAdap
     public void onBindViewHolder(MyViewHolder holder, int position) {
         Glide.with(context).load("file://"+arrayList.get(position).getMediaBitmapPath()).override(153,160).crossFade().centerCrop().dontAnimate().skipMemoryCache(true).into(holder.thumbnail);
 
-        if(arrayList.get(position).isUploadedCompleted()){
+        if(arrayList.get(position).isUplodaingRunning()){
+            if(arrayList.get(position).isUploadedCompleted()){
+                holder.progressBar.setVisibility(View.GONE);
+            }
+            else {
+                holder.progressBar.setVisibility(View.VISIBLE);
+            }
+        }else {
             holder.progressBar.setVisibility(View.GONE);
-        }
-        else {
-            holder.progressBar.setVisibility(View.VISIBLE);
         }
     }
     @Override

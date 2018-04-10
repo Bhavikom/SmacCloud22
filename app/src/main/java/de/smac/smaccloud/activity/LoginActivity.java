@@ -605,10 +605,10 @@ public class LoginActivity extends Activity
                                 finish();
                             }
                             else {
-                                showSychDialog();
+                                Helper.showSychDialog(LoginActivity.this);
                             }
                         }else{
-                            showSychDialog();
+                            Helper.showSychDialog(LoginActivity.this);
                         }
                     }
                 }
@@ -773,23 +773,5 @@ public class LoginActivity extends Activity
         super.onResume();
         updateLanguage();
     }
-    private void showSychDialog(){
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setCancelable(false);
-        builder.setMessage(getString(R.string.sych_right_dialog));
-        builder.setPositiveButton(getString(R.string.ok),
-                new DialogInterface.OnClickListener()
-                {
-                    public void onClick(DialogInterface dialog, int which)
-                    {
-                        dialog.dismiss();
-                        Intent intent = new Intent(LoginActivity.this,IntroScreenActivity.class);
-                        startActivity(intent);
-                        finish();
-                    }
-                });
 
-        AlertDialog dialog = builder.create();
-        dialog.show();
-    }
 }

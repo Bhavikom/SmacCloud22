@@ -87,6 +87,8 @@ import de.smac.smaccloud.R;
 import de.smac.smaccloud.activity.DashboardActivity;
 import de.smac.smaccloud.activity.DocumentViewerActivity;
 import de.smac.smaccloud.activity.ImageViewerActivity;
+import de.smac.smaccloud.activity.IntroScreenActivity;
+import de.smac.smaccloud.activity.LoginActivity;
 import de.smac.smaccloud.activity.SetSignatureActivity;
 import de.smac.smaccloud.activity.VideoViewerActivity;
 import de.smac.smaccloud.data.DataHelper;
@@ -1427,6 +1429,25 @@ public class Helper
         File tragetLocation = null;
         tragetLocation = new File(context.getFilesDir() + File.separator + mediaid);
         return tragetLocation;
+    }
+    public static void showSychDialog(final Activity activity){
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        builder.setCancelable(false);
+        builder.setMessage(activity.getString(R.string.sych_right_dialog));
+        builder.setPositiveButton(activity.getString(R.string.ok),
+                new DialogInterface.OnClickListener()
+                {
+                    public void onClick(DialogInterface dialog, int which)
+                    {
+                        dialog.dismiss();
+                        Intent intent = new Intent(activity,IntroScreenActivity.class);
+                        activity.startActivity(intent);
+                        activity.finish();
+                    }
+                });
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 }
 

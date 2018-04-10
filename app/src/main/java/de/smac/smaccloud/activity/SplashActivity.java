@@ -18,6 +18,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -38,6 +39,7 @@ import static de.smac.smaccloud.base.Helper.LOCALIZATION_TYPE_ERROR_CODE;
 
 public class SplashActivity extends de.smac.smaccloud.base.Activity
 {
+    private static final int REQUEST_GET_USER_RIGHTS = 4304;
     public static final int REQUEST_GETLOCALIZATION = 5001;
     public static final int REQUEST_GET_VERSION = 5002;
     private static int SPLASH_TIME_OUT = 3000;
@@ -278,19 +280,10 @@ public class SplashActivity extends de.smac.smaccloud.base.Activity
                             //Log.e("TEST>>"," get localization : " + DataHelper.getLocalizationMessageFromCode(this,"2101","en-en","3"));
                             if (PreferenceHelper.hasUserContext(SplashActivity.this))
                             {
-                                if(prefManager.isSychRight()) {
-                                    if (PreferenceHelper.getSyncStatus(SplashActivity.this)){
-                                        startDashboardActivity();
-                                    }
-                                    else{
-                                        startSyncActivity();
-                                    }
-
-                                }else {
-                                    Intent i = new Intent(SplashActivity.this, IntroScreenActivity.class);
-                                    startActivity(i);
-                                    finish();
-                                }
+                                // call get user right service and then go to dashboard or sych activity
+                                postNetworkRequest(REQUEST_GET_USER_RIGHTS, DataProvider.ENDPOINT_GET_USER_RIGHTS, DataProvider.Actions.GET_USER_RIGHTS,
+                                        RequestParameter.urlEncoded("UserId", String.valueOf(PreferenceHelper.getUserContext(context))),
+                                        RequestParameter.urlEncoded("Org_Id", PreferenceHelper.getOrganizationId(context)));
                             }
                             else
                             {
@@ -332,6 +325,77 @@ public class SplashActivity extends de.smac.smaccloud.base.Activity
                     startActivity(i);
                     finish();
                 }
+            }
+        }
+        else if (requestCode == REQUEST_GET_USER_RIGHTS)
+        {
+            if (status)
+            {
+                try
+                {
+                    JSONObject responseJson = new JSONObject(response);
+                    int requestStatus = responseJson.optInt("Status");
+                    if (requestStatus > 0)
+                    {
+                        notifySimple(DataHelper.getLocalizationMessageFromCode(context, String.valueOf(requestStatus), LOCALIZATION_TYPE_ERROR_CODE));
+                    }
+                    else
+                    {
+                        JSONArray jsonArray = responseJson.optJSONArray("Payload");
+                        boolean isSychRight = false;
+                        prefManager.saveIsSychRight(false);
+                        if(jsonArray.length() > 0){
+                            for (int j = 0; j < jsonArray.length(); j++) {
+                                JSONObject objectInner = jsonArray.getJSONObject(j);
+                                if(objectInner.getString("Name").equals("SYNC")){
+                                    isSychRight = true;
+                                    break;
+                                }
+                            }
+                            if(isSychRight) {
+                                prefManager.saveIsSychRight(true);
+                                for (int i = 0; i < jsonArray.length(); i++) {
+                                    JSONObject objectInner = jsonArray.getJSONObject(i);
+
+                                    if (objectInner.getString("Name").equals("CREATE_CHANNEL")) {
+                                        prefManager.saveIsCreateChannelRight(true);
+                                    }
+                                    if (objectInner.getString("Name").equals("MODIFY_CHANNEL")) {
+                                        prefManager.saveIsModifyChannelRight(true);
+                                    }
+                                    if (objectInner.getString("Name").equals("DELETE_CHANNEL")) {
+                                        prefManager.saveIsDeleteChannelRight(true);
+                                    }
+                                    if (objectInner.getString("Name").equals("ADD_RIGHT")) {
+                                        prefManager.saveIsAddMediaRight(true);
+                                    }
+                                    if (objectInner.getString("Name").equals("DELETE_MEDIA")) {
+                                        prefManager.saveIsDeleteMediaRight(true);
+                                    }
+                                }
+                                if (PreferenceHelper.getSyncStatus(SplashActivity.this)){
+                                        startDashboardActivity();
+                                }
+                                else{
+                                    startSyncActivity();
+                                }
+                            }
+                            else {
+                                Helper.showSychDialog(SplashActivity.this);
+                            }
+                        }else{
+                            Helper.showSychDialog(SplashActivity.this);
+                        }
+                    }
+                }
+                catch (JSONException e)
+                {
+                    notifySimple(getString(R.string.msg_invalid_response_from_server));
+                }
+            }
+            else
+            {
+                notifySimple(getString(R.string.msg_cannot_complete_request));
             }
         }
         else

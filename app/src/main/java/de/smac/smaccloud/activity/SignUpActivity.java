@@ -7,11 +7,15 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.speech.tts.TextToSpeech;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.TextPaint;
 import android.text.TextUtils;
+import android.text.method.LinkMovementMethod;
+import android.text.style.ClickableSpan;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -19,11 +23,9 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -42,7 +44,6 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import de.smac.smaccloud.R;
-import de.smac.smaccloud.adapter.LanguageListViewAdapter;
 import de.smac.smaccloud.base.Activity;
 import de.smac.smaccloud.base.Helper;
 import de.smac.smaccloud.base.NetworkRequest;
@@ -106,9 +107,52 @@ public class SignUpActivity extends Activity implements View.OnClickListener
         Text = getString(R.string.user_agreement_msg1) + getString(R.string.user_agreement_msg2) + getString(R.string.user_agreement_msg3);
         dialog = new EasyDialog(context);
 
+        SpannableString text1 = new SpannableString(getString(R.string.user_agreement_msg1) + " ");
+
+        SpannableString text2 = new SpannableString(getString(R.string.user_agreement_msg2));
+        ClickableSpan clickableSpanUserAgreement = new ClickableSpan()
+        {
+            @Override
+            public void onClick(View textView)
+            {
+                showDialogUserAgreement();
+            }
+
+            @Override
+            public void updateDrawState(TextPaint ds)
+            {
+                super.updateDrawState(ds);
+                ds.setColor(Color.BLUE);
+                ds.setUnderlineText(false);
+            }
+        };
+        text2.setSpan(clickableSpanUserAgreement, 0, text2.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+        SpannableString text3 = new SpannableString(", " + getString(R.string.and) + " ");
+
+        SpannableString text4 = new SpannableString(getString(R.string.user_agreement_msg3));
+        ClickableSpan clickableSpanPrivacyPolicy = new ClickableSpan()
+        {
+            @Override
+            public void onClick(View textView)
+            {
+                showDialogUserAgreement();
+            }
+
+            @Override
+            public void updateDrawState(TextPaint ds)
+            {
+                super.updateDrawState(ds);
+                ds.setColor(Color.BLUE);
+                ds.setUnderlineText(false);
+            }
+        };
+        text4.setSpan(clickableSpanPrivacyPolicy, 0, text4.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+        textViewUserAgreement.setText(TextUtils.concat(text1, text2, text3, text4));
+        textViewUserAgreement.setMovementMethod(LinkMovementMethod.getInstance());
 
         buttonSignUp.setOnClickListener(this);
-        textViewUserAgreement.setOnClickListener(this);
         if (getSupportActionBar() != null)
         {
             getSupportActionBar().setTitle(getString(R.string.sign_up));
@@ -203,9 +247,6 @@ public class SignUpActivity extends Activity implements View.OnClickListener
                         notifySimple(getString(R.string.msg_network_connection_not_available));
                     }
                 }
-                break;
-            case R.id.txt_user_agreement:
-                showDialogUserAgreement();
                 break;
         }
     }
@@ -623,35 +664,36 @@ public class SignUpActivity extends Activity implements View.OnClickListener
         drawable = DrawableCompat.wrap(drawable);
         DrawableCompat.setTint(drawable, Color.parseColor(PreferenceHelper.getAppColor(context)));
     }
-    public void showDialogUserAgreement(){
+
+    public void showDialogUserAgreement()
+    {
         final EasyDialog dialog = new EasyDialog(context);
         View view = getLayoutInflater().inflate(R.layout.user_agreement_dialog, null);
         view.setLayoutParams(new RelativeLayout.LayoutParams(Helper.getDeviceWidth(SignUpActivity.this) / 2, ViewGroup.LayoutParams.WRAP_CONTENT));
 
         LinearLayout linearParent = (LinearLayout) view.findViewById(R.id.parentLayout);
         Helper.setupTypeface(linearParent, Helper.robotoRegularTypeface);
-        TextView cancel= (TextView)view.findViewById(R.id.txt_user_agreement_cancel);
-        RelativeLayout UserAgreement = (RelativeLayout) view.findViewById(R.id.btn_user_agreement);
-        final RelativeLayout UserPrivacyPolicy = (RelativeLayout) view.findViewById(R.id.btn_user_privacy_policy);
+        TextView cancel = (TextView) view.findViewById(R.id.txt_user_agreement_cancel);
+        TextView btn_user_agreement = (TextView) view.findViewById(R.id.btn_user_agreement);
+        TextView btn_user_privacy_policy = (TextView) view.findViewById(R.id.btn_user_privacy_policy);
 
-        UserAgreement.setOnClickListener(new View.OnClickListener()
+        btn_user_agreement.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View v)
             {
                 dialog.dismiss();
+                openUserAgreementURL();
             }
-
-
         });
-        UserPrivacyPolicy.setOnClickListener(new View.OnClickListener()
+        btn_user_privacy_policy.setOnClickListener(new View.OnClickListener()
         {
 
             @Override
             public void onClick(View v)
             {
-
                 dialog.dismiss();
+                openPrivacyPolicyURL();
             }
         });
         cancel.setOnClickListener(new View.OnClickListener()
@@ -663,13 +705,34 @@ public class SignUpActivity extends Activity implements View.OnClickListener
             }
         });
         dialog.setLayout(view)
-                .setGravity(EasyDialog.GRAVITY_RIGHT)
+
                 .setBackgroundColor(context.getResources().getColor(R.color.white1))
                 .setLocationByAttachedView(textViewUserAgreement)
                 .setTouchOutsideDismiss(true)
-                .setMatchParent(false)
-                .show();
+                .setMatchParent(false);
+        /*if (getResources().getBoolean(R.bool.isTablet))
+        {
+            dialog.setGravity(EasyDialog.GRAVITY_RIGHT);
+        }
+        else
+        {
+            dialog.setGravity(EasyDialog.GRAVITY_BOTTOM);
+        }*/
+        dialog.setGravity(EasyDialog.GRAVITY_BOTTOM);
+        dialog.show();
 
+    }
+
+    public void openUserAgreementURL()
+    {
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.smaccloud.com/terms-and-conditions/"));
+        startActivity(browserIntent);
+    }
+
+    public void openPrivacyPolicyURL()
+    {
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.smaccloud.com/privacy-policy/"));
+        startActivity(browserIntent);
     }
 
 }
